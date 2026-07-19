@@ -9,6 +9,38 @@
         <link rel="stylesheet" href="builder.css">
 
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+        <!-- Theme Initializer -->
+        <script>
+            (function() {
+                const savedTheme = localStorage.getItem("theme") || "dark";
+                document.documentElement.setAttribute("data-theme", savedTheme);
+                const observer = new MutationObserver(() => {
+                    if (document.body) {
+                        document.body.setAttribute("data-theme", savedTheme);
+                        observer.disconnect();
+                    }
+                });
+                observer.observe(document.documentElement, { childList: true, subtree: true });
+            })();
+        </script>
+
+        <!-- Supabase JS Library & Initialization -->
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <script>
+            (function() {
+                try {
+                    if (window.supabase && typeof window.supabase.createClient === 'function') {
+                        const client = window.supabase.createClient('https://fwupeplirgbyujdpzsyk.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3dXBlcGxpcmdieXVqZHB6c3lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzNTI0MzMsImV4cCI6MjA5OTkyODQzM30.jpi6dvHuMPA4SAaadido8V51AiwfGbqvoGdshJvlpxY');
+                        window.supabase = client;
+                    } else {
+                        console.error("Supabase CDN failed to load properly.");
+                    }
+                } catch (error) {
+                    console.error("Error initializing Supabase client:", error);
+                }
+            })();
+        </script>
     </head>
     <body>
 
@@ -21,9 +53,11 @@
 
         <div class="header-right">
 
-            <button class="back-btn">
+            <button class="back-btn" style="margin-right: 15px;">
                 ← Back
             </button>
+            
+            <div class="nav-actions" id="builderNavActions" style="display: inline-block;"></div>
 
         </div>
 
@@ -549,6 +583,7 @@
             <h2 id="templateTitle"></h2>
 
             <ul id="templateFeatures" class="template-features"></ul>
+
             <button id="chooseTemplateBtn" class="choose-btn">
                 Choose Template
             </button>

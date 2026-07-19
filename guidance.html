@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Career Guidance - GPT Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Theme Initializer -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem("theme") || "dark";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+            const observer = new MutationObserver(() => {
+                if (document.body) {
+                    document.body.setAttribute("data-theme", savedTheme);
+                    observer.disconnect();
+                }
+            });
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+        })();
+    </script>
+    
+    <!-- Supabase JS Library & Initialization -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        (function() {
+            try {
+                if (window.supabase && typeof window.supabase.createClient === 'function') {
+                    const client = window.supabase.createClient('https://fwupeplirgbyujdpzsyk.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3dXBlcGxpcmdieXVqZHB6c3lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzNTI0MzMsImV4cCI6MjA5OTkyODQzM30.jpi6dvHuMPA4SAaadido8V51AiwfGbqvoGdshJvlpxY');
+                    window.supabase = client;
+                } else {
+                    console.error("Supabase CDN failed to load properly.");
+                }
+            } catch (error) {
+                console.error("Error initializing Supabase client:", error);
+            }
+        })();
+    </script>
+
+    <!-- Auth Guard: Quick client check after DOM is ready -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            if (localStorage.getItem("isLoggedIn") !== "true") {
+                alert("Access Denied: Please sign in to access Career Guidance.");
+                window.location.href = "index.html";
+            }
+        });
+    </script>
+
+    <style>
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 40px;
+            margin-top: 30px;
+        }
+
+        .workspace-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .workspace-card h2 {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .form-select, .form-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+
+        .form-select:focus, .form-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .skills-selector-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .skill-checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .skill-checkbox-wrapper:hover {
+            border-color: var(--accent-blue);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .skill-checkbox-wrapper input {
+            cursor: pointer;
+            accent-color: var(--accent-blue);
+        }
+
+        .btn-submit-goal {
+            background: var(--accent-blue);
+            color: #000;
+            font-weight: 700;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        .btn-submit-goal:hover {
+            transform: scale(1.02);
+            opacity: 0.95;
+        }
+
+        .goal-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .goal-item-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            transition: border-color 0.2s;
+        }
+
+        .goal-item-card:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .goal-item-card h3 {
+            font-size: 1.15rem;
+            margin-bottom: 6px;
+            color: #fff;
+        }
+
+        .goal-item-card .salary-tag {
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .goal-item-card .date-tag {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .goal-item-card .skills-list-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .skill-tag {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-blue);
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        .btn-delete-goal {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            transition: opacity 0.2s;
+        }
+
+        .btn-delete-goal:hover {
+            text-decoration: underline;
+            opacity: 0.8;
+        }
+
+        .empty-history {
+            text-align: center;
+            color: #64748b;
+            padding: 40px 0;
+            font-size: 0.95rem;
+        }
+
+        /* Timeline Roadmap styles */
+        .roadmap-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(168, 85, 247, 0.03);
+            border: 1px solid rgba(168, 85, 247, 0.1);
+            border-radius: 16px;
+        }
+
+        .roadmap-timeline {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-top: 25px;
+        }
+
+        .roadmap-timeline::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 5%;
+            width: 90%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 1;
+        }
+
+        .timeline-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            width: 25%;
+            text-align: center;
+        }
+
+        .step-circle {
+            width: 32px;
+            height: 32px;
+            background: #0f172a;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+
+        .timeline-step.active .step-circle {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: #000;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .step-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .timeline-step.active .step-label {
+            color: #fff;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-slider">
+        <div class="slide active" style="background-image: url('HTML/image1.jpg');"></div>
+        <div class="overlay-scrim"></div>
+    </div>
+
+    <header class="navbar">
+        <div class="logo"><span class="logo-dot"></span>GPT HUB</div>
+        <nav class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="#" class="active">Career Guidance</a>
+            <a href="builder.html">Resume Builder</a>
+        </nav>
+        <div class="nav-actions">
+            <div class="user-profile-container" id="navUserArea">
+                <!-- Dynamically populated avatar & email -->
+            </div>
+        </div>
+    </header>
+
+    <main class="main-wrapper">
+        <section class="hero-intro" style="margin-bottom: 30px;">
+            <div class="badge">🚀 AI Career Roadmap Mapping Engine</div>
+            <h1 class="hero-title" style="font-size: 2.8rem;">AI Career <span class="gradient-box" style="background: #3c0c54;">Guidance Portal</span></h1>
+            <p class="hero-subtitle">Define your target professional role, catalog required skills, and persist career trajectory goals directly to Supabase.</p>
+        </section>
+
+        <div class="dashboard-grid">
+            <!-- Left Side: Goal Setup Form -->
+            <div class="workspace-card">
+                <h2>🎯 Setup Career Goal</h2>
+                <form id="careerGoalForm">
+                    <label class="form-label" for="targetRole">Target Job Role</label>
+                    <select id="targetRole" class="form-select" required>
+                        <option value="" disabled selected>Select Target Career Role</option>
+                        <option value="Full-Stack Web Developer">Full-Stack Web Developer</option>
+                        <option value="AI / ML Engineer">AI / ML Engineer</option>
+                        <option value="Data Analyst / Scientist">Data Analyst / Scientist</option>
+                        <option value="DevOps & Cloud Engineer">DevOps & Cloud Engineer</option>
+                        <option value="Product Manager">Product Manager</option>
+                    </select>
+
+                    <label class="form-label" for="targetSalary">Target Annual Salary Range</label>
+                    <select id="targetSalary" class="form-select" required>
+                        <option value="" disabled selected>Select Salary Benchmark</option>
+                        <option value="$60,000 - $80,000">$60,000 - $80,000</option>
+                        <option value="$80,000 - $110,000">$80,000 - $110,000</option>
+                        <option value="$110,000 - $150,000">$110,000 - $150,000</option>
+                        <option value="$150,000 - $200,000">$150,000 - $200,000</option>
+                        <option value="$200,000+">$200,000+</option>
+                    </select>
+
+                    <label class="form-label">Core Target Skill Sets (Select all you want to build)</label>
+                    <div class="skills-selector-grid" id="skillsSelectorContainer">
+                        <!-- Populated dynamically based on role -->
+                        <div style="grid-column: 1 / -1; text-align: center; color:#64748b; font-size: 0.9rem; padding: 10px;">
+                            Please select a target role above to view matching skill catalog.
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit-goal" id="submitGoalBtn">Save Career Goal to Supabase</button>
+                </form>
+
+                <div class="roadmap-container">
+                    <h4 style="font-weight: 700; color: #a855f7; display: flex; align-items: center; gap: 8px;">
+                        <span>📍</span> Trajectory Milestone Roadmap
+                    </h4>
+                    <div class="roadmap-timeline">
+                        <div class="timeline-step active">
+                            <div class="step-circle">1</div>
+                            <span class="step-label">Associate</span>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="step-circle">2</div>
+                            <span class="step-label">Mid-Level</span>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="step-circle">3</div>
+                            <span class="step-label">Senior Specialist</span>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="step-circle">4</div>
+                            <span class="step-label">Principal/Lead</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Goal History Log -->
+            <div class="workspace-card">
+                <h2>📂 Saved Career Goal Records</h2>
+                <div class="goal-history-list" id="goalHistoryList">
+                    <div class="empty-history">
+                        Fetching your saved goals from Supabase Database...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const supabase = window.supabase;
+
+            // Set nav user email badge and profile avatar
+            const userEmail = localStorage.getItem("userEmail") || "User Account";
+            const navUserArea = document.getElementById("navUserArea");
+
+            if (navUserArea) {
+                navUserArea.innerHTML = `
+                    <span style="font-weight: 600; color: #fff; margin-right: 15px; font-size: 0.95rem;">${userEmail}</span>
+                    <button class="btn-login" id="navSignOutBtn" style="background:#ef4444; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600;">Sign Out</button>
+                `;
+            }
+
+            const navSignOutBtn = document.getElementById("navSignOutBtn");
+            if (navSignOutBtn) {
+                navSignOutBtn.addEventListener("click", async (e) => {
+                    localStorage.removeItem("isLoggedIn");
+                    localStorage.removeItem("userEmail");
+                    localStorage.removeItem("userName");
+                    localStorage.removeItem("userAvatar");
+                    if (supabase && typeof supabase.auth !== 'undefined') {
+                        try {
+                            await supabase.auth.signOut();
+                        } catch (err) {
+                            console.error("Sign out error:", err);
+                        }
+                    }
+                    window.location.href = "index.html";
+                });
+            }
+
+            // Skills Catalog mapping for dynamic DOM render
+            const skillsCatalog = {
+                "Full-Stack Web Developer": ["React / Next.js", "Node.js / Express", "Supabase & Postgres", "Tailwind CSS", "TypeScript", "REST & GraphQL APIs"],
+                "AI / ML Engineer": ["Python & PyTorch", "Model Fine-tuning", "Vector Databases", "Prompt Engineering", "TensorFlow", "Scikit-Learn"],
+                "Data Analyst / Scientist": ["SQL (Advanced)", "Pandas & NumPy", "Tableau & PowerBI", "Statistical Modeling", "R Programming", "Data Warehousing"],
+                "DevOps & Cloud Engineer": ["Docker & Kubernetes", "AWS / GCP Infrastructure", "CI/CD Pipelines", "Terraform (IaC)", "Linux System Administration", "Prometheus & Grafana"],
+                "Product Manager": ["Product Roadmap Design", "Agile & Scrum Methodology", "User Research & A/B Testing", "Figma Design Basics", "Product Metrics Analytics", "Stakeholder Communication"]
+            };
+
+            const targetRoleSelect = document.getElementById("targetRole");
+            const skillsSelectorContainer = document.getElementById("skillsSelectorContainer");
+
+            // Dynamic skill catalog injection based on target role
+            targetRoleSelect.addEventListener("change", () => {
+                const selectedRole = targetRoleSelect.value;
+                const skills = skillsCatalog[selectedRole] || [];
+
+                skillsSelectorContainer.innerHTML = "";
+                skills.forEach(skill => {
+                    const label = document.createElement("label");
+                    label.className = "skill-checkbox-wrapper";
+                    label.innerHTML = `
+                        <input type="checkbox" name="selectedSkills" value="${skill}">
+                        <span style="font-size: 0.85rem; font-weight: 500;">${skill}</span>
+                    `;
+                    skillsSelectorContainer.appendChild(label);
+                });
+
+                // Update timeline status active markers based on chosen option for micro-interaction
+                const steps = document.querySelectorAll(".timeline-step");
+                steps.forEach((step, idx) => {
+                    if (idx <= 1) {
+                        step.classList.add("active");
+                    } else {
+                        step.classList.remove("active");
+                    }
+                });
+            });
+
+            const careerGoalForm = document.getElementById("careerGoalForm");
+            const submitGoalBtn = document.getElementById("submitGoalBtn");
+
+            // Form Submit: Save Target Role to Supabase (Database INSERT)
+            careerGoalForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const role = targetRoleSelect.value;
+                const salary = document.getElementById("targetSalary").value;
+                const checkboxes = document.querySelectorAll('input[name="selectedSkills"]:checked');
+                const selectedSkills = Array.from(checkboxes).map(cb => cb.value);
+
+                if (selectedSkills.length === 0) {
+                    alert("⚠️ Please select at least one skill check.");
+                    return;
+                }
+
+                submitGoalBtn.disabled = true;
+                submitGoalBtn.textContent = "Writing to Supabase...";
+
+                try {
+                    const { data, error } = await supabase
+                        .from("career_guidance")
+                        .insert([{
+                            email: userEmail,
+                            target_role: role,
+                            skills: selectedSkills,
+                            target_salary: salary
+                        }]);
+
+                    if (error) throw error;
+
+                    alert("✅ Career Goal saved successfully to Supabase!");
+                    
+                    // Reset Form and reload list
+                    careerGoalForm.reset();
+                    skillsSelectorContainer.innerHTML = `
+                        <div style="grid-column: 1 / -1; text-align: center; color:#64748b; font-size: 0.9rem; padding: 10px;">
+                            Please select a target role above to view matching skill catalog.
+                        </div>
+                    `;
+                    // Reset timeline
+                    document.querySelectorAll(".timeline-step").forEach((step, idx) => {
+                        if (idx > 0) step.classList.remove("active");
+                    });
+
+                    await fetchSavedGoals();
+
+                } catch (err) {
+                    console.error("Supabase Save Error:", err);
+                    alert("❌ Failed to save goal: " + (err.message || "Public INSERT policy configuration issue."));
+                } finally {
+                    submitGoalBtn.disabled = false;
+                    submitGoalBtn.textContent = "Save Career Goal to Supabase";
+                }
+            });
+
+            const goalHistoryList = document.getElementById("goalHistoryList");
+
+            // Fetch Goals from Supabase (Database SELECT)
+            async function fetchSavedGoals() {
+                try {
+                    const { data: goals, error } = await supabase
+                        .from("career_guidance")
+                        .select("*")
+                        .eq("email", userEmail)
+                        .order("created_at", { ascending: false });
+
+                    if (error) throw error;
+
+                    goalHistoryList.innerHTML = "";
+
+                    if (!goals || goals.length === 0) {
+                        goalHistoryList.innerHTML = `
+                            <div class="empty-history">
+                                No saved goals found. Create your first target profile on the left!
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    goals.forEach(goal => {
+                        const date = new Date(goal.created_at).toLocaleDateString(undefined, {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                        });
+
+                        const card = document.createElement("div");
+                        card.className = "goal-item-card";
+                        
+                        // Dynamic skills tag builder
+                        const skillTagsHtml = (goal.skills || [])
+                            .map(skill => `<span class="skill-tag">${skill}</span>`)
+                            .join("");
+
+                        card.innerHTML = `
+                            <span class="date-tag">${date}</span>
+                            <h3>${goal.target_role} <span class="salary-tag">${goal.target_salary}</span></h3>
+                            <div class="skills-list-tags">${skillTagsHtml}</div>
+                            <button class="btn-delete-goal" data-id="${goal.id}">Delete Record</button>
+                        `;
+
+                        // Add delete action to delete button
+                        card.querySelector(".btn-delete-goal").addEventListener("click", async (e) => {
+                            const goalId = e.target.getAttribute("data-id");
+                            if (confirm("Are you sure you want to delete this career goal from Supabase?")) {
+                                try {
+                                    const { error: delError } = await supabase
+                                        .from("career_guidance")
+                                        .delete()
+                                        .eq("id", goalId);
+
+                                    if (delError) throw delError;
+
+                                    alert("🗑️ Record deleted successfully.");
+                                    await fetchSavedGoals();
+                                } catch (delErr) {
+                                    console.error("Delete Error:", delErr);
+                                    alert("❌ Failed to delete record: " + delErr.message);
+                                }
+                            }
+                        });
+
+                        goalHistoryList.appendChild(card);
+                    });
+
+                } catch (err) {
+                    console.error("Fetch Goals Error:", err);
+                    goalHistoryList.innerHTML = `
+                        <div class="empty-history" style="color: #ef4444;">
+                            ⚠️ Failed to retrieve records: ${err.message || "Supabase SELECT policy or table missing."}
+                        </div>
+                    `;
+                }
+            }
+
+            // Initial load of history
+            fetchSavedGoals();
+        });
+    </script>
+</body>
+</html>
