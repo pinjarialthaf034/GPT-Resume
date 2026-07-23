@@ -28,126 +28,460 @@ let photographer_resume_data = {
 };
 
 // ==========================================
+// CORE UI LOADING STATE HELPER
+// ==========================================
+async function executeWithLoadingState(buttonElement, actionCallback) {
+    if (!buttonElement) {
+        await actionCallback();
+        return;
+    }
+    const originalText = buttonElement.innerHTML;
+    try {
+        buttonElement.disabled = true;
+        buttonElement.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+        await actionCallback();
+    } catch (err) {
+        console.error("Error in executeWithLoadingState:", err);
+        showToast(`AI Generation failed: ${err.message}`, "error");
+    } finally {
+        buttonElement.disabled = false;
+        buttonElement.innerHTML = originalText;
+    }
+}
+
+// ==========================================
 // INITIAL EVENT HANDLERS BINDINGS
 // ==========================================
-document.addEventListener("DOMContentLoaded", () => {
-    // 1. Text Inputs Binding
-    document.getElementById("nameInput").addEventListener("input", (e) => { photographer_resume_data.name = e.target.value; renderPreview(); triggerAutosave(); });
-    document.getElementById("roleInput").addEventListener("input", (e) => { photographer_resume_data.role = e.target.value; renderPreview(); triggerAutosave(); });
-    document.getElementById("phoneInput").addEventListener("input", (e) => { photographer_resume_data.phone = e.target.value; renderPreview(); triggerAutosave(); });
-    document.getElementById("emailInput").addEventListener("input", (e) => { photographer_resume_data.email = e.target.value; renderPreview(); triggerAutosave(); });
-    document.getElementById("linkedinInput").addEventListener("input", (e) => { photographer_resume_data.linkedin = e.target.value; renderPreview(); triggerAutosave(); });
-    document.getElementById("addressInput").addEventListener("input", (e) => { photographer_resume_data.address = e.target.value; renderPreview(); triggerAutosave(); });
-    document.getElementById("summaryInput").addEventListener("input", (e) => { photographer_resume_data.summary = e.target.value; renderPreview(); triggerAutosave(); });
-    document.getElementById("assistantInput").addEventListener("input", (e) => { photographer_resume_data.assistant = e.target.value; renderPreview(); triggerAutosave(); });
+// ==========================================
+// PRE-POPULATE DEMO DATA ENGINE / FALLBACKS
+// ==========================================
+function populateDefaultValuesIfEmpty() {
+    try {
+        const previewName = document.getElementById("previewName")?.textContent.trim();
+        const previewRole = document.getElementById("previewRole")?.textContent.trim();
+        const previewSummary = document.getElementById("previewSummary")?.textContent.trim();
 
-    document.getElementById("skillsInput").addEventListener("input", (e) => {
-        photographer_resume_data.skills = e.target.value.split(",").map(s => s.trim()).filter(s => s !== "");
-        renderPreview();
-        triggerAutosave();
-    });
+        if (!photographer_resume_data.name) {
+            photographer_resume_data.name = (previewName && previewName !== "Full Name" && previewName !== "Name") ? previewName : "Rufus Stewart";
+        }
+        if (!photographer_resume_data.role) {
+            photographer_resume_data.role = (previewRole && previewRole !== "Job Role" && previewRole !== "Role") ? previewRole : "Photographer";
+        }
+        if (!photographer_resume_data.summary) {
+            photographer_resume_data.summary = (previewSummary && previewSummary !== "Summary") ? previewSummary : "My name is Rufus Stewart. I am born in California on 10 oct 1991, I am a professional photographer who have been working in several different companies. I love to travel and capture stories.";
+        }
+        if (!photographer_resume_data.skills || photographer_resume_data.skills.length === 0) {
+            photographer_resume_data.skills = ["Studio Lighting", "Adobe Lightroom", "Image Editing", "Font Design", "Marketing & Brand Strategy"];
+        }
+        if (!photographer_resume_data.experience || photographer_resume_data.experience.length === 0) {
+            photographer_resume_data.experience = [
+                {
+                    id: "exp-1",
+                    title: "Senior Photographer",
+                    company: "Thynk Unlimited",
+                    dates: "2009 - 2014",
+                    desc: "• Managed photography schedules matching corporate requests."
+                },
+                {
+                    id: "exp-2",
+                    title: "Senior Photographer",
+                    company: "Fauget & Co.",
+                    dates: "2014 - 2016",
+                    desc: "• Delivered high-quality prints and handled post-production."
+                }
+            ];
+        }
+        if (!photographer_resume_data.education || photographer_resume_data.education.length === 0) {
+            photographer_resume_data.education = [
+                {
+                    id: "edu-1",
+                    degree: "Bachelor of Art and Design",
+                    institution: "Borcelle University",
+                    dates: "2005 - 2009",
+                    desc: "Specialized in Creative Media and Digital Photography."
+                },
+                {
+                    id: "edu-2",
+                    degree: "Master of Art and Design",
+                    institution: "Rimberio Co",
+                    dates: "2012 - 2015",
+                    desc: "Focus on photojournalism and advanced lighting."
+                }
+            ];
+        }
+    } catch (e) {
+        console.error("Error populating default values:", e);
+    }
+}
 
-    // 2. Photo Upload Binding
-    const photoInput = document.getElementById("photoInput");
-    if (photoInput) {
-        photoInput.addEventListener("change", (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const imageURL = URL.createObjectURL(file);
-                document.getElementById("previewPhoto").src = imageURL;
+function prefillFormInputs() {
+    try {
+        const fields = [
+            { id: "nameInput", value: "Rufus Stewart", prop: "name" },
+            { id: "roleInput", value: "Photographer", prop: "role" },
+            { id: "phoneInput", value: "+1 234 567 890", prop: "phone" },
+            { id: "emailInput", value: "rufus@example.com", prop: "email" },
+            { id: "linkedinInput", value: "linkedin.com/in/rufus", prop: "linkedin" },
+            { id: "addressInput", value: "California, USA", prop: "address" }
+        ];
+
+        fields.forEach(field => {
+            const input = document.getElementById(field.id);
+            if (input) {
+                if (!input.value.trim()) {
+                    input.value = field.value;
+                }
+                photographer_resume_data[field.prop] = input.value;
+
+                // Trigger the input event to render on preview
+                const event = new Event("input", { bubbles: true });
+                input.dispatchEvent(event);
             }
         });
+    } catch (e) {
+        console.error("Error prefilling form inputs:", e);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. Text Inputs Binding (Safe check + dual keyup/input listeners wrapped in try-catch)
+    const bindHelper = (id, prop) => {
+        try {
+            const el = document.getElementById(id);
+            if (el) {
+                const handler = (e) => {
+                    try {
+                        photographer_resume_data[prop] = e.target.value;
+                        debouncedRenderPreview();
+                        triggerAutosave();
+                    } catch (err) {
+                        console.error(`Error in event listener handler for ${id}:`, err);
+                    }
+                };
+                el.addEventListener("input", handler);
+                el.addEventListener("keyup", handler);
+            }
+        } catch (err) {
+            console.error(`Error setting up event listener for ${id}:`, err);
+        }
+    };
+
+    bindHelper("nameInput", "name");
+    bindHelper("roleInput", "role");
+    bindHelper("phoneInput", "phone");
+    bindHelper("emailInput", "email");
+    bindHelper("linkedinInput", "linkedin");
+    bindHelper("addressInput", "address");
+    bindHelper("summaryInput", "summary");
+    bindHelper("assistantInput", "assistant");
+
+    try {
+        const skillsInput = document.getElementById("skillsInput");
+        if (skillsInput) {
+            const handler = (e) => {
+                try {
+                    photographer_resume_data.skills = e.target.value.split(",").map(s => s.trim()).filter(s => s !== "");
+                    debouncedRenderPreview();
+                    triggerAutosave();
+                } catch (err) {
+                    console.error("Error in skillsInput handler:", err);
+                }
+            };
+            skillsInput.addEventListener("input", handler);
+            skillsInput.addEventListener("keyup", handler);
+        }
+    } catch (err) {
+        console.error("Error setting up skillsInput listener:", err);
+    }
+
+    // 2. Photo Upload Binding
+    try {
+        const photoInput = document.getElementById("photoInput");
+        if (photoInput) {
+            photoInput.addEventListener("change", (e) => {
+                try {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const imageURL = URL.createObjectURL(file);
+                        const previewPhoto = document.getElementById("previewPhoto");
+                        if (previewPhoto) {
+                            previewPhoto.onload = () => {
+                                URL.revokeObjectURL(imageURL);
+                            };
+                            previewPhoto.src = imageURL;
+                        }
+                    }
+                } catch (err) {
+                    console.error("Error in photoInput change handler:", err);
+                }
+            });
+        }
+    } catch (err) {
+        console.error("Error setting up photoInput listener:", err);
     }
 
     // 3. Repeatable Fields Buttons Bindings
-    document.getElementById("addExperienceBtn").addEventListener("click", () => {
-        photographer_resume_data.experience.push({
-            id: "exp-" + Date.now(),
-            title: "",
-            company: "",
-            dates: "",
-            desc: ""
-        });
-        renderExperienceCards();
-        renderPreview();
-        triggerAutosave();
-    });
+    try {
+        const addExperienceBtn = document.getElementById("addExperienceBtn");
+        if (addExperienceBtn) {
+            addExperienceBtn.addEventListener("click", () => {
+                try {
+                    photographer_resume_data.experience.push({
+                        id: generateSafeId("exp"),
+                        title: "",
+                        company: "",
+                        dates: "",
+                        desc: ""
+                    });
+                    renderExperienceCards();
+                    renderPreview();
+                    triggerAutosave();
+                } catch (err) {
+                    console.error("Error adding experience:", err);
+                }
+            });
+        }
+    } catch (err) {
+        console.error("Error setting up addExperienceBtn listener:", err);
+    }
 
-    document.getElementById("addEducationBtn").addEventListener("click", () => {
-        photographer_resume_data.education.push({
-            id: "edu-" + Date.now(),
-            degree: "",
-            institution: "",
-            dates: "",
-            desc: ""
-        });
-        renderEducationCards();
-        renderPreview();
-        triggerAutosave();
-    });
+    try {
+        const addEducationBtn = document.getElementById("addEducationBtn");
+        if (addEducationBtn) {
+            addEducationBtn.addEventListener("click", () => {
+                try {
+                    photographer_resume_data.education.push({
+                        id: generateSafeId("edu"),
+                        degree: "",
+                        institution: "",
+                        dates: "",
+                        desc: ""
+                    });
+                    renderEducationCards();
+                    renderPreview();
+                    triggerAutosave();
+                } catch (err) {
+                    console.error("Error adding education:", err);
+                }
+            });
+        }
+    } catch (err) {
+        console.error("Error setting up addEducationBtn listener:", err);
+    }
 
     // 4. Customizer Theme Swatches binding
-    const swatches = document.querySelectorAll(".color-swatch");
-    swatches.forEach(swatch => {
-        swatch.addEventListener("click", () => {
-            swatches.forEach(s => s.classList.remove("active"));
-            swatch.classList.add("active");
-            const color = swatch.getAttribute("data-color");
-            applyHeaderColor(color);
+    try {
+        const swatches = document.querySelectorAll(".color-swatch");
+        swatches.forEach(swatch => {
+            swatch.addEventListener("click", () => {
+                try {
+                    swatches.forEach(s => s.classList.remove("active"));
+                    swatch.classList.add("active");
+                    const color = swatch.getAttribute("data-color");
+                    applyHeaderColor(color);
+                } catch (err) {
+                    console.error("Error in color swatch click handler:", err);
+                }
+            });
         });
-    });
+    } catch (err) {
+        console.error("Error setting up swatches listeners:", err);
+    }
 
     // 5. Customizer Font Switcher binding
-    const fontSelector = document.getElementById("fontSelector");
-    if (fontSelector) {
-        fontSelector.addEventListener("change", (e) => {
-            const font = e.target.value;
-            applyFont(font);
-        });
+    try {
+        const fontSelector = document.getElementById("fontSelector");
+        if (fontSelector) {
+            fontSelector.addEventListener("change", (e) => {
+                try {
+                    const font = e.target.value;
+                    applyFont(font);
+                } catch (err) {
+                    console.error("Error in fontSelector change handler:", err);
+                }
+            });
+        }
+    } catch (err) {
+        console.error("Error setting up fontSelector listener:", err);
     }
 
     // 6. Stepper Circle Clicks for Direct Navigation
-    const stepNodes = document.querySelectorAll(".step-node");
-    stepNodes.forEach(node => {
-        node.addEventListener("click", () => {
-            const stepNum = parseInt(node.getAttribute("data-step"));
-            jumpToStep(stepNum);
+    try {
+        const stepNodes = document.querySelectorAll(".step-node");
+        stepNodes.forEach(node => {
+            node.addEventListener("click", () => {
+                try {
+                    const stepNum = parseInt(node.getAttribute("data-step"));
+                    jumpToStep(stepNum);
+                } catch (err) {
+                    console.error("Error in stepNode click handler:", err);
+                }
+            });
         });
-    });
+    } catch (err) {
+        console.error("Error setting up stepNodes listeners:", err);
+    }
 
     // 7. AI Tools Bindings
-    document.getElementById("aiGenerateSummaryBtn").addEventListener("click", handleAISummary);
-    document.getElementById("aiSuggestAssistantBulletsBtn").addEventListener("click", handleAIAssistant);
+    try {
+        const aiGenerateSummaryBtn = document.getElementById("aiGenerateSummaryBtn");
+        if (aiGenerateSummaryBtn) {
+            aiGenerateSummaryBtn.addEventListener("click", handleAISummary);
+        }
+    } catch (err) {
+        console.error("Error setting up aiGenerateSummaryBtn listener:", err);
+    }
 
-    // Skill Chips Click Bindings (Preventing Duplicates)
-    document.querySelectorAll(".skill-chip").forEach(chip => {
-        chip.addEventListener("click", () => {
-            const skillName = chip.getAttribute("data-skill").trim();
-            const normalizedSkills = photographer_resume_data.skills.map(s => s.trim().toLowerCase());
+    try {
+        const aiSuggestAssistantBulletsBtn = document.getElementById("aiSuggestAssistantBulletsBtn");
+        if (aiSuggestAssistantBulletsBtn) {
+            aiSuggestAssistantBulletsBtn.addEventListener("click", handleAIAssistant);
+        }
+    } catch (err) {
+        console.error("Error setting up aiSuggestAssistantBulletsBtn listener:", err);
+    }
 
-            if (!normalizedSkills.includes(skillName.toLowerCase())) {
-                photographer_resume_data.skills.push(skillName);
-                document.getElementById("skillsInput").value = photographer_resume_data.skills.join(", ");
-                renderPreview();
-                triggerAutosave();
-            }
-        });
-    });
+    // Clear hardcoded skill chips and set up dynamic AI suggest button
+    try {
+        const suggestedChipsContainer = document.getElementById("suggestedSkillChips");
+        if (suggestedChipsContainer) {
+            suggestedChipsContainer.innerHTML = `<p style="font-size: 0.85rem; opacity: 0.7; font-style: italic; margin: 5px 0;">Click the button below to generate customized skills for your profile.</p>`;
+        }
+    } catch (err) {
+        console.error("Error setting up suggested chips container:", err);
+    }
+
+    try {
+        const chipsWrapper = document.querySelector(".ai-chips-wrapper");
+        if (chipsWrapper) {
+            const suggestBtn = document.createElement("button");
+            suggestBtn.type = "button";
+            suggestBtn.id = "aiSuggestSkillsBtn";
+            suggestBtn.className = "btn-ai-action";
+            suggestBtn.style.marginTop = "10px";
+            suggestBtn.innerHTML = "✨ AI Generate Suggested Skills";
+            suggestBtn.addEventListener("click", window.generateAISkills);
+            chipsWrapper.appendChild(suggestBtn);
+        }
+    } catch (err) {
+        console.error("Error setting up suggestBtn wrapper:", err);
+    }
 
     // Load drafts or defaults
     loadSavedResume().then(() => {
-        if (!photographer_resume_data.experience.length && !photographer_resume_data.education.length) {
-            loadSampleData();
-        } else {
+        try {
+            populateDefaultValuesIfEmpty();
             syncStateToForm();
+            prefillFormInputs();
             renderExperienceCards();
             renderEducationCards();
             renderPreview();
+        } catch (err) {
+            console.error("Error during loadSavedResume follow-up sequence:", err);
         }
+    }).catch(err => {
+        console.error("Error in loadSavedResume promise rejection:", err);
     });
 
-    updateStepperUI();
+    try {
+        updateStepperUI();
+    } catch (err) {
+        console.error("Error running updateStepperUI during load:", err);
+    }
+
+    // Force attach click event listener to EVERY button containing 'Continue', 'Next', or having navigation classes
+    try {
+        document.querySelectorAll('button').forEach(btn => {
+            const btnText = btn.textContent.trim().toLowerCase();
+            const hasNextClass = btn.classList.contains('next-btn') || btn.classList.contains('continue-btn') || btn.classList.contains('btn-next');
+            if (btnText.includes('continue') || btnText.includes('next') || hasNextClass) {
+                btn.type = 'button';
+                btn.removeAttribute('onclick');
+                btn.addEventListener('click', (e) => {
+                    try {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.nextStep();
+                    } catch (err) {
+                        console.error("Error in brute force next step click listener:", err);
+                    }
+                });
+            }
+
+            const hasBackClass = btn.classList.contains('back-btn') || btn.classList.contains('btn-back');
+            if (btnText.includes('back') || hasBackClass) {
+                btn.type = 'button';
+                btn.removeAttribute('onclick');
+                btn.addEventListener('click', (e) => {
+                    try {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.prevStep();
+                    } catch (err) {
+                        console.error("Error in brute force back click listener:", err);
+                    }
+                });
+            }
+        });
+    } catch (e) {
+        console.error("Error binding brute force button listeners:", e);
+    }
 });
+
+// ==========================================
+// SECURITY & DATA INTEGRITY HELPERS
+// ==========================================
+function escapeHTML(str) {
+    if (typeof str !== 'string') return str || '';
+    return str.replace(/[&<>'"]/g, 
+        tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag] || tag)
+    );
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+    };
+}
+
+const debouncedRenderPreview = debounce(renderPreview, 150);
+
+function isValidEmail(email) {
+    if (!email) return true;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isValidPhone(phone) {
+    if (!phone) return true;
+    return /^\+?[0-9\s\-()]{7,20}$/.test(phone);
+}
+
+function isValidURL(url) {
+    if (!url) return true;
+    try {
+        const formatted = url.match(/^https?:\/\//) ? url : 'http://' + url;
+        new URL(formatted);
+        return true;
+    } catch (_) {
+        return false;
+    }
+}
+
+function generateSafeId(prefix) {
+    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+        return prefix + "-" + crypto.randomUUID();
+    }
+    return prefix + "-" + Math.random().toString(36).substr(2, 9);
+}
 
 // ==========================================
 // TOAST NOTIFICATIONS UTILITY
@@ -164,7 +498,7 @@ function showToast(message, type = "info") {
     else if (type === "error") icon = "fa-times-circle";
     else if (type === "success") icon = "fa-check-circle";
 
-    toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+    toast.innerHTML = `<i class="fa-solid ${escapeHTML(icon)}"></i> <span>${escapeHTML(message)}</span>`;
     container.appendChild(toast);
 
     // Trigger transition
@@ -181,131 +515,209 @@ function showToast(message, type = "info") {
 // DYNAMIC COMPONENT RENDER ENGINE
 // ==========================================
 function renderPreview() {
-    // 1. Contact info
-    document.getElementById("previewName").textContent = photographer_resume_data.name || "Full Name";
-    document.getElementById("previewRole").textContent = photographer_resume_data.role || "Job Role";
-    document.getElementById("previewPhone").textContent = photographer_resume_data.phone || "Phone";
-    document.getElementById("previewEmail").textContent = photographer_resume_data.email || "Email";
-    document.getElementById("previewLinkedin").textContent = photographer_resume_data.linkedin || "LinkedIn";
-    document.getElementById("previewAddress").textContent = photographer_resume_data.address || "Address";
+    try {
+        // 1. Contact info with safe check
+        const previewName = document.getElementById("previewName");
+        if (previewName) previewName.textContent = photographer_resume_data.name || "Full Name";
 
-    // 2. Summary
-    document.getElementById("previewSummary").textContent = photographer_resume_data.summary || "Summary";
+        const previewRole = document.getElementById("previewRole");
+        if (previewRole) previewRole.textContent = photographer_resume_data.role || "Job Role";
 
-    // 3. Assistant Highlights
-    const previewAssistant = document.getElementById("previewAssistant");
-    if (previewAssistant) {
-        if (photographer_resume_data.assistant) {
-            const lines = photographer_resume_data.assistant.split("\n").filter(l => l.trim() !== "");
-            previewAssistant.innerHTML = "<ul>" + lines.map(line => `<li>${line.replace(/^[•\-\*]\s*/, '')}</li>`).join("") + "</ul>";
-        } else {
-            previewAssistant.innerHTML = "Assistant details.";
+        const previewPhone = document.getElementById("previewPhone");
+        if (previewPhone) previewPhone.textContent = photographer_resume_data.phone || "Phone";
+
+        const previewEmail = document.getElementById("previewEmail");
+        if (previewEmail) previewEmail.textContent = photographer_resume_data.email || "Email";
+
+        const previewLinkedin = document.getElementById("previewLinkedin");
+        if (previewLinkedin) previewLinkedin.textContent = photographer_resume_data.linkedin || "LinkedIn";
+
+        const previewAddress = document.getElementById("previewAddress");
+        if (previewAddress) previewAddress.textContent = photographer_resume_data.address || "Address";
+
+        // 2. Summary
+        const previewSummary = document.getElementById("previewSummary");
+        if (previewSummary) previewSummary.textContent = photographer_resume_data.summary || "Summary";
+
+        // 3. Assistant Highlights (Using DOM elements to prevent XSS)
+        const previewAssistant = document.getElementById("previewAssistant");
+        if (previewAssistant) {
+            previewAssistant.innerHTML = "";
+            if (photographer_resume_data.assistant) {
+                const lines = photographer_resume_data.assistant.split("\n").filter(l => l.trim() !== "");
+                const ul = document.createElement("ul");
+                lines.forEach(line => {
+                    const li = document.createElement("li");
+                    li.textContent = line.replace(/^[•\-\*]\s*/, '').trim();
+                    ul.appendChild(li);
+                });
+                previewAssistant.appendChild(ul);
+            } else {
+                previewAssistant.textContent = "Assistant details.";
+            }
         }
-    }
 
-    // 4. Education (Dynamic list)
-    const eduPreview = document.getElementById("previewEducation");
-    eduPreview.innerHTML = "";
-    if (photographer_resume_data.education.length > 0) {
-        photographer_resume_data.education.forEach(edu => {
-            const item = document.createElement("div");
-            item.className = "preview-item";
+        // 4. Education (Dynamic list using textContent for security)
+        const eduPreview = document.getElementById("previewEducation");
+        if (eduPreview) {
+            eduPreview.innerHTML = "";
+            if (photographer_resume_data.education && photographer_resume_data.education.length > 0) {
+                photographer_resume_data.education.forEach(edu => {
+                    const item = document.createElement("div");
+                    item.className = "preview-item";
 
-            let descHtml = "";
-            if (edu.desc) {
-                descHtml = `<div class="preview-item-desc">${edu.desc}</div>`;
+                    const header = document.createElement("div");
+                    header.className = "preview-item-header";
+                    
+                    const titleSpan = document.createElement("span");
+                    titleSpan.className = "preview-item-title";
+                    titleSpan.textContent = edu.degree || "Degree / Certificate";
+                    
+                    const metaSpan = document.createElement("span");
+                    metaSpan.className = "preview-item-meta";
+                    metaSpan.textContent = edu.dates || "Dates";
+                    
+                    header.appendChild(titleSpan);
+                    header.appendChild(metaSpan);
+                    item.appendChild(header);
+
+                    const orgRow = document.createElement("div");
+                    orgRow.className = "preview-item-org-row";
+                    
+                    const orgSpan = document.createElement("span");
+                    orgSpan.className = "preview-item-org";
+                    orgSpan.textContent = edu.institution || "Institution / School";
+                    
+                    orgRow.appendChild(orgSpan);
+                    item.appendChild(orgRow);
+
+                    if (edu.desc) {
+                        const descDiv = document.createElement("div");
+                        descDiv.className = "preview-item-desc";
+                        descDiv.textContent = edu.desc;
+                        item.appendChild(descDiv);
+                    }
+
+                    eduPreview.appendChild(item);
+                });
+            } else {
+                eduPreview.textContent = "Education details.";
             }
+        }
 
-            item.innerHTML = `
-                <div class="preview-item-header">
-                    <span class="preview-item-title">${edu.degree || "Degree / Certificate"}</span>
-                    <span class="preview-item-meta">${edu.dates || "Dates"}</span>
-                </div>
-                <div class="preview-item-org-row">
-                    <span class="preview-item-org">${edu.institution || "Institution / School"}</span>
-                </div>
-                ${descHtml}
-            `;
-            eduPreview.appendChild(item);
-        });
-    } else {
-        eduPreview.innerHTML = "Education details.";
-    }
-
-    // 5. Skills (Exploded inline tags list)
-    const skillsList = document.getElementById("previewSkills");
-    skillsList.innerHTML = "";
-    if (photographer_resume_data.skills.length > 0) {
-        photographer_resume_data.skills.forEach(skill => {
-            if (skill.trim() !== "") {
-                const li = document.createElement("li");
-                li.textContent = "• " + skill.trim();
-                skillsList.appendChild(li);
+        // 5. Skills
+        const skillsList = document.getElementById("previewSkills");
+        if (skillsList) {
+            skillsList.innerHTML = "";
+            if (photographer_resume_data.skills && photographer_resume_data.skills.length > 0) {
+                photographer_resume_data.skills.forEach(skill => {
+                    if (skill.trim() !== "") {
+                        const li = document.createElement("li");
+                        li.textContent = "• " + skill.trim();
+                        skillsList.appendChild(li);
+                    }
+                });
             }
-        });
-    }
+        }
 
-    // 6. Experience (Dynamic list)
-    const expPreview = document.getElementById("previewExperience");
-    expPreview.innerHTML = "";
-    if (photographer_resume_data.experience.length > 0) {
-        photographer_resume_data.experience.forEach(exp => {
-            const item = document.createElement("div");
-            item.className = "preview-item";
+        // 6. Experience (Dynamic list using DOM elements for safety)
+        const expPreview = document.getElementById("previewExperience");
+        if (expPreview) {
+            expPreview.innerHTML = "";
+            if (photographer_resume_data.experience && photographer_resume_data.experience.length > 0) {
+                photographer_resume_data.experience.forEach(exp => {
+                    const item = document.createElement("div");
+                    item.className = "preview-item";
 
-            let bulletsHtml = "";
-            if (exp.desc) {
-                const lines = exp.desc.split("\n").filter(l => l.trim() !== "");
-                bulletsHtml = "<div class=\"preview-item-desc\"><ul>" + lines.map(line => `<li>${line.replace(/^[•\-\*]\s*/, '')}</li>`).join("") + "</ul></div>";
+                    const header = document.createElement("div");
+                    header.className = "preview-item-header";
+                    
+                    const titleSpan = document.createElement("span");
+                    titleSpan.className = "preview-item-title";
+                    titleSpan.textContent = exp.title || "Job Title";
+                    
+                    const metaSpan = document.createElement("span");
+                    metaSpan.className = "preview-item-meta";
+                    metaSpan.textContent = exp.dates || "Dates";
+                    
+                    header.appendChild(titleSpan);
+                    header.appendChild(metaSpan);
+                    item.appendChild(header);
+
+                    const orgRow = document.createElement("div");
+                    orgRow.className = "preview-item-org-row";
+                    
+                    const orgSpan = document.createElement("span");
+                    orgSpan.className = "preview-item-org";
+                    orgSpan.textContent = exp.company || "Company / Organization";
+                    
+                    orgRow.appendChild(orgSpan);
+                    item.appendChild(orgRow);
+
+                    if (exp.desc) {
+                        const descDiv = document.createElement("div");
+                        descDiv.className = "preview-item-desc";
+                        
+                        const lines = exp.desc.split("\n").filter(l => l.trim() !== "");
+                        const ul = document.createElement("ul");
+                        lines.forEach(line => {
+                            const li = document.createElement("li");
+                            li.textContent = line.replace(/^[•\-\*]\s*/, '').trim();
+                            ul.appendChild(li);
+                        });
+                        descDiv.appendChild(ul);
+                        item.appendChild(descDiv);
+                    }
+
+                    expPreview.appendChild(item);
+                });
+            } else {
+                expPreview.textContent = "Experience details.";
             }
-
-            item.innerHTML = `
-                <div class="preview-item-header">
-                    <span class="preview-item-title">${exp.title || "Job Title"}</span>
-                    <span class="preview-item-meta">${exp.dates || "Dates"}</span>
-                </div>
-                <div class="preview-item-org-row">
-                    <span class="preview-item-org">${exp.company || "Company / Organization"}</span>
-                </div>
-                ${bulletsHtml}
-            `;
-            expPreview.appendChild(item);
-        });
-    } else {
-        expPreview.innerHTML = "Experience details.";
+        }
+    } catch (err) {
+        console.error("Error in renderPreview:", err);
     }
 }
 
 function renderExperienceCards() {
     const container = document.getElementById("experienceContainer");
+    if (!container) return;
     container.innerHTML = "";
     photographer_resume_data.experience.forEach((exp, index) => {
         const card = document.createElement("div");
         card.className = "repeatable-card";
+        
+        const titleVal = escapeHTML(exp.title);
+        const companyVal = escapeHTML(exp.company);
+        const datesVal = escapeHTML(exp.dates);
+        const descVal = escapeHTML(exp.desc);
+        const idVal = escapeHTML(exp.id);
+
         card.innerHTML = `
             <div class="repeatable-card-header">
                 <span class="repeatable-card-title">Experience #${index + 1}</span>
-                <button type="button" class="card-delete-btn" onclick="deleteExperience('${exp.id}')">Delete</button>
+                <button type="button" class="card-delete-btn" onclick="deleteExperience('${idVal}')">Delete</button>
             </div>
             <div class="row-2">
                 <div class="input-group">
                     <label>Job Title</label>
-                    <input type="text" id="exp-title-${exp.id}" value="${exp.title || ''}" placeholder="e.g. Lead Photographer" oninput="updateExperience('${exp.id}', 'title', this.value)">
+                    <input type="text" id="exp-title-${idVal}" value="${titleVal}" placeholder="e.g. Lead Photographer" oninput="updateExperience('${idVal}', 'title', this.value)">
                 </div>
                 <div class="input-group">
                     <label>Company / Organization</label>
-                    <input type="text" id="exp-company-${exp.id}" value="${exp.company || ''}" placeholder="e.g. Studio Vista" oninput="updateExperience('${exp.id}', 'company', this.value)">
+                    <input type="text" id="exp-company-${idVal}" value="${companyVal}" placeholder="e.g. Studio Vista" oninput="updateExperience('${idVal}', 'company', this.value)">
                 </div>
             </div>
             <div class="input-group">
                 <label>Start & End Dates / Year</label>
-                <input type="text" value="${exp.dates || ''}" placeholder="e.g. 2018 - Present" oninput="updateExperience('${exp.id}', 'dates', this.value)">
+                <input type="text" value="${datesVal}" placeholder="e.g. 2018 - Present" oninput="updateExperience('${idVal}', 'dates', this.value)">
             </div>
             <div class="input-group">
                 <label>Description / Bullet Points</label>
                 <div class="textarea-ai-wrapper">
-                    <textarea id="exp-desc-${exp.id}" placeholder="• Accomplishment 1&#10;• Accomplishment 2" style="height: 80px;" oninput="updateExperience('${exp.id}', 'desc', this.value)">${exp.desc || ''}</textarea>
-                    <button type="button" id="ai-btn-${exp.id}" class="btn-ai-action" onclick="handleAIExperience('${exp.id}')">✨ AI Suggest Action Bullets</button>
+                    <textarea id="exp-desc-${idVal}" placeholder="• Accomplishment 1&#10;• Accomplishment 2" style="height: 80px;" oninput="updateExperience('${idVal}', 'desc', this.value)">${descVal}</textarea>
+                    <button type="button" id="ai-btn-${idVal}" class="btn-ai-action" onclick="handleAIExperience('${idVal}')">✨ AI Suggest Action Bullets</button>
                 </div>
             </div>
         `;
@@ -315,32 +727,40 @@ function renderExperienceCards() {
 
 function renderEducationCards() {
     const container = document.getElementById("educationContainer");
+    if (!container) return;
     container.innerHTML = "";
     photographer_resume_data.education.forEach((edu, index) => {
         const card = document.createElement("div");
         card.className = "repeatable-card";
+        
+        const degreeVal = escapeHTML(edu.degree);
+        const institutionVal = escapeHTML(edu.institution);
+        const datesVal = escapeHTML(edu.dates);
+        const descVal = escapeHTML(edu.desc);
+        const idVal = escapeHTML(edu.id);
+
         card.innerHTML = `
             <div class="repeatable-card-header">
                 <span class="repeatable-card-title">Education #${index + 1}</span>
-                <button type="button" class="card-delete-btn" onclick="deleteEducation('${edu.id}')">Delete</button>
+                <button type="button" class="card-delete-btn" onclick="deleteEducation('${idVal}')">Delete</button>
             </div>
             <div class="row-2">
                 <div class="input-group">
                     <label>Title / Degree</label>
-                    <input type="text" value="${edu.degree || ''}" placeholder="e.g. Bachelor of Fine Arts" oninput="updateEducation('${edu.id}', 'degree', this.value)">
+                    <input type="text" value="${degreeVal}" placeholder="e.g. Bachelor of Fine Arts" oninput="updateEducation('${idVal}', 'degree', this.value)">
                 </div>
                 <div class="input-group">
                     <label>Company / Institution</label>
-                    <input type="text" value="${edu.institution || ''}" placeholder="e.g. Academy of Art" oninput="updateEducation('${edu.id}', 'institution', this.value)">
+                    <input type="text" value="${institutionVal}" placeholder="e.g. Academy of Art" oninput="updateEducation('${idVal}', 'institution', this.value)">
                 </div>
             </div>
             <div class="input-group">
                 <label>Dates / Year</label>
-                <input type="text" value="${edu.dates || ''}" placeholder="e.g. 2012 - 2016" oninput="updateEducation('${edu.id}', 'dates', this.value)">
+                <input type="text" value="${datesVal}" placeholder="e.g. 2012 - 2016" oninput="updateEducation('${idVal}', 'dates', this.value)">
             </div>
             <div class="input-group">
                 <label>Description / Details</label>
-                <textarea placeholder="Specialized in portrait and lighting styles..." style="height: 60px;" oninput="updateEducation('${edu.id}', 'desc', this.value)">${edu.desc || ''}</textarea>
+                <textarea placeholder="Specialized in portrait and lighting styles..." style="height: 60px;" oninput="updateEducation('${idVal}', 'desc', this.value)">${descVal}</textarea>
             </div>
         `;
         container.appendChild(card);
@@ -395,39 +815,146 @@ function syncStateToForm() {
 }
 
 // ==========================================
-// LIVE LLM API CONNECTION LOGIC
+// PYTHONIC TEXT SANITIZER
 // ==========================================
-async function callLiveAPI(promptText) {
-    // 1. ఇక్కడ మీ Google Gemini API Key పెట్టండి
-    const GEMINI_API_KEY = "";
+function cleanTextResponse(rawText) {
+    if (!rawText) return "";
+    return rawText
+        .replace(/\(.*?\)/g, "")
+        .replace(/^(Here's|Here is|Sure|Certainly|Summary|Output|Based on)[^:]*:\s*/i, "")
+        .replace(/^["']|["']$/g, "")
+        .trim();
+}
 
-    // మోడల్ నేమ్ ని స్థిరమైన 'gemini-2.0-flash' కి మార్చాం
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+// ==========================================
+// LIVE LLM API CONNECTION LOGIC (GROQ llama-3.1-8b-instant)
+// ==========================================
+async function callLiveAI(promptTextOrMessages, systemContext = "", onChunk = null, temperature = 0.7, seed = null) {
+    const GROQ_API_KEY = localStorage.getItem("GROQ_API_KEY") || "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";
+    const endpoint = "https://api.groq.com/openai/v1/chat/completions";
+
+    let sysCtx = systemContext || "You are a direct resume-generation engine. Your ONLY output must be the final resume text. STRICT RULES: Never say 'Here is', 'Sure', 'Based on', or 'Summary:'. Never write notes in parentheses. Strip birth dates, locations, and irrelevant personal details automatically.";
+    if (systemContext && !systemContext.includes("CRITICAL RULE") && !systemContext.includes("STRICT RULES")) {
+        sysCtx += " STRICT RULES: Never say 'Here is', 'Sure', 'Based on', or 'Summary:'. Never write notes in parentheses. Strip birth dates, locations, and irrelevant personal details automatically.";
+    }
+
+    let messagesPayload;
+    if (Array.isArray(promptTextOrMessages)) {
+        messagesPayload = promptTextOrMessages;
+    } else {
+        const isSummaryRequest = !systemContext || systemContext.toLowerCase().includes("summary") || systemContext.toLowerCase().includes("resume writer");
+        if (isSummaryRequest) {
+            const userInput = promptTextOrMessages;
+            messagesPayload = [
+                {
+                    role: "system",
+                    content: "You are a professional resume parser and generator. ABSOLUTE RULES: \n1. BANNED BUZZWORDS: 'Results-driven', 'proven track record', 'passionate', 'dynamic'.\n2. OUTPUT ONLY RAW SUMMARY TEXT. Zero intros, zero quotes, zero explanations in brackets.\n3. Extract specific details (experience, tools, photography styles) and weave them into 2-3 clean, authentic sentences."
+                },
+                {
+                    role: "user",
+                    content: "Name: Rufus Stewart. Input: My name is Rufus Stewart. I am born in California on 10 oct 1991, I am a professional photographer who have been working in several different companies. I love to travel and capture stories."
+                },
+                {
+                    role: "assistant",
+                    content: "Commercial and travel photographer with extensive experience managing creative projects across diverse company environments. Specialized in location-based visual storytelling, studio lighting setups, and Adobe Lightroom post-production."
+                },
+                {
+                    role: "user",
+                    content: `User Input: '${userInput}'. Seed: ${Date.now()}. Generate an authentic, non-generic summary:`
+                }
+            ];
+        } else {
+            messagesPayload = [
+                {
+                    role: "system",
+                    content: sysCtx
+                },
+                {
+                    role: "user",
+                    content: promptTextOrMessages
+                }
+            ];
+        }
+    }
 
     const response = await fetch(endpoint, {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${GROQ_API_KEY}`
         },
         body: JSON.stringify({
-            contents: [{
-                parts: [{ text: "You are a professional resume writer specializing in high-impact photography portfolios. " + promptText }]
-            }]
+            model: "llama-3.1-8b-instant",
+            messages: messagesPayload,
+            temperature: temperature,
+            max_tokens: 130,
+            seed: seed !== null ? seed : undefined,
+            stream: !!onChunk
         })
     });
 
     if (!response.ok) {
-        const err = await response.json();
-        throw new Error(`Gemini API Error: ${err.error?.message || response.statusText}`);
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error?.message || response.statusText || "Groq API error");
     }
 
-    const data = await response.json();
+    if (onChunk) {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let buffer = "";
+        let accumulatedText = "";
 
-    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-        return data.candidates[0].content.parts[0].text.trim();
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop();
+
+            for (const line of lines) {
+                const cleaned = line.trim();
+                if (!cleaned || !cleaned.startsWith("data: ")) continue;
+                const dataStr = cleaned.slice(6).trim();
+                if (dataStr === "[DONE]") continue;
+                try {
+                    const parsed = JSON.parse(dataStr);
+                    const content = parsed.choices[0]?.delta?.content;
+                    if (content) {
+                        accumulatedText += content;
+                        const cleanedText = cleanTextResponse(accumulatedText);
+                        onChunk(cleanedText, content);
+                    }
+                } catch (err) {
+                    // Ignore JSON parsing errors for partial lines
+                }
+            }
+        }
+
+        // Clean up remaining buffer
+        if (buffer.trim().startsWith("data: ")) {
+            const dataStr = buffer.trim().slice(6).trim();
+            if (dataStr !== "[DONE]") {
+                try {
+                    const parsed = JSON.parse(dataStr);
+                    const content = parsed.choices[0]?.delta?.content;
+                    if (content) {
+                        accumulatedText += content;
+                        const cleanedText = cleanTextResponse(accumulatedText);
+                        onChunk(cleanedText, content);
+                    }
+                } catch (e) { }
+            }
+        }
+        return cleanTextResponse(accumulatedText);
+    } else {
+        const data = await response.json();
+        if (data.choices && data.choices[0] && data.choices[0].message) {
+            const rawText = data.choices[0].message.content;
+            return cleanTextResponse(rawText);
+        }
+        throw new Error("Invalid response format from Groq API");
     }
-
-    throw new Error("Invalid response format from Gemini API");
 }
 
 // ==========================================
@@ -450,48 +977,191 @@ async function executeWithLoadingState(buttonEl, asyncAction) {
     }
 }
 // ==========================================
+// DYNAMIC AI SKILLS SUGGESTION GENERATOR
+// ==========================================
+async function generateAISkills() {
+    const button = document.getElementById("aiSuggestSkillsBtn");
+    const container = document.getElementById("suggestedSkillChips");
+    if (!container) return;
+
+    await executeWithLoadingState(button, async () => {
+        const role = photographer_resume_data.role || "Photographer";
+        const name = photographer_resume_data.name || "Rufus Stewart";
+        const summary = photographer_resume_data.summary || "";
+        const systemContext = "You are an elite AI photography portfolio and resume strategist. Generate professional skills.";
+
+        const prompt = `Based on the job role "${role}", candidate name "${name}", and summary "${summary}", suggest exactly 7-10 high-impact technical or creative skills for a professional photography resume. Return ONLY a comma-separated list of skills, with no numbering, introduction, or additional text. Example: Studio Lighting, Adobe Lightroom, Color Grading`;
+
+        try {
+            const result = await callLiveAI(prompt, systemContext);
+            const skills = result.split(",").map(s => s.replace(/^[-\d\.\s•\*]+/, "").trim()).filter(s => s !== "");
+
+            if (skills.length > 0) {
+                container.innerHTML = "";
+                skills.forEach(skillName => {
+                    const chip = document.createElement("span");
+                    chip.className = "skill-chip";
+                    chip.setAttribute("data-skill", skillName);
+                    chip.textContent = skillName;
+                    chip.addEventListener("click", () => {
+                        const normalizedSkills = photographer_resume_data.skills.map(s => s.trim().toLowerCase());
+                        if (!normalizedSkills.includes(skillName.toLowerCase())) {
+                            photographer_resume_data.skills.push(skillName);
+                            document.getElementById("skillsInput").value = photographer_resume_data.skills.join(", ");
+                            renderPreview();
+                            triggerAutosave();
+                        }
+                    });
+                    container.appendChild(chip);
+                });
+                showToast("Skills suggestions updated via Groq AI!", "success");
+            } else {
+                showToast("No skills were returned by Groq AI.", "warning");
+            }
+        } catch (error) {
+            console.error("AI Skills Suggestion Failure:", error);
+            showToast(`API Failed: ${error.message}`, "error");
+        }
+    });
+}
+window.generateAISkills = generateAISkills;
+
+// ==========================================
+// SELF-CONTAINED GROQ API FALLBACK UTILITY
+// ==========================================
+async function callLiveAPI(promptText, sectionType = "summary") {
+    const GROQ_API_KEY = localStorage.getItem("GROQ_API_KEY") || "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";
+    const endpoint = "https://api.groq.com/openai/v1/chat/completions";
+
+    let section_instruction = "";
+    if (sectionType === "summary") {
+        section_instruction = "Generate a crisp 2-3 sentence resume summary centered strictly on the facts in the user prompt.";
+    } else if (sectionType === "experience_bullets") {
+        section_instruction = 
+            "Convert the user prompt into 3 powerful, high-impact bullet points using strong action verbs (e.g., Developed, Managed, Spearheaded). " +
+            "Output ONLY raw bullet points starting with standard dashes (e.g., - Developed...).";
+    } else if (sectionType === "suggest_bullets") {
+        section_instruction = 
+            "Based on the role/text provided, generate 3 strategic industry-standard achievement bullets. " +
+            "Output ONLY raw bullet points starting with standard dashes (e.g., - Spearheaded...).";
+    } else {
+        section_instruction = "Generate a professional resume summary.";
+    }
+
+    const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + GROQ_API_KEY
+        },
+        body: JSON.stringify({
+            model: "llama-3.1-8b-instant",
+            messages: [
+                {
+                    role: "system",
+                    content: "You are a professional resume generator. ABSOLUTE RULES: Banned words: 'Results-driven', 'proven track record', 'passionate', 'dynamic'. " +
+                             "OUTPUT ONLY RAW SUMMARY TEXT. Zero intros, zero quotes, zero bracketed notes.\n\nTask: " + section_instruction
+                },
+                {
+                    role: "user",
+                    content: promptText
+                }
+            ],
+            temperature: 0.85,
+            max_tokens: 130
+        })
+    });
+
+if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error?.message || response.statusText || "Groq API error");
+}
+
+const data = await response.json();
+if (data.choices && data.choices[0] && data.choices[0].message) {
+    const rawText = data.choices[0].message.content;
+
+    // Full Regex text sanitization on the Groq output before returning it
+    if (!rawText) return "";
+    return rawText
+        .replace(/\(.*?\)/g, "") // Strip bracketed explanations
+        .replace(/^(Here's|Here is|Sure|Certainly|Summary|Output)[^:]*:\s*/i, "") // Strip conversational prefixes
+        .replace(/^["']|["']$/g, "") // Strip leftover quote marks
+        .trim();
+}
+throw new Error("Invalid response format from Groq API");
+}
+
+// ==========================================
 // SMART CONTEXT-AWARE AI CHATGPT TRIGGERS
 // ==========================================
 async function handleAISummary() {
     const button = document.getElementById("aiGenerateSummaryBtn");
     const summaryInput = document.getElementById("summaryInput");
-    const userText = summaryInput.value.trim();
+    const previewSummary = document.getElementById("previewSummary");
+    const placeholderText = summaryInput.getAttribute('placeholder') || "";
+    const previewText = previewSummary ? previewSummary.innerText.trim() : "";
+    const promptText = summaryInput.value.trim() || placeholderText || previewText;
 
     await executeWithLoadingState(button, async () => {
-        const name = photographer_resume_data.name || "Rufus Stewart";
-        const role = photographer_resume_data.role || "Photographer";
-        const skills = photographer_resume_data.skills.join(", ") || "Studio Lighting, Adobe Lightroom";
-        const expDetails = photographer_resume_data.experience.map(e => `${e.title} at ${e.company} (${e.dates}): ${e.desc}`).filter(t => t.trim()).join("; ");
+        const originalValue = summaryInput.value;
+        let cleanSummary = "";
+        let usedFallback = false;
 
         try {
-            let result = "";
-            if (userText !== "") {
-                // Enhance Prompt
-                const prompt = `You are a professional resume editor. Rewrite and polish this photographer summary to make it compelling, high-impact, and articulate without adding false details.
-Context:
-Name: ${name}
-Job Role: ${role}
-Skills: ${skills}
-Experience: ${expDetails}
+            const response = await fetch("http://127.0.0.1:8000/api/generate-summary", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    user_input: promptText,
+                    section_type: "summary"
+                })
+            });
 
-Draft Summary to Enhance:
-"${userText}"`;
-                result = await callLiveAPI(prompt);
-                showToast("Summary enhanced successfully via OpenAI GPT!", "success");
-            } else {
-                // Generate Prompt
-                const prompt = `You are a professional resume writer. Generate a unique, tailored, highly professional resume summary (maximum of 3 sentences) for a Photographer named ${name} specializing in ${skills} (${role}) with experience in ${expDetails}. Focus on visual storytelling, lighting expertise, and client engagement. Return only the final summary text without placeholders.`;
-                result = await callLiveAPI(prompt);
-                showToast("Fresh summary generated via OpenAI GPT!", "success");
+            if (!response.ok) {
+                const errDetail = await response.json().catch(() => ({}));
+                throw new Error(errDetail.detail || response.statusText || "Backend failure");
             }
-            summaryInput.value = result;
-            photographer_resume_data.summary = result;
-            renderPreview();
-            triggerAutosave();
+
+            const data = await response.json();
+            if (data.status === "success") {
+                cleanSummary = data.summary;
+                console.log("⚡ Summary generated via Python Backend");
+            } else {
+                throw new Error(data.detail || "Unexpected backend response status");
+            }
         } catch (error) {
-            console.error("OpenAI API Failure:", error);
-            showToast(`API Failed: ${error.message}`, "error");
+            console.warn("⚠️ Python Backend offline. Seamlessly falling back to Direct Groq API...", error);
+            usedFallback = true;
+
+            try {
+                cleanSummary = await callLiveAPI(promptText, "summary");
+            } catch (fallbackError) {
+                console.error("Direct Groq Fallback Failure:", fallbackError);
+                // Restore original input value so the user doesn't lose their text
+                summaryInput.value = originalValue;
+                showToast(`AI Generation failed: ${fallbackError.message}`, "error");
+                return;
+            }
         }
+
+        // Inject the clean processed response directly into #summaryInput and #previewSummary
+        summaryInput.value = cleanSummary;
+        if (previewSummary) {
+            previewSummary.textContent = cleanSummary;
+        }
+
+        // Sync resume state
+        photographer_resume_data.summary = cleanSummary;
+
+        const successText = usedFallback
+            ? "Summary generated via direct Groq API (Python backend offline)."
+            : "Summary generated successfully via Python Backend!";
+
+        showToast(successText, usedFallback ? "warning" : "success");
+        triggerAutosave();
     });
 }
 
@@ -499,40 +1169,62 @@ async function handleAIAssistant() {
     const button = document.getElementById("aiSuggestAssistantBulletsBtn");
     const input = document.getElementById("assistantInput");
     const userText = input.value.trim();
+    const placeholderText = input.getAttribute('placeholder') || "";
+    const promptText = userText || placeholderText;
 
     await executeWithLoadingState(button, async () => {
-        const name = photographer_resume_data.name || "Rufus Stewart";
-        const role = photographer_resume_data.role || "Photographer";
-        const skills = photographer_resume_data.skills.join(", ") || "Studio Lighting, Adobe Lightroom";
+        const originalValue = input.value;
+        let cleanText = "";
+        let usedFallback = false;
 
         try {
-            let result = "";
-            if (userText !== "") {
-                // Enhance bullets
-                const prompt = `You are an expert resume writer. Rewrite and polish these photographer assistant bullet points into professional accomplishments, maintaining raw bullet formatting:
-Context:
-Name: ${name}
-Role: ${role}
-Skills: ${skills}
+            const response = await fetch("http://127.0.0.1:8000/api/generate-summary", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    user_input: promptText,
+                    section_type: "suggest_bullets"
+                })
+            });
 
-Draft Bullet Points to Enhance:
-\n${userText}`;
-                result = await callLiveAPI(prompt);
-                showToast("Assistant bullets enhanced successfully via OpenAI GPT!", "success");
-            } else {
-                // Generate bullets
-                const prompt = `You are an expert resume writer. Generate 3 unique, high-impact action bullet points using strong action verbs for an Event Photography Assistant role. Context: Name: ${name}, Role: ${role}, Skills: ${skills}. Focus on photography workflows, lighting, post-processing, and client relations. Prefix with a bullet mark (•). Do not include any introduction.`;
-                result = await callLiveAPI(prompt);
-                showToast("Fresh assistant bullets generated via OpenAI GPT!", "success");
+            if (!response.ok) {
+                const errDetail = await response.json().catch(() => ({}));
+                throw new Error(errDetail.detail || response.statusText || "Backend failure");
             }
-            input.value = result;
-            photographer_resume_data.assistant = result;
-            renderPreview();
-            triggerAutosave();
+
+            const data = await response.json();
+            if (data.status === "success") {
+                cleanText = data.summary;
+                console.log("⚡ Assistant bullets generated via Python Backend");
+            } else {
+                throw new Error(data.detail || "Unexpected backend response status");
+            }
         } catch (error) {
-            console.error("OpenAI API Failure:", error);
-            showToast(`API Failed: ${error.message}`, "error");
+            console.warn("⚠️ Python Backend offline. Seamlessly falling back to Direct Groq API...", error);
+            usedFallback = true;
+
+            try {
+                cleanText = await callLiveAPI(promptText, "suggest_bullets");
+            } catch (fallbackError) {
+                console.error("Direct Groq Fallback Failure:", fallbackError);
+                input.value = originalValue;
+                showToast(`AI Generation failed: ${fallbackError.message}`, "error");
+                return;
+            }
         }
+
+        // Apply cleanText to the input/textarea and preview
+        input.value = cleanText;
+        photographer_resume_data.assistant = cleanText;
+        renderPreview();
+
+        const successText = usedFallback
+            ? "Assistant bullets generated via direct Groq API (Python backend offline)."
+            : "Assistant bullets generated successfully via Python Backend!";
+        showToast(successText, usedFallback ? "warning" : "success");
+        triggerAutosave();
     });
 }
 
@@ -540,46 +1232,64 @@ window.handleAIExperience = async function (id) {
     const button = document.getElementById(`ai-btn-${id}`);
     const input = document.getElementById(`exp-desc-${id}`);
     const userText = input.value.trim();
+    const placeholderText = input.getAttribute('placeholder') || "";
+    const promptText = userText || placeholderText;
 
     await executeWithLoadingState(button, async () => {
         const exp = photographer_resume_data.experience.find(e => e.id === id);
         if (exp) {
-            const name = photographer_resume_data.name || "Rufus Stewart";
-            const role = photographer_resume_data.role || "Photographer";
-            const skills = photographer_resume_data.skills.join(", ") || "Studio Lighting, Adobe Lightroom";
-            const jobTitle = exp.title || "Photographer";
-            const company = exp.company || "Creative Agency";
+            const originalValue = input.value;
+            let cleanText = "";
+            let usedFallback = false;
 
             try {
-                let result = "";
-                if (userText !== "") {
-                    // Enhance bullets
-                    const prompt = `You are an expert resume writer. Rewrite and polish these professional experience bullet points to elevate their impact, starting with strong action verbs:
-Context:
-Job Title: ${jobTitle} at ${company}
-Resume Owner Name: ${name}
-Core Role: ${role}
-Skills: ${skills}
+                const response = await fetch("http://127.0.0.1:8000/api/generate-summary", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        user_input: promptText,
+                        section_type: "experience_bullets"
+                    })
+                });
 
-Draft Bullet Points to Enhance:
-\n${userText}`;
-                    result = await callLiveAPI(prompt);
-                    showToast("Accomplishment bullets enhanced successfully via OpenAI GPT!", "success");
-                } else {
-                    // Generate bullets
-                    const prompt = `You are an expert resume writer. Generate 3 unique, high-impact action bullet points using strong action verbs for a ${jobTitle} at ${company} focusing on photography workflows, lighting, post-processing, and client relations. Context: Name: ${name}, Skills: ${skills}. Prefix with bullet marks (•).`;
-                    result = await callLiveAPI(prompt);
-                    showToast("Fresh experience bullets generated via OpenAI GPT!", "success");
+                if (!response.ok) {
+                    const errDetail = await response.json().catch(() => ({}));
+                    throw new Error(errDetail.detail || response.statusText || "Backend failure");
                 }
-                exp.desc = result;
-                input.value = result;
-                renderExperienceCards();
-                renderPreview();
-                triggerAutosave();
+
+                const data = await response.json();
+                if (data.status === "success") {
+                    cleanText = data.summary;
+                    console.log("⚡ Experience bullets generated via Python Backend");
+                } else {
+                    throw new Error(data.detail || "Unexpected backend response status");
+                }
             } catch (error) {
-                console.error("OpenAI API Failure:", error);
-                showToast(`API Failed: ${error.message}`, "error");
+                console.warn("⚠️ Python Backend offline. Seamlessly falling back to Direct Groq API...", error);
+                usedFallback = true;
+
+                try {
+                    cleanText = await callLiveAPI(promptText, "experience_bullets");
+                } catch (fallbackError) {
+                    console.error("Direct Groq Fallback Failure:", fallbackError);
+                    input.value = originalValue;
+                    showToast(`AI Generation failed: ${fallbackError.message}`, "error");
+                    return;
+                }
             }
+
+            // Apply cleanText to the input/textarea and sync with preview
+            input.value = cleanText;
+            exp.desc = cleanText;
+            renderPreview();
+
+            const successText = usedFallback
+                ? "Experience bullets generated via direct Groq API (Python backend offline)."
+                : "Experience bullets generated successfully via Python Backend!";
+            showToast(successText, usedFallback ? "warning" : "success");
+            triggerAutosave();
         }
     });
 };
@@ -621,29 +1331,60 @@ function applyFont(fontName) {
 let currentStep = 1;
 const totalSteps = 6;
 
+function toggleStepVisibility() {
+    try {
+        for (let i = 1; i <= totalSteps; i++) {
+            const stepEl = document.getElementById("step" + i);
+            if (stepEl) {
+                if (i === currentStep) {
+                    stepEl.classList.add("active");
+                    stepEl.style.display = "block";
+                } else {
+                    stepEl.classList.remove("active");
+                    stepEl.style.display = "none";
+                }
+            }
+        }
+    } catch (e) {
+        console.error("Error toggling step visibility:", e);
+    }
+}
+
 window.nextStep = function () {
-    if (currentStep >= totalSteps) return;
-    document.getElementById("step" + currentStep).classList.remove("active");
-    currentStep++;
-    document.getElementById("step" + currentStep).classList.add("active");
-    updateStepperUI();
-    triggerAutosave();
+    try {
+        if (currentStep >= totalSteps) return;
+        currentStep++;
+        toggleStepVisibility();
+        updateStepperUI();
+        triggerAutosave();
+        console.log("Navigating to step:", currentStep);
+    } catch (err) {
+        console.error("Navigation error in nextStep:", err);
+    }
 };
 
 window.prevStep = function () {
-    if (currentStep <= 1) return;
-    document.getElementById("step" + currentStep).classList.remove("active");
-    currentStep--;
-    document.getElementById("step" + currentStep).classList.add("active");
-    updateStepperUI();
+    try {
+        if (currentStep <= 1) return;
+        currentStep--;
+        toggleStepVisibility();
+        updateStepperUI();
+        console.log("Navigating to step:", currentStep);
+    } catch (err) {
+        console.error("Navigation error in prevStep:", err);
+    }
 };
 
 window.jumpToStep = function (stepNum) {
-    if (stepNum < 1 || stepNum > totalSteps) return;
-    document.getElementById("step" + currentStep).classList.remove("active");
-    currentStep = stepNum;
-    document.getElementById("step" + currentStep).classList.add("active");
-    updateStepperUI();
+    try {
+        if (stepNum < 1 || stepNum > totalSteps) return;
+        currentStep = stepNum;
+        toggleStepVisibility();
+        updateStepperUI();
+        console.log("Navigating to step:", currentStep);
+    } catch (err) {
+        console.error("Navigation error in jumpToStep:", err);
+    }
 };
 
 function updateStepperUI() {
@@ -689,7 +1430,24 @@ async function saveResumeToSupabase() {
     if (!userEmail) return;
 
     const supabase = window.supabase;
-    if (!supabase || typeof supabase.from === 'undefined') return;
+    if (!supabase || typeof supabase.from === 'undefined') {
+        console.warn("Supabase client is not initialized.");
+        return;
+    }
+
+    // Input Format Validation Checks
+    if (photographer_resume_data.email && !isValidEmail(photographer_resume_data.email)) {
+        showToast("Invalid email format. Please check the email field.", "warning");
+        return;
+    }
+    if (photographer_resume_data.phone && !isValidPhone(photographer_resume_data.phone)) {
+        showToast("Invalid phone format. Please check the phone field.", "warning");
+        return;
+    }
+    if (photographer_resume_data.linkedin && !isValidURL(photographer_resume_data.linkedin)) {
+        showToast("Invalid LinkedIn URL format. Please check the LinkedIn URL field.", "warning");
+        return;
+    }
 
     try {
         const { error } = await supabase
@@ -814,7 +1572,15 @@ function loadSampleData() {
 // HIGH-FIDELITY PDF RENDERING EXPORT
 // ==========================================
 window.downloadPDF = function () {
+    if (typeof html2pdf === "undefined") {
+        alert("The PDF export library (html2pdf) is not loaded. Please check your internet connection.");
+        return;
+    }
     const element = document.getElementById("resume-pdf-target");
+    if (!element) {
+        console.error("Resume target element not found for PDF export.");
+        return;
+    }
     const name = photographer_resume_data.name || "Resume";
 
     const options = {
@@ -829,5 +1595,9 @@ window.downloadPDF = function () {
         jsPDF: { unit: 'px', format: [794, 1123], orientation: 'portrait' }
     };
 
-    html2pdf().set(options).from(element).save();
+    try {
+        html2pdf().set(options).from(element).save();
+    } catch (e) {
+        console.error("PDF generation failed:", e);
+    }
 };
