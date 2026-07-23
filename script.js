@@ -318,7 +318,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Sync initial load theme to body
-    const savedTheme = localStorage.getItem("theme") || "dark";
+    const savedTheme = localStorage.getItem("theme") || "light";
     document.documentElement.setAttribute("data-theme", savedTheme);
     if (document.body) {
         document.body.setAttribute("data-theme", savedTheme);

@@ -10,7 +10,7 @@
     <!-- Theme Initializer -->
     <script>
         (function() {
-            const savedTheme = localStorage.getItem("theme") || "dark";
+            const savedTheme = localStorage.getItem("theme") || "light";
             document.documentElement.setAttribute("data-theme", savedTheme);
             const observer = new MutationObserver(() => {
                 if (document.body) {
@@ -326,6 +326,7 @@
             <a href="#" class="active">Career Guidance</a>
             <a href="builder.html">Resume Builder</a>
         </nav>
+        <button id="themeToggle" class="theme-toggle-btn">☀️ Light</button>
         <div class="nav-actions">
             <div class="user-profile-container" id="navUserArea">
                 <!-- Dynamically populated avatar & email -->
@@ -413,6 +414,7 @@
         </div>
     </main>
 
+    <script src="theme-toggle.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const supabase = window.supabase;

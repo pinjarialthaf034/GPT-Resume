@@ -12,7 +12,7 @@
     <!-- Theme Initializer -->
     <script>
         (function() {
-            const savedTheme = localStorage.getItem("theme") || "dark";
+            const savedTheme = localStorage.getItem("theme") || "light";
             document.documentElement.setAttribute("data-theme", savedTheme);
             const observer = new MutationObserver(() => {
                 if (document.body) {
@@ -57,6 +57,7 @@
             <a href="#">Features</a>
             <a href="#">Pricing</a>
         </nav>
+        <button id="themeToggle" class="theme-toggle-btn">☀️ Light</button>
         <div class="nav-actions">
             <button class="btn-login" id="loginBtn">Sign In</button>
         </div>
@@ -148,6 +149,7 @@
 
     <!-- Bcrypt and App Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
+    <script src="theme-toggle.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

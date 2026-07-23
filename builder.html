@@ -1,48 +1,51 @@
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>AI Resume Builder</title>
+<!DOCTYPE html>
+<html lang="en">
 
-        <link rel="stylesheet" href="style.css">
-        <link rel="stylesheet" href="builder.css">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Builder</title>
 
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="builder.css">
 
-        <!-- Theme Initializer -->
-        <script>
-            (function() {
-                const savedTheme = localStorage.getItem("theme") || "dark";
-                document.documentElement.setAttribute("data-theme", savedTheme);
-                const observer = new MutationObserver(() => {
-                    if (document.body) {
-                        document.body.setAttribute("data-theme", savedTheme);
-                        observer.disconnect();
-                    }
-                });
-                observer.observe(document.documentElement, { childList: true, subtree: true });
-            })();
-        </script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
-        <!-- Supabase JS Library & Initialization -->
-        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-        <script>
-            (function() {
-                try {
-                    if (window.supabase && typeof window.supabase.createClient === 'function') {
-                        const client = window.supabase.createClient('https://fwupeplirgbyujdpzsyk.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3dXBlcGxpcmdieXVqZHB6c3lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzNTI0MzMsImV4cCI6MjA5OTkyODQzM30.jpi6dvHuMPA4SAaadido8V51AiwfGbqvoGdshJvlpxY');
-                        window.supabase = client;
-                    } else {
-                        console.error("Supabase CDN failed to load properly.");
-                    }
-                } catch (error) {
-                    console.error("Error initializing Supabase client:", error);
+    <!-- Theme Initializer -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+            const observer = new MutationObserver(() => {
+                if (document.body) {
+                    document.body.setAttribute("data-theme", savedTheme);
+                    observer.disconnect();
                 }
-            })();
-        </script>
-    </head>
-    <body>
+            });
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+        })();
+    </script>
+
+    <!-- Supabase JS Library & Initialization -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        (function () {
+            try {
+                if (window.supabase && typeof window.supabase.createClient === 'function') {
+                    const client = window.supabase.createClient('https://fwupeplirgbyujdpzsyk.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3dXBlcGxpcmdieXVqZHB6c3lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzNTI0MzMsImV4cCI6MjA5OTkyODQzM30.jpi6dvHuMPA4SAaadido8V51AiwfGbqvoGdshJvlpxY');
+                    window.supabase = client;
+                } else {
+                    console.error("Supabase CDN failed to load properly.");
+                }
+            } catch (error) {
+                console.error("Error initializing Supabase client:", error);
+            }
+        })();
+    </script>
+</head>
+
+<body>
 
     <header class="builder-header">
 
@@ -56,7 +59,9 @@
             <button class="back-btn" style="margin-right: 15px;">
                 ← Back
             </button>
-            
+
+            <button id="themeToggle" class="theme-toggle-btn">☀️ Light</button>
+
             <div class="nav-actions" id="builderNavActions" style="display: inline-block;"></div>
 
         </div>
@@ -103,499 +108,374 @@
     </section>
 
     <section class="template-grid">
-         <div class="template-card"
-     data-template-id="Facility Property Manager"
-     data-name="Facility Property Manager"
-      data-headshot="with-photo"
-     data-graphics="minimal"
-     data-columns="two"
-     data-experience="fresher"
-     data-features="ATS Friendly|Property Management Focus|Professional Layout|Leadership Skills|Experience Highlight|PDF Ready
+        <div class="template-card" data-template-id="Facility Property Manager" data-name="Facility Property Manager"
+            data-headshot="with-photo" data-graphics="minimal" data-columns="two" data-experience="fresher"
+            data-features="ATS Friendly|Property Management Focus|Professional Layout|Leadership Skills|Experience Highlight|PDF Ready
 ">
 
-    <div class="resume-preview">
-        <img src="templates/Facility property Manager.png"
-             alt="Facility property Manager">
-    </div>
+            <div class="resume-preview">
+                <img src="images/Facility property Manager.png" alt="Facility property Manager">
+            </div>
 
-    <h3>Facility Property Manager</h3>
+            <h3>Facility Property Manager</h3>
 
-    <button class="choose-btn">
-        Choose Template
-    </button>
-</div>
-
-<div class="template-card"
-     data-template-id="Graphics Designer"
-     data-name="Graphics Designer"
-      data-headshot="with-photo"
-     data-graphics="minimal"
-     data-columns="two"
-     data-experience="experienced"
-      data-features="Creative Design|Portfolio Ready|Modern Layout|Color Balanced|Easy to Customize|PDF Ready">
-
-    <div class="resume-preview">
-        <img src="templates/GRAPHIC DESIGNERR.png"
-             alt="Graphic designer Resume">
-    </div>
-
-    <h3>Graphic Designer </h3>
-
-    <button class="choose-btn">
-        Choose Template
-    </button>
-
-</div>
-
-   
-    <div class="template-card"
-     data-template-id="teacher-ats-1"
-     data-name="Teacher ATS"
-      data-headshot="without-photo"
-     data-graphics="minimal"
-     data-columns="one"
-     data-experience="fresher"
-     data-features="ATS Friendly|Education Focused|Professional Layout|Skills & Certifications|Easy to Edit|PDF Ready
-">
-
-    <div class="resume-preview">
-        <img src="templates/Teacher.png"
-             alt="Teacher ATS Resume">
-    </div>
-
-    <h3>Teacher ATS</h3>
-
-    <button class="choose-btn">
-        Choose Template
-    </button>
-
-</div>
-<div class="template-card"
-     data-template-id="PhotoGrapher"
-     data-name="Photo Grapher"
-      data-headshot="with-photo"
-     data-graphics="minimal"
-     data-columns="two"
-     data-experience="fresher"
-     data-features="Portfolio Ready|Creative Resume|Visual Design|Experience Focus|Easy Editing|PDF Ready">
-
-    <div class="resume-preview">
-        <img src="templates/PhotoGrapher.jpg"
-             alt="Photo Grapher">
-    </div>
-
-    <h3>PhotoGrapher</h3>
-
-    <button class="choose-btn">
-        Choose Template
-    </button>
-
-</div>
-<div class="template-card"
-     data-template-id="marketing-ats-4"
-     data-name="Marketing ATS"
-      data-headshot="with-photo"
-     data-graphics="minimal"
-     data-columns="two"
-     data-experience="fresher"
-     data-features="ATS Friendly|Marketing Professional|Modern Design|Leadership Focus|Easy Customization|PDF Ready">
-    <div class="resume-preview">
-        <img src="templates/Marketing Manager.jpg"
-             alt="Marketing Manager">
-    </div>
-
-    <h3>Marketing Manager</h3>
-
-    <button class="choose-btn">
-        Choose Template
-    </button>
-</div>
-
-   <div class="template-card"
-     data-template-id="student-ats-1"
-     data-name="Student ATS"
-      data-headshot="without-photo"
-     data-graphics="minimal"
-     data-columns="two"
-     data-experience="fresher"
-     data-features="Perfect for Students|Internship Ready|ATS Friendly|Simple Layout|Skills Highlight|PDF Ready">
-
-    <div class="resume-preview">
-        <img src="templates/student.png"
-             alt="Student ATS Resume">
-    </div>
-
-    <h3>Student ATS</h3>
-
-    <button class="choose-btn">
-        Choose Template
-    </button>
-
-</div>
-<div class="template-card"
-     data-template-id="Senior Sales Assistant"
-     data-name="Senior Sales Assistant"
-     data-headshot="without-photo"
-     data-graphics="minimal"
-     data-columns="two"
-     data-experience="experienced"
-     data-features="Sales Professional|ATS Friendly|Customer Service Focus|Experience Highlight|Professional Design|PDF Ready">
-
-    <div class="resume-preview">
-        <img src="templates/Senior sales assistant.png"
-             alt="Senior Sales Assistant">
-    </div>
-
-    <h3>Senior Sales Assistant</h3>
-
-    <button class="choose-btn">
-        Choose Template
-    </button>
-</div>
-<div class="template-card"
-     data-template-id="Designer and Architect"
-     data-name="Designer And Architect"
-      data-headshot="with-photo"
-     data-graphics="creative"
-     data-columns="two"
-     data-experience="experienced"
-     data-features="Creative Resume|Portfolio Ready|Modern Design|Project Highlights|ATS Optimized|PDF Ready
-">
-
-    <div class="resume-preview">
-        <img src="templates/Designer and Architect.jpg"
-             alt="Designer and Architect">
-    </div>
-
-    <h3>Designer and Architect</h3>
-
-    <button class="choose-btn">
-        Choose Template
-    </button>
-</div>
-<div class="template-card"
-     data-template-id="Full Time Educator"
-     data-name="Full Time Educator"
-      data-headshot="without-photo"
-     data-graphics="minimal"
-     data-columns="two"
-     data-experience="experienced"
-     data-features="Education Professional|ATS Friendly|Teaching Experience|Clean Layout|Skills Highlight|PDF Ready">
-
-    <div class="resume-preview">
-        <img src="templates/Full Time Educator.png"
-             alt="Full Time Educator">
-    </div>
-
-    <h3>Full Time Educator</h3>
-
-    <button class="choose-btn">
-        Choose Template
-    </button>
-</div>
-<div class="template-card"
-     data-template-id="Marketing Manager"
-     data-name="Marketing Manager"
-      data-headshot="with-photo"
-     data-graphics="minimal"
-     data-columns="two"
-     data-experience="fresher"
-     data-features="ATS Friendly|Marketing Professional|Modern Design|Leadership Focus|Easy Customization|PDF Ready">
-
-    <div class="resume-preview">
-        <img src="templates/Marketing Manager.png"
-             alt="Marketing Manager">
-    </div>
-
-    <h3>Marketing Manager</h3>
-
-    <button class="choose-btn">
-        Choose Template
-    </button>
-</div>
-
-    <div class="template-card"
-     data-template-id="fresher-ats-1"
-     data-name="Fresher ATS"
-     data-headshot="without-photo"
-     data-graphics="minimal"
-     data-columns="one"
-     data-experience="fresher"
-     data-features="ATS Friendly|Best for Freshers|One Column Layout|Clean Professional Design|Easy to Edit|PDF Ready
-">
-
-        <div class="resume-preview">
-            <img src="templates/fresher.png"
-                alt="Fresher ATS Resume">
+            <button class="choose-btn">
+                Choose Template
+            </button>
         </div>
 
-        <h3>Fresher ATS</h3>
+        <div class="template-card" data-template-id="Graphics Designer" data-name="Graphics Designer"
+            data-headshot="with-photo" data-graphics="minimal" data-columns="two" data-experience="experienced"
+            data-features="Creative Design|Portfolio Ready|Modern Layout|Color Balanced|Easy to Customize|PDF Ready">
 
-        <button class="choose-btn">
-            Choose Template
-        </button>
+            <div class="resume-preview">
+                <img src="images/GRAPHIC DESIGNERR.png" alt="Graphic designer Resume">
+            </div>
 
-    </div>
+            <h3>Graphic Designer </h3>
 
-
-<div class="template-card"
-     data-template-id="software-ats-5"
-     data-name="Software ATS"
-      data-headshot="without-photo"
-     data-graphics="minimal"
-     data-columns="one"
-     data-experience="fresher"
-     data-features="ATS Friendly|IT Professional Layout|Technical Skills|Project Showcase|Clean Design|PDF Ready
-">
-
-    <div class="resume-preview">
-        <img src="templates/software engineer.png"
-             alt="Software ATS Resume">
-    </div>
-
-    <h3>Software ATS</h3>
-
-    <button class="choose-btn">
-        Choose Template
-    </button>
-
-</div>
-
-
-
-
-<div class="template-card"
-     data-template-id="SM Marketing Manager"
-     data-name="SM Marketing Manager"
-     data-headshot="with-photo"
-     data-graphics="professional"
-     data-columns="two"
-     data-experience="experienced"
-     data-features="Digital Marketing Focus|ATS Friendly|Campaign Highlights|Creative Layout|Professional Design|PDF Ready
-">
-
-    <div class="resume-preview">
-        <img src="templates/Social media marketing manager.png"
-             alt="social media marketing manager">
-    </div>
-
-    <h3>Social media marketing manager</h3>
-
-    <button class="choose-btn">
-        Choose Template
-    </button>
-
-</div>
-
-
-
-<div class="template-card"
-     data-template-id="Project Manager"
-     data-name="Project Manager"
-      data-headshot="without-photo"
-     data-graphics="professional"
-     data-columns="two"
-     data-experience="fresher"
-     data-features="Leadership Focus|ATS Friendly|Professional Layout|Project Experience|Management Skills|PDF Ready">
-
-    <div class="resume-preview">
-        <img src="templates/Project Manager.png"
-             alt="Project Manager">
-    </div>
-
-    <h3>Project Manger</h3>
-
-    <button class="choose-btn">
-        Choose Template
-    </button>
-
-</div>
-
-
- 
-
-       
-<div class="template-card"
-     data-template-id="Project Manager"
-     data-name="Project Manager"
-      data-headshot="with-photo"
-     data-graphics="creative"
-     data-columns="two"
-     data-experience="experienced"
-     data-features="Leadership Focus|ATS Friendly|Professional Layout|Project Experience|Management Skills|PDF Ready">
-
-    <div class="resume-preview">
-        <img src="templates/Project Manger.png"
-             alt="Project Manager">
-    </div>
-
-    <h3>Project Manager</h3>
-
-    <button class="choose-btn">
-        Choose Template
-    </button>
-</div>
-<div class="template-card"
-     data-template-id="Operation Manager"
-     data-name="Operation Manager"
-      data-headshot="without-photo"
-     data-graphics="minimal"
-     data-columns="one"
-     data-experience="fresher"
-     data-features="ATS Friendly|Leadership Resume|Operations Focus|Management Skills|Professional Layout|PDF Ready">
-
-    <div class="resume-preview">
-        <img src="templates/Operations Manager.png"
-             alt="Operation Manager">
-    </div>
-    <h3>Operation Manager</h3>
-    <button class="choose-btn">
-        Choose Template
-    </button>
-</div>
-
-
-
-<div class="template-card"
-     data-template-id="Data Analyst"
-     data-name="Data Analyst"
-      data-headshot="without-photo"
-     data-graphics="minimal"
-     data-columns="one"
-     data-experience="fresher"
-     data-features="ATS Friendly|Analytics Focus|Technical Skills|Modern Layout|Professional Resume|PDF Ready">
-
-    <div class="resume-preview">
-        <img src="templates/Data Analyst.png"
-             alt="Data Analyst">
-    </div>
-
-    <h3>Data Analyst</h3>
-
-    <button class="choose-btn">
-        Choose Template
-    </button>
-
-</div>
-
-
-
-<div class="template-card"
-     data-template-id="Driver"
-     data-name="Driver"
-      data-headshot="without-photo"
-     data-graphics="minimal"
-     data-columns="two"
-     data-experience="experienced"
-     data-features="Professional Driver Resume|Clean Layout|Experience Focus|ATS Friendly|Easy Editing|PDF Ready
-">
-
-    <div class="resume-preview">
-        <img src="templates/Driver.png"
-             alt="Driver">
-    </div>
-
-    <h3>Driver</h3>
-
-    <button class="choose-btn">
-        Choose Template
-    </button>
-</div>
-
-
-<div class="template-card"
-     data-template-id="Finalyst Manager"
-     data-name="Finalyst Manager"
-      data-headshot="with-photo"
-     data-graphics="professional"
-     data-columns="two"
-     data-experience="experienced"
-     data-features="Finance Professional|ATS Friendly|Leadership Focus|Professional Design|Easy to Edit|PDF Ready">
-
-    <div class="resume-preview">
-        <img src="templates/Finalyst Manager.png"
-             alt="Finalyst Manager">
-    </div>
-
-    <h3>Finalyst Manager</h3>
-
-    <button class="choose-btn">
-        Choose Template
-    </button>
-</div>
-<div class="template-card"
-     data-template-id="Marketing Executive"
-     data-name="Marketing Executive"
-      data-headshot="without-photo"
-     data-graphics="minimal"
-     data-columns="one"
-     data-experience="experienced"
-     data-features="Marketing Professional|ATS Friendly|Sales & Marketing|Modern Resume|Skills Highlight|PDF Ready">
-
-    <div class="resume-preview">
-        <img src="templates/Marketing Executive.png"
-             alt="Marketing Executive">
-    </div>
-
-    <h3>Marketing Executive</h3>
-
-    <button class="choose-btn">
-        Choose Template
-    </button>
-</div>
-<div class="template-card"
-     data-template-id="Flight Attendant"
-     data-name="Flight Attendant"
-      data-headshot="without-photo"
-     data-graphics="creative"
-     data-columns="two"
-     data-experience="experienced"
-     data-features="Aviation Resume|Customer Service Focus|ATS Friendly|Professional Layout|Modern Design|PDF Ready">
-
-    <div class="resume-preview">
-        <img src="templates/Flight Attendant.jpg"
-             alt="Flight Attendant">
-    </div>
-
-    <h3>Flight Attendant</h3>
-
-    <button class="choose-btn">
-        Choose Template
-    </button>
-</div>
-    </section>
-<div id="previewModal" class="preview-modal">
-
-    <span class="close-preview">&times;</span>
-
-    <button class="nav-btn prev">&#10094;</button>
-
-    <div class="preview-content">
-
-        <div class="preview-left">
-            <img id="previewImage">
-        </div>
-
-        <div class="preview-right">
-
-            <span class="badge">Recommended</span>
-
-            <h2 id="templateTitle"></h2>
-
-            <ul id="templateFeatures" class="template-features"></ul>
-
-            <button id="chooseTemplateBtn" class="choose-btn">
+            <button class="choose-btn">
                 Choose Template
             </button>
 
         </div>
 
+
+        <div class="template-card" data-template-id="teacher-ats-1" data-name="Teacher ATS"
+            data-headshot="without-photo" data-graphics="minimal" data-columns="one" data-experience="fresher"
+            data-features="ATS Friendly|Education Focused|Professional Layout|Skills & Certifications|Easy to Edit|PDF Ready
+">
+
+            <div class="resume-preview">
+                <img src="images/Teacher.png" alt="Teacher ATS Resume">
+            </div>
+
+            <h3>Teacher ATS</h3>
+
+            <button class="choose-btn">
+                Choose Template
+            </button>
+
+        </div>
+        <div class="template-card" data-template-id="PhotoGrapher" data-name="Photo Grapher" data-headshot="with-photo"
+            data-graphics="minimal" data-columns="two" data-experience="fresher"
+            data-features="Portfolio Ready|Creative Resume|Visual Design|Experience Focus|Easy Editing|PDF Ready">
+
+            <div class="resume-preview">
+                <img src="images/PhotoGrapher.jpg" alt="Photo Grapher">
+            </div>
+
+            <h3>PhotoGrapher</h3>
+
+            <button class="choose-btn">
+                Choose Template
+            </button>
+
+        </div>
+        <div class="template-card" data-template-id="marketing-ats-4" data-name="Marketing ATS"
+            data-headshot="with-photo" data-graphics="minimal" data-columns="two" data-experience="fresher"
+            data-features="ATS Friendly|Marketing Professional|Modern Design|Leadership Focus|Easy Customization|PDF Ready">
+            <div class="resume-preview">
+                <img src="images/Marketing Manager.jpg" alt="Marketing Manager">
+            </div>
+
+            <h3>Marketing Manager</h3>
+
+            <button class="choose-btn">
+                Choose Template
+            </button>
+        </div>
+
+        <div class="template-card" data-template-id="student-ats-1" data-name="Student ATS"
+            data-headshot="without-photo" data-graphics="minimal" data-columns="two" data-experience="fresher"
+            data-features="Perfect for Students|Internship Ready|ATS Friendly|Simple Layout|Skills Highlight|PDF Ready">
+
+            <div class="resume-preview">
+                <img src="images/student.png" alt="Student ATS Resume">
+            </div>
+
+            <h3>Student ATS</h3>
+
+            <button class="choose-btn">
+                Choose Template
+            </button>
+
+        </div>
+        <div class="template-card" data-template-id="Senior Sales Assistant" data-name="Senior Sales Assistant"
+            data-headshot="without-photo" data-graphics="minimal" data-columns="two" data-experience="experienced"
+            data-features="Sales Professional|ATS Friendly|Customer Service Focus|Experience Highlight|Professional Design|PDF Ready">
+
+            <div class="resume-preview">
+                <img src="images/Senior sales assistant.png" alt="Senior Sales Assistant">
+            </div>
+
+            <h3>Senior Sales Assistant</h3>
+
+            <button class="choose-btn">
+                Choose Template
+            </button>
+        </div>
+        <div class="template-card" data-template-id="Designer and Architect" data-name="Designer And Architect"
+            data-headshot="with-photo" data-graphics="creative" data-columns="two" data-experience="experienced"
+            data-features="Creative Resume|Portfolio Ready|Modern Design|Project Highlights|ATS Optimized|PDF Ready
+">
+
+            <div class="resume-preview">
+                <img src="images/Designer and Architect.jpg" alt="Designer and Architect">
+            </div>
+
+            <h3>Designer and Architect</h3>
+
+            <button class="choose-btn">
+                Choose Template
+            </button>
+        </div>
+        <div class="template-card" data-template-id="Full Time Educator" data-name="Full Time Educator"
+            data-headshot="without-photo" data-graphics="minimal" data-columns="two" data-experience="experienced"
+            data-features="Education Professional|ATS Friendly|Teaching Experience|Clean Layout|Skills Highlight|PDF Ready">
+
+            <div class="resume-preview">
+                <img src="images/Full Time Educator.png" alt="Full Time Educator">
+            </div>
+
+            <h3>Full Time Educator</h3>
+
+            <button class="choose-btn">
+                Choose Template
+            </button>
+        </div>
+        <div class="template-card" data-template-id="Marketing Manager" data-name="Marketing Manager"
+            data-headshot="with-photo" data-graphics="minimal" data-columns="two" data-experience="fresher"
+            data-features="ATS Friendly|Marketing Professional|Modern Design|Leadership Focus|Easy Customization|PDF Ready">
+
+            <div class="resume-preview">
+                <img src="images/Marketing Manager.png" alt="Marketing Manager">
+            </div>
+
+            <h3>Marketing Manager</h3>
+
+            <button class="choose-btn">
+                Choose Template
+            </button>
+        </div>
+
+        <div class="template-card" data-template-id="fresher-ats-1" data-name="Fresher ATS"
+            data-headshot="without-photo" data-graphics="minimal" data-columns="one" data-experience="fresher"
+            data-features="ATS Friendly|Best for Freshers|One Column Layout|Clean Professional Design|Easy to Edit|PDF Ready
+">
+
+            <div class="resume-preview">
+                <img src="images/fresher.png" alt="Fresher ATS Resume">
+            </div>
+
+            <h3>Fresher ATS</h3>
+
+            <button class="choose-btn">
+                Choose Template
+            </button>
+
+        </div>
+
+
+        <div class="template-card" data-template-id="software-ats-5" data-name="Software ATS"
+            data-headshot="without-photo" data-graphics="minimal" data-columns="one" data-experience="fresher"
+            data-features="ATS Friendly|IT Professional Layout|Technical Skills|Project Showcase|Clean Design|PDF Ready
+">
+
+            <div class="resume-preview">
+                <img src="images/software engineer.png" alt="Software ATS Resume">
+            </div>
+
+            <h3>Software ATS</h3>
+
+            <button class="choose-btn">
+                Choose Template
+            </button>
+
+        </div>
+
+
+
+
+        <div class="template-card" data-template-id="SM Marketing Manager" data-name="SM Marketing Manager"
+            data-headshot="with-photo" data-graphics="professional" data-columns="two" data-experience="experienced"
+            data-features="Digital Marketing Focus|ATS Friendly|Campaign Highlights|Creative Layout|Professional Design|PDF Ready
+">
+
+            <div class="resume-preview">
+                <img src="images/Social media marketing manager.png" alt="social media marketing manager">
+            </div>
+
+            <h3>Social media marketing manager</h3>
+
+            <button class="choose-btn">
+                Choose Template
+            </button>
+
+        </div>
+
+
+
+        <div class="template-card" data-template-id="Project Manager" data-name="Project Manager"
+            data-headshot="without-photo" data-graphics="professional" data-columns="two" data-experience="fresher"
+            data-features="Leadership Focus|ATS Friendly|Professional Layout|Project Experience|Management Skills|PDF Ready">
+
+            <div class="resume-preview">
+                <img src="images/Project Manager.png" alt="Project Manager">
+            </div>
+
+            <h3>Project Manger</h3>
+
+            <button class="choose-btn">
+                Choose Template
+            </button>
+
+        </div>
+
+
+
+
+
+        <div class="template-card" data-template-id="Project Manager" data-name="Project Manager"
+            data-headshot="with-photo" data-graphics="creative" data-columns="two" data-experience="experienced"
+            data-features="Leadership Focus|ATS Friendly|Professional Layout|Project Experience|Management Skills|PDF Ready">
+
+            <div class="resume-preview">
+                <img src="images/Project Manger.png" alt="Project Manager">
+            </div>
+
+            <h3>Project Manager</h3>
+
+            <button class="choose-btn">
+                Choose Template
+            </button>
+        </div>
+        <div class="template-card" data-template-id="Operation Manager" data-name="Operation Manager"
+            data-headshot="without-photo" data-graphics="minimal" data-columns="one" data-experience="fresher"
+            data-features="ATS Friendly|Leadership Resume|Operations Focus|Management Skills|Professional Layout|PDF Ready">
+
+            <div class="resume-preview">
+                <img src="images/Operations Manager.png" alt="Operation Manager">
+            </div>
+            <h3>Operation Manager</h3>
+            <button class="choose-btn">
+                Choose Template
+            </button>
+        </div>
+
+
+
+        <div class="template-card" data-template-id="Data Analyst" data-name="Data Analyst"
+            data-headshot="without-photo" data-graphics="minimal" data-columns="one" data-experience="fresher"
+            data-features="ATS Friendly|Analytics Focus|Technical Skills|Modern Layout|Professional Resume|PDF Ready">
+
+            <div class="resume-preview">
+                <img src="images/Data Analyst.png" alt="Data Analyst">
+            </div>
+
+            <h3>Data Analyst</h3>
+
+            <button class="choose-btn">
+                Choose Template
+            </button>
+
+        </div>
+
+
+
+        <div class="template-card" data-template-id="Driver" data-name="Driver" data-headshot="without-photo"
+            data-graphics="minimal" data-columns="two" data-experience="experienced" data-features="Professional Driver Resume|Clean Layout|Experience Focus|ATS Friendly|Easy Editing|PDF Ready
+">
+
+            <div class="resume-preview">
+                <img src="images/Driver.png" alt="Driver">
+            </div>
+
+            <h3>Driver</h3>
+
+            <button class="choose-btn">
+                Choose Template
+            </button>
+        </div>
+
+
+        <div class="template-card" data-template-id="Finalyst Manager" data-name="Finalyst Manager"
+            data-headshot="with-photo" data-graphics="professional" data-columns="two" data-experience="experienced"
+            data-features="Finance Professional|ATS Friendly|Leadership Focus|Professional Design|Easy to Edit|PDF Ready">
+
+            <div class="resume-preview">
+                <img src="images/Finalyst Manager.png" alt="Finalyst Manager">
+            </div>
+
+            <h3>Finalyst Manager</h3>
+
+            <button class="choose-btn">
+                Choose Template
+            </button>
+        </div>
+        <div class="template-card" data-template-id="Marketing Executive" data-name="Marketing Executive"
+            data-headshot="without-photo" data-graphics="minimal" data-columns="one" data-experience="experienced"
+            data-features="Marketing Professional|ATS Friendly|Sales & Marketing|Modern Resume|Skills Highlight|PDF Ready">
+
+            <div class="resume-preview">
+                <img src="images/Marketing Executive.png" alt="Marketing Executive">
+            </div>
+
+            <h3>Marketing Executive</h3>
+
+            <button class="choose-btn">
+                Choose Template
+            </button>
+        </div>
+        <div class="template-card" data-template-id="Flight Attendant" data-name="Flight Attendant"
+            data-headshot="without-photo" data-graphics="creative" data-columns="two" data-experience="experienced"
+            data-features="Aviation Resume|Customer Service Focus|ATS Friendly|Professional Layout|Modern Design|PDF Ready">
+
+            <div class="resume-preview">
+                <img src="images/Flight Attendant.jpg" alt="Flight Attendant">
+            </div>
+
+            <h3>Flight Attendant</h3>
+
+            <button class="choose-btn">
+                Choose Template
+            </button>
+        </div>
+    </section>
+    <div id="previewModal" class="preview-modal">
+
+        <span class="close-preview">&times;</span>
+
+        <button class="nav-btn prev">&#10094;</button>
+
+        <div class="preview-content">
+
+            <div class="preview-left">
+                <img id="previewImage">
+            </div>
+
+            <div class="preview-right">
+
+                <span class="badge">Recommended</span>
+
+                <h2 id="templateTitle"></h2>
+
+                <ul id="templateFeatures" class="template-features"></ul>
+
+                <button id="chooseTemplateBtn" class="choose-btn">
+                    Choose Template
+                </button>
+
+            </div>
+
+        </div>
+
+        <button class="nav-btn next">&#10095;</button>
+
     </div>
-
-    <button class="nav-btn next">&#10095;</button>
-
-</div>
+    <script src="theme-toggle.js"></script>
     <script src="builder.js"></script>
 
-    </body>
-    </html>
+</body>
+
+</html>

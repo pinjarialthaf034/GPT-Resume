@@ -259,7 +259,16 @@ function initializeBuilderPage() {
 
     cards.forEach((card, index) => {
         card.addEventListener("click", function (e) {
-            if (e.target.classList.contains("choose-btn")) return;
+            if (e.target.classList.contains("choose-btn")) {
+                e.stopPropagation();
+                const templateId = card.getAttribute("data-template-id");
+                if (templateId === "Facility Property Manager" || templateId === "facility_property_manager") {
+                    window.location.href = "templates/facility-builder.html?template_id=facility_property_manager";
+                } else if (templateId === "PhotoGrapher" || templateId === "photographer") {
+                    window.location.href = "templates/Photographer.html?template_id=photographer";
+                }
+                return;
+            }
             openPreview(index);
         });
     });
