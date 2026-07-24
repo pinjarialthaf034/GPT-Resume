@@ -861,7 +861,7 @@ async function generateAISkills() {
         const summary = photographer_resume_data.summary || "";
 
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/generate-skills", {
+            const response = await fetch("https://gpt-resume-2smw.onrender.com/api/generate-skills", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -936,7 +936,7 @@ async function handleAISummary() {
         let cleanSummary = "";
 
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/generate-summary", {
+            const response = await fetch("https://gpt-resume-2smw.onrender.com/api/generate-summary", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -992,7 +992,7 @@ async function handleAIAssistant() {
         let cleanText = "";
 
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/generate-summary", {
+            const response = await fetch("https://gpt-resume-2smw.onrender.com/api/generate-summary", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -1046,7 +1046,7 @@ window.handleAIExperience = async function (id) {
             let cleanText = "";
 
             try {
-                const response = await fetch("http://127.0.0.1:8000/api/generate-summary", {
+                const response = await fetch("https://gpt-resume-2smw.onrender.com/api/generate-summary", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
