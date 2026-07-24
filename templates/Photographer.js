@@ -826,136 +826,7 @@ function cleanTextResponse(rawText) {
         .trim();
 }
 
-// ==========================================
-// LIVE LLM API CONNECTION LOGIC (GROQ llama-3.3-70b-versatile)
-// ==========================================
-async function callLiveAI(promptTextOrMessages, systemContext = "", onChunk = null, temperature = 0.7, seed = null) {
-    const GROQ_API_KEY = localStorage.getItem("GROQ_API_KEY") || "";
-    const endpoint = "https://api.groq.com/openai/v1/chat/completions";
 
-    let sysCtx = systemContext || "You are a direct resume-generation engine. Your ONLY output must be the final resume text. STRICT RULES: Never say 'Here is', 'Sure', 'Based on', or 'Summary:'. Never write notes in parentheses. Strip birth dates, locations, and irrelevant personal details automatically.";
-    if (systemContext && !systemContext.includes("CRITICAL RULE") && !systemContext.includes("STRICT RULES")) {
-        sysCtx += " STRICT RULES: Never say 'Here is', 'Sure', 'Based on', or 'Summary:'. Never write notes in parentheses. Strip birth dates, locations, and irrelevant personal details automatically.";
-    }
-
-    let messagesPayload;
-    if (Array.isArray(promptTextOrMessages)) {
-        messagesPayload = promptTextOrMessages;
-    } else {
-        const isSummaryRequest = !systemContext || systemContext.toLowerCase().includes("summary") || systemContext.toLowerCase().includes("resume writer");
-        if (isSummaryRequest) {
-            const userInput = promptTextOrMessages;
-            messagesPayload = [
-                {
-                    role: "system",
-                    content: "You are a professional resume parser and generator. ABSOLUTE RULES: \n1. BANNED BUZZWORDS: 'Results-driven', 'proven track record', 'passionate', 'dynamic'.\n2. OUTPUT ONLY RAW SUMMARY TEXT. Zero intros, zero quotes, zero explanations in brackets.\n3. Extract specific details (experience, tools, photography styles) and weave them into 2-3 clean, authentic sentences."
-                },
-                {
-                    role: "user",
-                    content: "Name: Rufus Stewart. Input: My name is Rufus Stewart. I am born in California on 10 oct 1991, I am a professional photographer who have been working in several different companies. I love to travel and capture stories."
-                },
-                {
-                    role: "assistant",
-                    content: "Commercial and travel photographer with extensive experience managing creative projects across diverse company environments. Specialized in location-based visual storytelling, studio lighting setups, and Adobe Lightroom post-production."
-                },
-                {
-                    role: "user",
-                    content: `User Input: '${userInput}'. Seed: ${Date.now()}. Generate an authentic, non-generic summary:`
-                }
-            ];
-        } else {
-            messagesPayload = [
-                {
-                    role: "system",
-                    content: sysCtx
-                },
-                {
-                    role: "user",
-                    content: promptTextOrMessages
-                }
-            ];
-        }
-    }
-
-    const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${GROQ_API_KEY}`
-        },
-        body: JSON.stringify({
-            model: "llama-3.3-70b-versatile",
-            messages: messagesPayload,
-            temperature: temperature,
-            max_tokens: 130,
-            seed: seed !== null ? seed : undefined,
-            stream: !!onChunk
-        })
-    });
-
-    if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.error?.message || response.statusText || "Groq API error");
-    }
-
-    if (onChunk) {
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder("utf-8");
-        let buffer = "";
-        let accumulatedText = "";
-
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split("\n");
-            buffer = lines.pop();
-
-            for (const line of lines) {
-                const cleaned = line.trim();
-                if (!cleaned || !cleaned.startsWith("data: ")) continue;
-                const dataStr = cleaned.slice(6).trim();
-                if (dataStr === "[DONE]") continue;
-                try {
-                    const parsed = JSON.parse(dataStr);
-                    const content = parsed.choices[0]?.delta?.content;
-                    if (content) {
-                        accumulatedText += content;
-                        const cleanedText = cleanTextResponse(accumulatedText);
-                        onChunk(cleanedText, content);
-                    }
-                } catch (err) {
-                    // Ignore JSON parsing errors for partial lines
-                }
-            }
-        }
-
-        // Clean up remaining buffer
-        if (buffer.trim().startsWith("data: ")) {
-            const dataStr = buffer.trim().slice(6).trim();
-            if (dataStr !== "[DONE]") {
-                try {
-                    const parsed = JSON.parse(dataStr);
-                    const content = parsed.choices[0]?.delta?.content;
-                    if (content) {
-                        accumulatedText += content;
-                        const cleanedText = cleanTextResponse(accumulatedText);
-                        onChunk(cleanedText, content);
-                    }
-                } catch (e) { }
-            }
-        }
-        return cleanTextResponse(accumulatedText);
-    } else {
-        const data = await response.json();
-        if (data.choices && data.choices[0] && data.choices[0].message) {
-            const rawText = data.choices[0].message.content;
-            return cleanTextResponse(rawText);
-        }
-        throw new Error("Invalid response format from Groq API");
-    }
-}
 
 // ==========================================
 // BUTTON SPINNER UTILITY wrapper
@@ -1047,71 +918,7 @@ async function generateAISkills() {
 }
 window.generateAISkills = generateAISkills;
 
-// ==========================================
-// SELF-CONTAINED GROQ API FALLBACK UTILITY
-// ==========================================
-async function callLiveAPI(promptText, sectionType = "summary") {
-    const GROQ_API_KEY = localStorage.getItem("GROQ_API_KEY") || "";
-    const endpoint = "https://api.groq.com/openai/v1/chat/completions";
 
-    let section_instruction = "";
-    if (sectionType === "summary") {
-        section_instruction = "Generate a crisp 2-3 sentence resume summary centered strictly on the facts in the user prompt.";
-    } else if (sectionType === "experience_bullets") {
-        section_instruction = 
-            "Convert the user prompt into 3 powerful, high-impact bullet points using strong action verbs (e.g., Developed, Managed, Spearheaded). " +
-            "Output ONLY raw bullet points starting with standard dashes (e.g., - Developed...).";
-    } else if (sectionType === "suggest_bullets") {
-        section_instruction = 
-            "Based on the role/text provided, generate 3 strategic industry-standard achievement bullets. " +
-            "Output ONLY raw bullet points starting with standard dashes (e.g., - Spearheaded...).";
-    } else {
-        section_instruction = "Generate a professional resume summary.";
-    }
-
-    const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + GROQ_API_KEY
-        },
-        body: JSON.stringify({
-            model: "llama-3.3-70b-versatile",
-            messages: [
-                {
-                    role: "system",
-                    content: "You are a professional resume generator. ABSOLUTE RULES: Banned words: 'Results-driven', 'proven track record', 'passionate', 'dynamic'. " +
-                             "OUTPUT ONLY RAW SUMMARY TEXT. Zero intros, zero quotes, zero bracketed notes.\n\nTask: " + section_instruction
-                },
-                {
-                    role: "user",
-                    content: promptText
-                }
-            ],
-            temperature: 0.85,
-            max_tokens: 130
-        })
-    });
-
-if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(err.error?.message || response.statusText || "Groq API error");
-}
-
-const data = await response.json();
-if (data.choices && data.choices[0] && data.choices[0].message) {
-    const rawText = data.choices[0].message.content;
-
-    // Full Regex text sanitization on the Groq output before returning it
-    if (!rawText) return "";
-    return rawText
-        .replace(/\(.*?\)/g, "") // Strip bracketed explanations
-        .replace(/^(Here's|Here is|Sure|Certainly|Summary|Output)[^:]*:\s*/i, "") // Strip conversational prefixes
-        .replace(/^["']|["']$/g, "") // Strip leftover quote marks
-        .trim();
-}
-throw new Error("Invalid response format from Groq API");
-}
 
 // ==========================================
 // SMART CONTEXT-AWARE AI CHATGPT TRIGGERS
@@ -1127,7 +934,6 @@ async function handleAISummary() {
     await executeWithLoadingState(button, async () => {
         const originalValue = summaryInput.value;
         let cleanSummary = "";
-        let usedFallback = false;
 
         try {
             const response = await fetch("http://127.0.0.1:8000/api/generate-summary", {
@@ -1154,18 +960,10 @@ async function handleAISummary() {
                 throw new Error(data.detail || "Unexpected backend response status");
             }
         } catch (error) {
-            console.warn("⚠️ Python Backend offline. Seamlessly falling back to Direct Groq API...", error);
-            usedFallback = true;
-
-            try {
-                cleanSummary = await callLiveAPI(promptText, "summary");
-            } catch (fallbackError) {
-                console.error("Direct Groq Fallback Failure:", fallbackError);
-                // Restore original input value so the user doesn't lose their text
-                summaryInput.value = originalValue;
-                showToast(`AI Generation failed: ${fallbackError.message}`, "error");
-                return;
-            }
+            console.error("Summary AI Generation failed:", error);
+            summaryInput.value = originalValue;
+            showToast(`AI Generation failed: ${error.message}`, "error");
+            return;
         }
 
         // Inject the clean processed response directly into #summaryInput and #previewSummary
@@ -1177,11 +975,7 @@ async function handleAISummary() {
         // Sync resume state
         photographer_resume_data.summary = cleanSummary;
 
-        const successText = usedFallback
-            ? "Summary generated via direct Groq API (Python backend offline)."
-            : "Summary generated successfully via Python Backend!";
-
-        showToast(successText, usedFallback ? "warning" : "success");
+        showToast("Summary generated successfully via Python Backend!", "success");
         triggerAutosave();
     });
 }
@@ -1196,7 +990,6 @@ async function handleAIAssistant() {
     await executeWithLoadingState(button, async () => {
         const originalValue = input.value;
         let cleanText = "";
-        let usedFallback = false;
 
         try {
             const response = await fetch("http://127.0.0.1:8000/api/generate-summary", {
@@ -1223,17 +1016,10 @@ async function handleAIAssistant() {
                 throw new Error(data.detail || "Unexpected backend response status");
             }
         } catch (error) {
-            console.warn("⚠️ Python Backend offline. Seamlessly falling back to Direct Groq API...", error);
-            usedFallback = true;
-
-            try {
-                cleanText = await callLiveAPI(promptText, "suggest_bullets");
-            } catch (fallbackError) {
-                console.error("Direct Groq Fallback Failure:", fallbackError);
-                input.value = originalValue;
-                showToast(`AI Generation failed: ${fallbackError.message}`, "error");
-                return;
-            }
+            console.error("Assistant Bullet AI Generation failed:", error);
+            input.value = originalValue;
+            showToast(`AI Generation failed: ${error.message}`, "error");
+            return;
         }
 
         // Apply cleanText to the input/textarea and preview
@@ -1241,10 +1027,7 @@ async function handleAIAssistant() {
         photographer_resume_data.assistant = cleanText;
         renderPreview();
 
-        const successText = usedFallback
-            ? "Assistant bullets generated via direct Groq API (Python backend offline)."
-            : "Assistant bullets generated successfully via Python Backend!";
-        showToast(successText, usedFallback ? "warning" : "success");
+        showToast("Assistant bullets generated successfully via Python Backend!", "success");
         triggerAutosave();
     });
 }
@@ -1261,7 +1044,6 @@ window.handleAIExperience = async function (id) {
         if (exp) {
             const originalValue = input.value;
             let cleanText = "";
-            let usedFallback = false;
 
             try {
                 const response = await fetch("http://127.0.0.1:8000/api/generate-summary", {
@@ -1288,17 +1070,10 @@ window.handleAIExperience = async function (id) {
                     throw new Error(data.detail || "Unexpected backend response status");
                 }
             } catch (error) {
-                console.warn("⚠️ Python Backend offline. Seamlessly falling back to Direct Groq API...", error);
-                usedFallback = true;
-
-                try {
-                    cleanText = await callLiveAPI(promptText, "experience_bullets");
-                } catch (fallbackError) {
-                    console.error("Direct Groq Fallback Failure:", fallbackError);
-                    input.value = originalValue;
-                    showToast(`AI Generation failed: ${fallbackError.message}`, "error");
-                    return;
-                }
+                console.error("Experience Bullet AI Generation failed:", error);
+                input.value = originalValue;
+                showToast(`AI Generation failed: ${error.message}`, "error");
+                return;
             }
 
             // Apply cleanText to the input/textarea and sync with preview
@@ -1306,10 +1081,7 @@ window.handleAIExperience = async function (id) {
             exp.desc = cleanText;
             renderPreview();
 
-            const successText = usedFallback
-                ? "Experience bullets generated via direct Groq API (Python backend offline)."
-                : "Experience bullets generated successfully via Python Backend!";
-            showToast(successText, usedFallback ? "warning" : "success");
+            showToast("Experience bullets generated successfully via Python Backend!", "success");
             triggerAutosave();
         }
     });

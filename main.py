@@ -6,16 +6,24 @@ import json
 import re
 import random
 import os
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
+# Reconfigure stdout to use UTF-8 to prevent encoding crashes on Windows terminals
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+
 # Load environment variables from the exact directory of main.py
 env_path = Path(__file__).resolve().parent / ".env"
-load_dotenv(dotenv_path=env_path)
+load_dotenv(dotenv_path=env_path, override=True)
 
 # Startup check to verify backend loading (without logging raw secret)
-api_key_loaded = bool(os.getenv("GROQ_API_KEY"))
-print(f"GROQ_API_KEY Loaded: {api_key_loaded}", flush=True)
+groq_key = os.getenv("GROQ_API_KEY")
+if groq_key:
+    print(f"✅ [SUCCESS] Loaded GROQ_API_KEY: {groq_key[:7]}...{groq_key[-4:]}", flush=True)
+else:
+    print("❌ [ERROR] GROQ_API_KEY is NOT found or None!", flush=True)
 
 app = FastAPI(title="AI Resume Builder Backend")
 
@@ -132,6 +140,10 @@ def generate_summary(req: SummaryRequest):
         "seed": seed
     }
 
+    # Explicit logging to print the exact Model Name and Key prefix being sent to Groq
+    key_debug = f"{GROQ_API_KEY[:7]}...{GROQ_API_KEY[-4:]}" if GROQ_API_KEY else "None"
+    print(f"[DEBUG] Sending Request. Model: {payload['model']}, Key Prefix: {key_debug}", flush=True)
+
     try:
         req_data = json.dumps(payload).encode("utf-8")
         req_obj = urllib.request.Request(
@@ -203,6 +215,10 @@ def generate_skills(req: SkillsRequest):
         "max_tokens": 150,
         "seed": seed
     }
+
+    # Explicit logging to print the exact Model Name and Key prefix being sent to Groq
+    key_debug = f"{GROQ_API_KEY[:7]}...{GROQ_API_KEY[-4:]}" if GROQ_API_KEY else "None"
+    print(f"[DEBUG] Sending Request. Model: {payload['model']}, Key Prefix: {key_debug}", flush=True)
 
     try:
         req_data = json.dumps(payload).encode("utf-8")
