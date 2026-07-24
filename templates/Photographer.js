@@ -827,10 +827,10 @@ function cleanTextResponse(rawText) {
 }
 
 // ==========================================
-// LIVE LLM API CONNECTION LOGIC (GROQ llama-3.1-8b-instant)
+// LIVE LLM API CONNECTION LOGIC (GROQ llama-3.3-70b-versatile)
 // ==========================================
 async function callLiveAI(promptTextOrMessages, systemContext = "", onChunk = null, temperature = 0.7, seed = null) {
-    const GROQ_API_KEY = localStorage.getItem("GROQ_API_KEY") || "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";
+    const GROQ_API_KEY = localStorage.getItem("GROQ_API_KEY") || "";
     const endpoint = "https://api.groq.com/openai/v1/chat/completions";
 
     let sysCtx = systemContext || "You are a direct resume-generation engine. Your ONLY output must be the final resume text. STRICT RULES: Never say 'Here is', 'Sure', 'Based on', or 'Summary:'. Never write notes in parentheses. Strip birth dates, locations, and irrelevant personal details automatically.";
@@ -884,7 +884,7 @@ async function callLiveAI(promptTextOrMessages, systemContext = "", onChunk = nu
             "Authorization": `Bearer ${GROQ_API_KEY}`
         },
         body: JSON.stringify({
-            model: "llama-3.1-8b-instant",
+            model: "llama-3.3-70b-versatile",
             messages: messagesPayload,
             temperature: temperature,
             max_tokens: 130,
@@ -988,35 +988,56 @@ async function generateAISkills() {
         const role = photographer_resume_data.role || "Photographer";
         const name = photographer_resume_data.name || "Rufus Stewart";
         const summary = photographer_resume_data.summary || "";
-        const systemContext = "You are an elite AI photography portfolio and resume strategist. Generate professional skills.";
-
-        const prompt = `Based on the job role "${role}", candidate name "${name}", and summary "${summary}", suggest exactly 7-10 high-impact technical or creative skills for a professional photography resume. Return ONLY a comma-separated list of skills, with no numbering, introduction, or additional text. Example: Studio Lighting, Adobe Lightroom, Color Grading`;
 
         try {
-            const result = await callLiveAI(prompt, systemContext);
-            const skills = result.split(",").map(s => s.replace(/^[-\d\.\s•\*]+/, "").trim()).filter(s => s !== "");
+            const response = await fetch("http://127.0.0.1:8000/api/generate-skills", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    role: role,
+                    name: name,
+                    summary: summary
+                })
+            });
 
-            if (skills.length > 0) {
-                container.innerHTML = "";
-                skills.forEach(skillName => {
-                    const chip = document.createElement("span");
-                    chip.className = "skill-chip";
-                    chip.setAttribute("data-skill", skillName);
-                    chip.textContent = skillName;
-                    chip.addEventListener("click", () => {
-                        const normalizedSkills = photographer_resume_data.skills.map(s => s.trim().toLowerCase());
-                        if (!normalizedSkills.includes(skillName.toLowerCase())) {
-                            photographer_resume_data.skills.push(skillName);
-                            document.getElementById("skillsInput").value = photographer_resume_data.skills.join(", ");
-                            renderPreview();
-                            triggerAutosave();
-                        }
+            if (!response.ok) {
+                const errDetail = await response.json().catch(() => ({}));
+                throw new Error(errDetail.detail || response.statusText || "Backend failure");
+            }
+
+            const data = await response.json();
+            if (data.status === "success") {
+                const result = data.skills;
+                const skills = Array.isArray(result)
+                    ? result
+                    : result.split(",").map(s => s.replace(/^[-\d\.\s•\*]+/, "").trim()).filter(s => s !== "");
+
+                if (skills.length > 0) {
+                    container.innerHTML = "";
+                    skills.forEach(skillName => {
+                        const chip = document.createElement("span");
+                        chip.className = "skill-chip";
+                        chip.setAttribute("data-skill", skillName);
+                        chip.textContent = skillName;
+                        chip.addEventListener("click", () => {
+                            const normalizedSkills = photographer_resume_data.skills.map(s => s.trim().toLowerCase());
+                            if (!normalizedSkills.includes(skillName.toLowerCase())) {
+                                photographer_resume_data.skills.push(skillName);
+                                document.getElementById("skillsInput").value = photographer_resume_data.skills.join(", ");
+                                renderPreview();
+                                triggerAutosave();
+                            }
+                        });
+                        container.appendChild(chip);
                     });
-                    container.appendChild(chip);
-                });
-                showToast("Skills suggestions updated via Groq AI!", "success");
+                    showToast("Skills suggestions updated via Python Backend!", "success");
+                } else {
+                    showToast("No skills were returned by the Backend.", "warning");
+                }
             } else {
-                showToast("No skills were returned by Groq AI.", "warning");
+                throw new Error(data.detail || "Unexpected backend response status");
             }
         } catch (error) {
             console.error("AI Skills Suggestion Failure:", error);
@@ -1030,7 +1051,7 @@ window.generateAISkills = generateAISkills;
 // SELF-CONTAINED GROQ API FALLBACK UTILITY
 // ==========================================
 async function callLiveAPI(promptText, sectionType = "summary") {
-    const GROQ_API_KEY = localStorage.getItem("GROQ_API_KEY") || "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";
+    const GROQ_API_KEY = localStorage.getItem("GROQ_API_KEY") || "";
     const endpoint = "https://api.groq.com/openai/v1/chat/completions";
 
     let section_instruction = "";
@@ -1055,7 +1076,7 @@ async function callLiveAPI(promptText, sectionType = "summary") {
             "Authorization": "Bearer " + GROQ_API_KEY
         },
         body: JSON.stringify({
-            model: "llama-3.1-8b-instant",
+            model: "llama-3.3-70b-versatile",
             messages: [
                 {
                     role: "system",

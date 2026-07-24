@@ -6,6 +6,16 @@ import json
 import re
 import random
 import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from the exact directory of main.py
+env_path = Path(__file__).resolve().parent / ".env"
+load_dotenv(dotenv_path=env_path)
+
+# Startup check to verify backend loading (without logging raw secret)
+api_key_loaded = bool(os.getenv("GROQ_API_KEY"))
+print(f"GROQ_API_KEY Loaded: {api_key_loaded}", flush=True)
 
 app = FastAPI(title="AI Resume Builder Backend")
 
@@ -22,6 +32,11 @@ class SummaryRequest(BaseModel):
     user_input: str = None
     default_text: str = None
     section_type: str = "summary"
+
+class SkillsRequest(BaseModel):
+    role: str = None
+    name: str = None
+    summary: str = None
 
 def is_pure_greeting_or_chatter(text: str) -> bool:
     cleaned = re.sub(r'[^a-zA-Z0-9\s]', '', text.lower()).strip()
@@ -68,7 +83,7 @@ def generate_summary(req: SummaryRequest):
             "summary": "Please enter your target role, skills, or professional experience to generate a resume summary."
         }
 
-    GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "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")
+    GROQ_API_KEY = os.getenv("GROQ_API_KEY")
     endpoint = "https://api.groq.com/openai/v1/chat/completions"
 
     seed = random.randint(1, 1000000)
@@ -110,7 +125,7 @@ def generate_summary(req: SummaryRequest):
     ]
 
     payload = {
-        "model": "llama-3.1-8b-instant",
+        "model": "llama-3.3-70b-versatile",
         "messages": messages,
         "temperature": 0.85,
         "max_tokens": 300,
@@ -140,6 +155,78 @@ def generate_summary(req: SummaryRequest):
             cleaned = cleaned.strip('"\'').strip()
             
             return {"status": "success", "summary": cleaned}
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Groq API connection or processing failed: {str(e)}")
+
+@app.post("/api/generate-skills")
+def generate_skills(req: SkillsRequest):
+    role_val = req.role.strip() if req.role else "Photographer"
+    name_val = req.name.strip() if req.name else "Rufus Stewart"
+    summary_val = req.summary.strip() if req.summary else ""
+    
+    prompt_text = (
+        f"Based on the job role \"{role_val}\", candidate name \"{name_val}\", and summary \"{summary_val}\", "
+        f"suggest exactly 7-10 high-impact technical or creative skills for a professional resume. "
+        f"Return ONLY a comma-separated list of skills, with no numbering, introduction, or additional text. "
+        f"Example: Studio Lighting, Adobe Lightroom, Color Grading"
+    )
+
+    GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+    if not GROQ_API_KEY:
+        raise HTTPException(status_code=500, detail="GROQ_API_KEY is not configured on the backend.")
+        
+    endpoint = "https://api.groq.com/openai/v1/chat/completions"
+    seed = random.randint(1, 1000000)
+
+    system_rules = (
+        "You are an elite AI portfolio and resume strategist. Generate professional skills.\n"
+        "Strictly use the role and context provided in the input prompt. Return ONLY a comma-separated list of skills. "
+        "Do not include numbers, introductions, markdown formatting, quotes, or conversational explanations."
+    )
+
+    messages = [
+        {
+            "role": "system",
+            "content": system_rules
+        },
+        {
+            "role": "user",
+            "content": prompt_text
+        }
+    ]
+
+    payload = {
+        "model": "llama-3.3-70b-versatile",
+        "messages": messages,
+        "temperature": 0.7,
+        "max_tokens": 150,
+        "seed": seed
+    }
+
+    try:
+        req_data = json.dumps(payload).encode("utf-8")
+        req_obj = urllib.request.Request(
+            endpoint,
+            data=req_data,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {GROQ_API_KEY}",
+                "User-Agent": "Mozilla/5.0"
+            },
+            method="POST"
+        )
+        
+        with urllib.request.urlopen(req_obj) as response:
+            res_json = json.loads(response.read().decode("utf-8"))
+            raw_text = res_json["choices"][0]["message"]["content"]
+            
+            # Apply Regex cleaning on the response
+            cleaned = re.sub(r'\(.*?\)', '', raw_text)
+            cleaned = re.sub(r'^(Here\'s|Here is|Output|Skills|Suggested|Sure)[^:]*:\s*', '', cleaned, flags=re.IGNORECASE)
+            cleaned = cleaned.strip('"\'').strip()
+            
+            return {"status": "success", "skills": cleaned}
             
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Groq API connection or processing failed: {str(e)}")
