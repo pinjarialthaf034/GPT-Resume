@@ -55,6 +55,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // 2. LOGIN STATE & DOM SELECTORS
     let isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
     let isSignUpMode = false;
+    let currentModalConfirmCallback = null;
+    let isSigningOut = false;
 
     const goToBuilder = document.getElementById("goToBuilder");
     const goToGuidance = document.getElementById("goToGuidance");
@@ -85,10 +87,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // Google Sign-In Trigger Function forcing account selection
     async function signInWithGoogle() {
         if (!isSupabaseReady) return;
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const redirectUrl = isLocalhost 
+            ? window.location.origin + '/index.html' 
+            : 'https://YOUR-NETLIFY-SITE.netlify.app/index.html';
+
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: window.location.origin + '/builder.html',
+                redirectTo: redirectUrl,
                 queryParams: {
                     prompt: 'select_account'
                 }
@@ -149,6 +156,30 @@ document.addEventListener("DOMContentLoaded", () => {
                 } else {
                     localStorage.setItem("userAvatar", "");
                 }
+
+                // If this is a newly resolved login from a Google OAuth callback redirect on index.html
+                const isOAuthCallback = window.location.hash.includes("access_token=") || window.location.hash.includes("id_token=");
+                if (isOAuthCallback && !localStorage.getItem("googleLoginHandled")) {
+                    localStorage.setItem("googleLoginHandled", "true");
+                    
+                    // Clear hash from URL so it doesn't fire repeatedly
+                    if (window.history && window.history.replaceState) {
+                        window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
+                    }
+                    
+                    // Show blocking success modal with redirect callback on close button click
+                    showNoticeModal(
+                        "🎉", 
+                        "Login Successful", 
+                        `Welcome back, ${nameVal}! You have logged in successfully with Google.`, 
+                        "#10B981",
+                        () => {
+                            localStorage.removeItem("googleLoginHandled");
+                            window.location.href = "builder.html";
+                        }
+                    );
+                }
+
                 isLoggedIn = true;
                 updateLoginButton();
             } else if (event === 'SIGNED_OUT') {
@@ -157,142 +188,227 @@ document.addEventListener("DOMContentLoaded", () => {
                 localStorage.removeItem("userName");
                 localStorage.removeItem("userAvatar");
                 localStorage.removeItem("authProvider");
-                if (isLoggedIn) {
-                    isLoggedIn = false;
+                localStorage.removeItem("googleLoginHandled");
+                isLoggedIn = false;
+                if (!isSigningOut) {
                     updateLoginButton();
                 }
             }
         });
     }
 
-    // Dynamic Login/Logout Button and User Badge Handler (dropdown lists/menus are strictly banned)
+    function openProfileModal(e) {
+        if (e) e.stopPropagation();
+        const profileModal = document.getElementById("profileModal") || document.getElementById("profileDropdownMenu");
+        if (profileModal) {
+            profileModal.classList.toggle("show");
+        }
+    }
+
+    // Dynamic Login/Logout Button and User Badge Handler
     function updateLoginButton() {
-        const navActions = document.querySelector(".nav-actions");
-        if (!navActions) return;
+        const loginBtn = document.getElementById("loginBtn");
+        const profileModalContainer = document.getElementById("profileModalContainer");
+        const avatarInitials = document.getElementById("avatarInitials");
+        const avatarImg = document.getElementById("avatarImg");
+        const profileName = document.getElementById("profileName");
+        const profileEmail = document.getElementById("profileEmail");
 
         if (isLoggedIn) {
+            // Hide login button, show profile modal container
+            if (loginBtn) loginBtn.style.display = "none";
+            if (profileModalContainer) profileModalContainer.style.display = "inline-block";
+
             const userEmail = localStorage.getItem("userEmail") || "User";
             const userName = localStorage.getItem("userName") || "";
             const userAvatar = localStorage.getItem("userAvatar");
 
-            let avatarHtml = "";
+            if (profileName) profileName.textContent = userName;
+            if (profileEmail) profileEmail.textContent = userEmail;
+
             if (userAvatar) {
-                avatarHtml = `<img src="${userAvatar}" alt="Profile" class="user-avatar-img">`;
+                if (avatarImg) {
+                    avatarImg.src = userAvatar;
+                    avatarImg.style.display = "block";
+                }
+                if (avatarInitials) avatarInitials.style.display = "none";
             } else {
                 const initials = getInitials(userName, userEmail);
-                avatarHtml = `<span class="user-avatar-initials">${initials}</span>`;
-            }
-
-            // Check if provider is email/password or google
-            const provider = localStorage.getItem("authProvider") || "email";
-            let uploadHtml = "";
-            if (provider !== "google") {
-                uploadHtml = `
-                    <input type="file" id="avatarUploadInput" accept="image/*" style="display:none;">
-                    <button type="button" class="btn-login" style="background:rgba(56, 189, 248, 0.15); color:var(--accent-blue); border:1px solid rgba(56, 189, 248, 0.4); margin-right:10px; font-size:12px; padding:6px 12px;" id="uploadAvatarBtn">Upload Photo</button>
-                `;
-            }
-
-            navActions.innerHTML = `
-                <div style="display:flex; align-items:center; gap:10px;">
-                    ${uploadHtml}
-                    <div class="user-avatar-circle" style="cursor:default;">
-                        ${avatarHtml}
-                    </div>
-                    <button class="btn-login" id="signOutBtn" style="background:#ef4444; color:#fff; font-size:13px; padding:8px 16px;">Sign Out</button>
-                </div>
-            `;
-
-            // Upload Avatar triggers
-            const uploadAvatarBtn = document.getElementById("uploadAvatarBtn");
-            const avatarUploadInput = document.getElementById("avatarUploadInput");
-            if (uploadAvatarBtn && avatarUploadInput) {
-                uploadAvatarBtn.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    avatarUploadInput.click();
-                });
-            }
-
-            if (avatarUploadInput) {
-                avatarUploadInput.addEventListener("change", async (e) => {
-                    e.stopPropagation();
-                    const file = e.target.files[0];
-                    if (!file) return;
-
-                    try {
-                        if (!isSupabaseReady) {
-                            throw new Error("Supabase client is not ready.");
-                        }
-
-                        const fileExt = file.name.split('.').pop();
-                        const fileName = `${Date.now()}.${fileExt}`;
-                        const filePath = `${fileName}`;
-
-                        const { data, error } = await supabase.storage
-                            .from('avatars')
-                            .upload(filePath, file);
-
-                        let publicUrl = "";
-                        if (error) {
-                            console.warn("Storage upload failed, attempting local URL preview fallback:", error);
-                            publicUrl = URL.createObjectURL(file);
-                        } else {
-                            const { data: { publicUrl: retrievedUrl } } = supabase.storage
-                                .from('avatars')
-                                .getPublicUrl(filePath);
-                            publicUrl = retrievedUrl;
-                        }
-
-                        // Save url in user metadata in Supabase
-                        try {
-                            const { error: metadataError } = await supabase.auth.updateUser({
-                                data: { avatar_url: publicUrl }
-                            });
-                            if (metadataError) throw metadataError;
-                        } catch (metaErr) {
-                            console.warn("Could not save avatar url to Supabase user metadata:", metaErr);
-                        }
-
-                        localStorage.setItem("userAvatar", publicUrl);
-                        updateLoginButton();
-                        alert("Profile photo updated successfully!");
-
-                    } catch (err) {
-                        console.error("Avatar upload issue:", err);
-                        alert("Failed to process photo upload: " + err.message);
-                    }
-                });
-            }
-
-            // Sign out logic
-            const signOutBtn = document.getElementById("signOutBtn");
-            if (signOutBtn) {
-                signOutBtn.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    handleSignOut(e);
-                });
+                if (avatarInitials) {
+                    avatarInitials.textContent = initials;
+                    avatarInitials.style.display = "flex";
+                }
+                if (avatarImg) avatarImg.style.display = "none";
             }
         } else {
-            navActions.innerHTML = `
-                <button class="btn-login" id="loginBtn" style="background:var(--accent-blue); color:#000;">Sign In</button>
-            `;
-        }
-        
-        // Re-attach listener after updating innerHTML
-        const loginBtn = document.getElementById("loginBtn");
-        if (loginBtn) {
-            loginBtn.addEventListener("click", handleLoginClick);
+            // Show login button, hide profile modal container
+            if (loginBtn) loginBtn.style.display = "block";
+            if (profileModalContainer) profileModalContainer.style.display = "none";
         }
     }
+
+    // Global Click Listener for Event Delegation
+    document.addEventListener('click', function(e) {
+        // 1. Open/Toggle Profile Modal on clicking the avatar element (or its initials/img)
+        const avatarBtn = e.target.closest('#userAvatar');
+        if (avatarBtn) {
+            e.stopPropagation();
+            openProfileModal(e);
+            return;
+        }
+
+        // 2. Clicked "Sign Out" button inside the profile modal
+        const signOutBtn = e.target.closest('#signOutBtn');
+        if (signOutBtn) {
+            e.stopPropagation();
+            const profileModal = document.getElementById("profileModal") || document.getElementById("profileDropdownMenu");
+            if (profileModal) {
+                profileModal.classList.remove("show");
+            }
+            handleSignOut(e);
+            return;
+        }
+
+        // 3. Clicked "Upload Photo" button inside the profile modal
+        const uploadAvatarBtn = e.target.closest('#uploadAvatarBtn');
+        if (uploadAvatarBtn) {
+            e.stopPropagation();
+            const avatarUploadInput = document.getElementById("avatarUploadInput");
+            if (avatarUploadInput) {
+                avatarUploadInput.click();
+            }
+            return;
+        }
+
+        // 4. Clicked "Sign In" button (loginBtn)
+        const loginBtn = e.target.closest('#loginBtn');
+        if (loginBtn) {
+            e.stopPropagation();
+            handleLoginClick();
+            return;
+        }
+
+        // 5. Default: Close dropdown when clicking outside
+        const profileModal = document.getElementById("profileModal") || document.getElementById("profileDropdownMenu");
+        if (profileModal && !e.target.closest('#profileModal') && !e.target.closest('#profileDropdownMenu') && !e.target.closest('#userAvatar')) {
+            profileModal.classList.remove("show");
+        }
+    });
+
+    // Global Change Listener for Avatar File Upload
+    document.addEventListener("change", async (e) => {
+        if (e.target && e.target.id === 'avatarUploadInput') {
+            e.stopPropagation();
+            const file = e.target.files[0];
+            if (!file) return;
+
+            try {
+                if (!isSupabaseReady) {
+                    throw new Error("Supabase client is not ready.");
+                }
+
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}.${fileExt}`;
+                const filePath = `${fileName}`;
+
+                const { data, error } = await supabase.storage
+                    .from('avatars')
+                    .upload(filePath, file);
+
+                let publicUrl = "";
+                if (error) {
+                    console.warn("Storage upload failed, attempting local URL preview fallback:", error);
+                    publicUrl = URL.createObjectURL(file);
+                } else {
+                    const { data: { publicUrl: retrievedUrl } } = supabase.storage
+                        .from('avatars')
+                        .getPublicUrl(filePath);
+                    publicUrl = retrievedUrl;
+                }
+
+                // Update user metadata in Supabase (all are standard Supabase Auth users now)
+                try {
+                    const { error: metadataError } = await supabase.auth.updateUser({
+                        data: { avatar_url: publicUrl }
+                    });
+                    if (metadataError) throw metadataError;
+                } catch (metaErr) {
+                    console.warn("Could not save avatar url to Supabase user metadata:", metaErr);
+                }
+
+                localStorage.setItem("userAvatar", publicUrl);
+                
+                // Instantly set src for all avatar <img> tags on the current page
+                const avatarImgs = document.querySelectorAll(".user-avatar-img");
+                avatarImgs.forEach(img => {
+                    img.src = publicUrl;
+                    img.style.display = "block";
+                });
+
+                // Hide initials if visible
+                const avatarInitials = document.querySelectorAll(".user-avatar-initials");
+                avatarInitials.forEach(init => {
+                    init.style.display = "none";
+                });
+
+                showNoticeModal("📸", "Profile Updated", "Profile photo updated successfully!", "#10B981");
+
+            } catch (err) {
+                console.error("Avatar upload issue:", err);
+                showNoticeModal("❌", "Upload Failed", "Failed to process photo upload: " + err.message, "#EF4444");
+            }
+        }
+    });
 
     // Handle Sign Out Click
     async function handleSignOut(event) {
         if (event) event.stopPropagation();
+        
+        isSigningOut = true;
+
+        const isBuilderPage = window.location.pathname.includes("builder.html");
+        const isGuidancePage = window.location.pathname.includes("guidance.html");
+
+        if (isBuilderPage || isGuidancePage) {
+            // 1. Immediately clear local storage / session state
+            localStorage.removeItem("isLoggedIn");
+            localStorage.removeItem("userEmail");
+            localStorage.removeItem("userName");
+            localStorage.removeItem("userAvatar");
+            localStorage.removeItem("authProvider");
+            isLoggedIn = false;
+
+            // 2. Call supabase signOut and wait
+            if (isSupabaseReady) {
+                try {
+                    await supabase.auth.signOut();
+                } catch (err) {
+                    console.error("Sign out session error:", err);
+                }
+            }
+
+            // 3. Force immediate page redirect
+            window.location.href = "index.html?action=signedout";
+            return;
+        }
+
+        // Otherwise (we are on index.html)
+        // Immediately reset local storage & UI to logged-out state
         localStorage.removeItem("isLoggedIn");
         localStorage.removeItem("userEmail");
         localStorage.removeItem("userName");
         localStorage.removeItem("userAvatar");
         localStorage.removeItem("authProvider");
+        isLoggedIn = false;
+        updateLoginButton();
+
+        // Close dropdown menu if open
+        const profileModal = document.getElementById("profileModal") || document.getElementById("profileDropdownMenu");
+        if (profileModal) {
+            profileModal.classList.remove("show");
+        }
+
+        // Call supabase signOut
         if (isSupabaseReady) {
             try {
                 await supabase.auth.signOut();
@@ -300,7 +416,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.error("Sign out session error:", err);
             }
         }
-        window.location.href = "index.html";
+        
+        // Simultaneously open and display the custom success modal
+        showNoticeModal(
+            "👋", 
+            "Signout Successful", 
+            "You have been signed out successfully.", 
+            "#10B981"
+        );
+        isSigningOut = false;
     }
 
     // Handle Login Button Click (Toggle Modal / Logout)
@@ -325,8 +449,48 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     updateLoginButton();
 
+    // Check for showLogin URL parameter to auto-open login modal
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("showLogin") === "true") {
+        if (modalContentNotice) modalContentNotice.style.display = "none";
+        if (modalContentForm) modalContentForm.style.display = "block";
+        setAuthMode(false);
+        openModal();
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // Check for signedout/action URL parameters to show signout modal
+    const hasSignedOutParam = urlParams.get("action") === "signedout" || urlParams.get("signedout") === "true";
+    if (hasSignedOutParam) {
+        localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("userEmail");
+        localStorage.removeItem("userName");
+        localStorage.removeItem("userAvatar");
+        localStorage.removeItem("authProvider");
+        isLoggedIn = false;
+        updateLoginButton();
+
+        showNoticeModal(
+            "👋", 
+            "Signout Successful", 
+            "You have been signed out successfully.", 
+            "#10B981",
+            () => {
+                if (window.history && window.history.replaceState) {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            }
+        );
+    }
+
     function setAuthMode(signUp) {
         isSignUpMode = signUp;
+
+        const authErrorText = document.getElementById("authErrorText");
+        if (authErrorText) {
+            authErrorText.style.display = "none";
+            authErrorText.textContent = "";
+        }
 
         if (formTitle) formTitle.textContent = signUp ? "Create an Account" : "Sign In to GPT Hub";
         if (submitAuthBtn) submitAuthBtn.textContent = signUp ? "Sign Up" : "Log In";
@@ -351,10 +515,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Modal Control wrappers with safe guards
     if (closeModalBtn) {
-        closeModalBtn.addEventListener("click", closeModal);
+        closeModalBtn.addEventListener("click", () => {
+            closeModal();
+            if (currentModalConfirmCallback) {
+                const cb = currentModalConfirmCallback;
+                currentModalConfirmCallback = null;
+                cb();
+            }
+        });
     }
 
     function openModal() {
+        const authErrorText = document.getElementById("authErrorText");
+        if (authErrorText) {
+            authErrorText.style.display = "none";
+            authErrorText.textContent = "";
+        }
+        currentModalConfirmCallback = null;
         if (authModal) {
             authModal.classList.remove("hidden");
             setTimeout(() => authModal.classList.add("show-modal"), 10);
@@ -368,18 +545,24 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function showDeniedModal(message) {
+    function showNoticeModal(icon, title, message, titleColor = "", confirmCallback = null) {
         if (modalContentForm) modalContentForm.style.display = "none";
         if (modalContentNotice) modalContentNotice.style.display = "block";
 
-        if (modalIcon) modalIcon.innerHTML = "🔒";
+        if (modalIcon) modalIcon.innerHTML = icon;
         if (modalTitle) {
-            modalTitle.textContent = "Access Denied";
-            modalTitle.style.color = "#ef4444";
+            modalTitle.textContent = title;
+            modalTitle.style.color = titleColor || "var(--text-primary)";
         }
         if (modalMessage) modalMessage.innerHTML = message;
 
+        currentModalConfirmCallback = confirmCallback;
+
         openModal();
+    }
+
+    function showDeniedModal(message) {
+        showNoticeModal("🔒", "Access Denied", message, "#ef4444");
     }
 
     // Helper to get loaded bcrypt library instance
@@ -397,6 +580,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const regNameEl = document.getElementById("regName");
             const authEmailEl = document.getElementById("authEmail");
             const authPasswordEl = document.getElementById("authPassword");
+            const authErrorText = document.getElementById("authErrorText");
+
+            if (authErrorText) {
+                authErrorText.style.display = "none";
+                authErrorText.textContent = "";
+            }
 
             const name = regNameEl ? regNameEl.value.trim() : "";
             const email = authEmailEl ? authEmailEl.value.trim() : "";
@@ -409,7 +598,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             if (!isSupabaseReady) {
-                alert("Authentication service is currently unavailable. Please check your connection.");
+                if (authErrorText) {
+                    authErrorText.textContent = "Authentication service is currently unavailable. Please check your connection.";
+                    authErrorText.style.display = "block";
+                }
                 if (submitAuthBtn) {
                     submitAuthBtn.disabled = false;
                     submitAuthBtn.textContent = originalBtnText;
@@ -424,96 +616,185 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 if (isSignUpMode) {
-                    // Check if email already exists
-                    const { data: existingUsers, error: checkError } = await supabase
-                        .from("users")
-                        .select("id")
-                        .eq("email", email);
+                    // 1. Register user via actual Supabase Auth
+                    const { data: authData, error: signUpError } = await supabase.auth.signUp({
+                        email,
+                        password,
+                        options: {
+                            data: {
+                                full_name: name,
+                                name: name
+                            }
+                        }
+                    });
 
-                    if (checkError) throw checkError;
+                    if (signUpError) throw signUpError;
 
-                    if (existingUsers && existingUsers.length > 0) {
-                        alert("❌ This email address is already registered.");
-                        return;
+                    // 2. Hash Password and save to custom users table for backwards-compatibility
+                    try {
+                        const salt = bcryptLib.genSaltSync(8);
+                        const hashedPassword = bcryptLib.hashSync(password, salt);
+                        await supabase
+                            .from("users")
+                            .insert([{ name, email, password: hashedPassword }]);
+                    } catch (dbErr) {
+                        console.warn("Could not insert user to legacy users table:", dbErr);
                     }
 
-                    // Hash Password client-side using bcryptjs
-                    const salt = bcryptLib.genSaltSync(8);
-                    const hashedPassword = bcryptLib.hashSync(password, salt);
-
-                    // Write User Record to Supabase
-                    const { error: insertError } = await supabase
-                        .from("users")
-                        .insert([{ name, email, password: hashedPassword }]);
-
-                    if (insertError) throw insertError;
-
-                    authForm.reset();
-                    if (modalContentForm) modalContentForm.style.display = "none";
-                    if (modalContentNotice) modalContentNotice.style.display = "block";
-
-                    if (modalIcon) modalIcon.innerHTML = "✅";
-                    if (modalTitle) {
-                        modalTitle.textContent = "Registered Successfully";
-                        modalTitle.style.color = "#22c55e";
+                    // 3. Immediately log them in / set active session
+                    let session = authData.session;
+                    if (!session && authData.user) {
+                        // Fallback manual sign-in just in case signUp session wasn't auto-returned
+                        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+                            email,
+                            password
+                        });
+                        if (!signInError) {
+                            session = signInData.session;
+                        }
                     }
-                    if (modalMessage) modalMessage.innerHTML = "Your account has been created. You can now Log In.";
-                    openModal();
-                    setAuthMode(false);
+
+                    if (session && session.user) {
+                        isLoggedIn = true;
+                        localStorage.setItem("isLoggedIn", "true");
+                        localStorage.setItem("userEmail", session.user.email);
+                        const finalName = name || getNameFromEmail(session.user.email);
+                        localStorage.setItem("userName", finalName);
+                        localStorage.setItem("authProvider", "email");
+                        localStorage.removeItem("userAvatar");
+
+                        authForm.reset();
+                        updateLoginButton();
+                        
+                        showNoticeModal(
+                            "🎉", 
+                            "Login Successful", 
+                            `Welcome, ${finalName}! Registration successful.`,
+                            "#10B981",
+                            () => {
+                                window.location.href = "builder.html";
+                            }
+                        );
+                    } else {
+                        // In case of required email verification
+                        showNoticeModal("📧", "Verification Required", "Registration succeeded, but email verification may be required. Please check your inbox.", "#3b82f6");
+                    }
 
                 } else {
-                    // Check if email exists
-                    const { data: users, error: queryError } = await supabase
-                        .from("users")
-                        .select("*")
-                        .eq("email", email);
+                    // 1. Attempt standard Supabase Auth Login
+                    let authData = null;
+                    let authError = null;
+                    try {
+                        const { data, error } = await supabase.auth.signInWithPassword({
+                            email,
+                            password
+                        });
+                        authData = data;
+                        authError = error;
+                    } catch (e) {
+                        authError = e;
+                    }
 
-                    if (queryError) throw queryError;
+                    // 2. If Supabase Auth fails, auto-migrate legacy users from users table
+                    if (authError) {
+                        const { data: dbUsers, error: dbError } = await supabase
+                            .from("users")
+                            .select("*")
+                            .eq("email", email);
 
-                    if (!users || users.length === 0) {
-                        alert("❌ Invalid email matching profile signature or wrong password.");
+                        if (!dbError && dbUsers && dbUsers.length > 0) {
+                            const dbUser = dbUsers[0];
+                            let passwordMatch = false;
+                            if (dbUser.password.startsWith("$2a$") || dbUser.password.startsWith("$2b$")) {
+                                passwordMatch = bcryptLib.compareSync(password, dbUser.password);
+                            } else {
+                                passwordMatch = (password === dbUser.password);
+                            }
+
+                            if (passwordMatch) {
+                                // Password matches database custom record! Auto-create Supabase Auth account.
+                                const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+                                    email,
+                                    password,
+                                    options: {
+                                        data: {
+                                            full_name: dbUser.name
+                                        }
+                                    }
+                                });
+
+                                if (!signUpError) {
+                                    authData = signUpData;
+                                    authError = null;
+                                    
+                                    // If signUp does not give a session, sign in manually
+                                    if (!authData.session) {
+                                        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+                                            email,
+                                            password
+                                        });
+                                        if (!signInError) {
+                                            authData = signInData;
+                                        } else {
+                                            authError = signInError;
+                                        }
+                                    }
+                                } else {
+                                    authError = signUpError;
+                                }
+                            }
+                        }
+                    }
+
+                    if (authError) {
+                        if (authErrorText) {
+                            authErrorText.textContent = "Invalid email or password";
+                            authErrorText.style.display = "block";
+                        }
                         return;
                     }
 
-                    const user = users[0];
+                    // Success login
+                    const session = authData.session;
+                    if (session && session.user) {
+                        isLoggedIn = true;
+                        localStorage.setItem("isLoggedIn", "true");
+                        localStorage.setItem("userEmail", session.user.email);
+                        localStorage.setItem("authProvider", "email");
 
-                    // Compare Passwords
-                    let passwordMatch = false;
-                    if (user.password.startsWith("$2a$") || user.password.startsWith("$2b$")) {
-                        passwordMatch = bcryptLib.compareSync(password, user.password);
-                    } else {
-                        passwordMatch = (password === user.password);
+                        const metadata = session.user.user_metadata || {};
+                        const nameVal = metadata.full_name || metadata.name || name || getNameFromEmail(session.user.email);
+                        const avatarUrl = metadata.avatar_url || "";
+
+                        localStorage.setItem("userName", nameVal);
+                        if (avatarUrl) {
+                            localStorage.setItem("userAvatar", avatarUrl);
+                        } else {
+                            localStorage.removeItem("userAvatar");
+                        }
+
+                        updateLoginButton();
+                        authForm.reset();
+                        
+                        showNoticeModal(
+                            "🎉", 
+                            "Login Successful", 
+                            `Welcome back, ${nameVal}!`,
+                            "#10B981",
+                            () => {
+                                window.location.href = "builder.html";
+                            }
+                        );
                     }
-
-                    if (!passwordMatch) {
-                        alert("❌ Invalid email matching profile signature or wrong password.");
-                        return;
-                    }
-
-                    // Success Authenticated Session
-                    isLoggedIn = true;
-                    localStorage.setItem("isLoggedIn", "true");
-                    localStorage.setItem("userEmail", user.email);
-                    localStorage.setItem("userName", user.name || getNameFromEmail(user.email));
-                    localStorage.setItem("authProvider", "email");
-
-                    updateLoginButton();
-                    authForm.reset();
-
-                    if (modalContentForm) modalContentForm.style.display = "none";
-                    if (modalContentNotice) modalContentNotice.style.display = "block";
-
-                    if (modalIcon) modalIcon.innerHTML = "✅";
-                    if (modalTitle) {
-                        modalTitle.textContent = "Login Successful";
-                        modalTitle.style.color = "#22c55e";
-                    }
-                    if (modalMessage) modalMessage.innerHTML = "You can now access AI Resume Builder and AI Career Guidance.";
-                    openModal();
                 }
             } catch (err) {
                 console.error("Database Auth Error:", err);
-                alert("❌ An error occurred: " + (err.message || "Unknown database validation issue."));
+                if (authErrorText) {
+                    authErrorText.textContent = err.message || "An error occurred during authentication.";
+                    authErrorText.style.display = "block";
+                } else {
+                    showNoticeModal("❌", "Error Occurred", err.message || "An error occurred during authentication.", "#ef4444");
+                }
             } finally {
                 if (submitAuthBtn) {
                     submitAuthBtn.disabled = false;

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,7 @@
 
     <!-- Theme Initializer -->
     <script>
-        (function() {
+        (function () {
             const savedTheme = localStorage.getItem("theme") || "light";
             document.documentElement.setAttribute("data-theme", savedTheme);
             const observer = new MutationObserver(() => {
@@ -23,7 +24,7 @@
     <!-- Supabase JS Library & Initialization -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        (function() {
+        (function () {
             try {
                 if (window.supabase && typeof window.supabase.createClient === 'function') {
                     const client = window.supabase.createClient('https://fwupeplirgbyujdpzsyk.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3dXBlcGxpcmdieXVqZHB6c3lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzNTI0MzMsImV4cCI6MjA5OTkyODQzM30.jpi6dvHuMPA4SAaadido8V51AiwfGbqvoGdshJvlpxY');
@@ -39,13 +40,16 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="Photographer.css">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- html2pdf.js Framework for Exporting PDFs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
+
 <body>
 
     <!-- TOP NAVBAR -->
@@ -55,9 +59,7 @@
             GPT HUB
         </div>
         <div class="header-right">
-            <button class="back-btn" onclick="window.location.href='../builder.html'">
-                ← Back to Templates
-            </button>
+
             <button id="themeToggle" class="theme-toggle-btn">☀️ Light</button>
         </div>
     </header>
@@ -66,7 +68,7 @@
 
         <!-- LEFT SIDE FORM PANEL -->
         <div class="form-panel no-print">
-            
+
             <!-- Stepper Progress Bar -->
             <div class="stepper-progress-container">
                 <div class="stepper-track-bg">
@@ -177,7 +179,8 @@
                 </div>
                 <div class="textarea-ai-wrapper">
                     <textarea id="assistantInput" placeholder="Describe assistant experience..."></textarea>
-                    <button type="button" id="aiSuggestAssistantBulletsBtn" class="btn-ai-action">✨ AI Suggest Action Bullets</button>
+                    <button type="button" id="aiSuggestAssistantBulletsBtn" class="btn-ai-action">✨ AI Suggest Action
+                        Bullets</button>
                 </div>
                 <div class="step-buttons">
                     <button class="back-btn" onclick="prevStep()">Back</button>
@@ -240,11 +243,16 @@
                 <div class="toolbar-section">
                     <span class="toolbar-label">Header Theme:</span>
                     <div class="color-swatches">
-                        <span class="color-swatch swatch-deep-blue active" data-color="deep-blue" style="background-color: #243447;" title="Deep Blue"></span>
-                        <span class="color-swatch swatch-charcoal" data-color="charcoal" style="background-color: #1f2937;" title="Charcoal Black"></span>
-                        <span class="color-swatch swatch-royal-navy" data-color="royal-navy" style="background-color: #1e3a8a;" title="Royal Navy"></span>
-                        <span class="color-swatch swatch-emerald" data-color="emerald" style="background-color: #0f766e;" title="Emerald Teal"></span>
-                        <span class="color-swatch swatch-wine-red" data-color="wine-red" style="background-color: #881337;" title="Wine Red"></span>
+                        <span class="color-swatch swatch-deep-blue active" data-color="deep-blue"
+                            style="background-color: #243447;" title="Deep Blue"></span>
+                        <span class="color-swatch swatch-charcoal" data-color="charcoal"
+                            style="background-color: #1f2937;" title="Charcoal Black"></span>
+                        <span class="color-swatch swatch-royal-navy" data-color="royal-navy"
+                            style="background-color: #1e3a8a;" title="Royal Navy"></span>
+                        <span class="color-swatch swatch-emerald" data-color="emerald"
+                            style="background-color: #0f766e;" title="Emerald Teal"></span>
+                        <span class="color-swatch swatch-wine-red" data-color="wine-red"
+                            style="background-color: #881337;" title="Wine Red"></span>
                     </div>
                 </div>
                 <div class="toolbar-section">
@@ -257,19 +265,20 @@
                     </select>
                 </div>
                 <div class="toolbar-section">
-                    <button id="downloadPdfBtn" class="btn-pdf-download" onclick="downloadPDF()">Download PDF <i class="fa-solid fa-download" style="margin-left: 8px;"></i></button>
+                    <button id="downloadPdfBtn" class="btn-pdf-download" onclick="downloadPDF()">Download PDF <i
+                            class="fa-solid fa-download" style="margin-left: 8px;"></i></button>
                 </div>
             </div>
 
             <!-- Live A4 Resume target canvas -->
             <div class="resume-page" id="resume-pdf-target">
-                
+
                 <!-- TOP DEEP BLUE HEADER -->
                 <div class="resume-header" id="resumeHeader">
                     <div class="header-left">
                         <h1 id="previewName">Rufus Stewart</h1>
                         <h2 id="previewRole">Photographer</h2>
-                        
+
                         <div class="contact-box">
                             <p><i class="fa-solid fa-envelope"></i> <span id="previewEmail">Email</span></p>
                             <p><i class="fa-brands fa-linkedin"></i> <span id="previewLinkedin">LinkedIn</span></p>
@@ -279,7 +288,8 @@
                     </div>
                     <div class="header-right">
                         <div class="photo-frame">
-                            <img id="previewPhoto" class="profile-photo" src="https://via.placeholder.com/250" alt="Profile Photo">
+                            <img id="previewPhoto" class="profile-photo" src="https://via.placeholder.com/250"
+                                alt="Profile Photo">
                         </div>
                     </div>
                 </div>
@@ -332,4 +342,5 @@
     <script src="../theme-toggle.js"></script>
     <script src="Photographer.js"></script>
 </body>
+
 </html>

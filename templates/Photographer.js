@@ -433,7 +433,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // ==========================================
 function escapeHTML(str) {
     if (typeof str !== 'string') return str || '';
-    return str.replace(/[&<>'"]/g, 
+    return str.replace(/[&<>'"]/g,
         tag => ({
             '&': '&amp;',
             '<': '&lt;',
@@ -568,26 +568,26 @@ function renderPreview() {
 
                     const header = document.createElement("div");
                     header.className = "preview-item-header";
-                    
+
                     const titleSpan = document.createElement("span");
                     titleSpan.className = "preview-item-title";
                     titleSpan.textContent = edu.degree || "Degree / Certificate";
-                    
+
                     const metaSpan = document.createElement("span");
                     metaSpan.className = "preview-item-meta";
                     metaSpan.textContent = edu.dates || "Dates";
-                    
+
                     header.appendChild(titleSpan);
                     header.appendChild(metaSpan);
                     item.appendChild(header);
 
                     const orgRow = document.createElement("div");
                     orgRow.className = "preview-item-org-row";
-                    
+
                     const orgSpan = document.createElement("span");
                     orgSpan.className = "preview-item-org";
                     orgSpan.textContent = edu.institution || "Institution / School";
-                    
+
                     orgRow.appendChild(orgSpan);
                     item.appendChild(orgRow);
 
@@ -631,33 +631,33 @@ function renderPreview() {
 
                     const header = document.createElement("div");
                     header.className = "preview-item-header";
-                    
+
                     const titleSpan = document.createElement("span");
                     titleSpan.className = "preview-item-title";
                     titleSpan.textContent = exp.title || "Job Title";
-                    
+
                     const metaSpan = document.createElement("span");
                     metaSpan.className = "preview-item-meta";
                     metaSpan.textContent = exp.dates || "Dates";
-                    
+
                     header.appendChild(titleSpan);
                     header.appendChild(metaSpan);
                     item.appendChild(header);
 
                     const orgRow = document.createElement("div");
                     orgRow.className = "preview-item-org-row";
-                    
+
                     const orgSpan = document.createElement("span");
                     orgSpan.className = "preview-item-org";
                     orgSpan.textContent = exp.company || "Company / Organization";
-                    
+
                     orgRow.appendChild(orgSpan);
                     item.appendChild(orgRow);
 
                     if (exp.desc) {
                         const descDiv = document.createElement("div");
                         descDiv.className = "preview-item-desc";
-                        
+
                         const lines = exp.desc.split("\n").filter(l => l.trim() !== "");
                         const ul = document.createElement("ul");
                         lines.forEach(line => {
@@ -687,7 +687,7 @@ function renderExperienceCards() {
     photographer_resume_data.experience.forEach((exp, index) => {
         const card = document.createElement("div");
         card.className = "repeatable-card";
-        
+
         const titleVal = escapeHTML(exp.title);
         const companyVal = escapeHTML(exp.company);
         const datesVal = escapeHTML(exp.dates);
@@ -732,7 +732,7 @@ function renderEducationCards() {
     photographer_resume_data.education.forEach((edu, index) => {
         const card = document.createElement("div");
         card.className = "repeatable-card";
-        
+
         const degreeVal = escapeHTML(edu.degree);
         const institutionVal = escapeHTML(edu.institution);
         const datesVal = escapeHTML(edu.dates);

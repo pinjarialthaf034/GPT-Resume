@@ -59,7 +59,28 @@
         </nav>
         <button id="themeToggle" class="theme-toggle-btn">☀️ Light</button>
         <div class="nav-actions">
-            <button class="btn-login" id="loginBtn">Sign In</button>
+            <!-- Sign In Button -->
+            <button class="btn-login" id="loginBtn" style="background:var(--accent-blue); color:#000;">Sign In</button>
+
+            <!-- Profile Modal HTML container hidden in the DOM -->
+            <div class="user-profile-container" id="profileModalContainer" style="display: none; position: relative;">
+                <div class="user-avatar-circle" style="cursor:pointer;" id="userAvatar">
+                    <span class="user-avatar-initials" id="avatarInitials">US</span>
+                    <img src="" alt="Profile" class="user-avatar-img" id="avatarImg" style="display: none;">
+                </div>
+                <div class="profile-dropdown" id="profileDropdownMenu">
+                    <div class="dropdown-user-info">
+                        <span class="dropdown-name" id="profileName">User</span>
+                        <span class="dropdown-email" id="profileEmail">user@example.com</span>
+                    </div>
+                    <hr class="dropdown-divider">
+                    <div class="dropdown-settings">
+                        <input type="file" id="avatarUploadInput" accept="image/*" style="display:none;">
+                        <button type="button" class="btn-login" style="background:rgba(56, 189, 248, 0.15); color:var(--accent-blue); border:1px solid rgba(56, 189, 248, 0.4); font-size:12px; padding:10px; width:100%; text-align:center; font-weight:600;" id="uploadAvatarBtn">Upload Photo</button>
+                        <button class="btn-dropdown-action" id="signOutBtn" style="margin-top:10px;">Sign Out</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -119,6 +140,7 @@
                             <label for="authPassword" style="font-weight: 600; font-size: 14px;">Password</label>
                             <input type="password" id="authPassword" required placeholder="••••••••" style="padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit;">
                         </div>
+                        <div id="authErrorText" style="color: #ff4a4a; font-size: 13px; font-weight: 600; text-align: center; display: none; margin-top: 5px; margin-bottom: 5px;"></div>
                         <button type="submit" class="btn-modal-action" id="submitAuthBtn" style="margin-top: 10px; width: 100%;">Log In</button>
                         
                         <div style="display: flex; align-items: center; text-align: center; color: rgba(255,255,255,0.4); font-size: 12px; margin: 5px 0;">

@@ -79,6 +79,8 @@ body {
 
 /* INTERFACE BRAND NAVIGATION STRUCTURE */
 .navbar {
+    position: relative;
+    z-index: 99999;
     display: flex; justify-content: space-between; align-items: center; padding: 24px 8%;
     background: var(--bg-navbar); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border-navbar);
@@ -276,11 +278,15 @@ body {
     box-shadow: 0 10px 30px var(--card-shadow-hover);
     width: 280px;
     padding: 16px;
-    z-index: 10000;
+    z-index: 999999 !important;
+    pointer-events: auto !important;
     display: none; /* Hidden by default */
     flex-direction: column;
     text-align: left;
     transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.profile-dropdown * {
+    pointer-events: auto !important;
 }
 
 .profile-dropdown.show {

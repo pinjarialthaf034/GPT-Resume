@@ -62,7 +62,35 @@
 
             <button id="themeToggle" class="theme-toggle-btn">☀️ Light</button>
 
-            <div class="nav-actions" id="builderNavActions" style="display: inline-block;"></div>
+            <div class="nav-actions" id="builderNavActions" style="display: inline-block;">
+                <!-- Sign In Button -->
+                <button class="btn-login" id="loginBtn"
+                    style="background:var(--accent-blue); color:#000; display: none;">Sign In</button>
+
+                <!-- Profile Modal HTML container hidden in the DOM -->
+                <div class="user-profile-container" id="profileModalContainer"
+                    style="display: none; position: relative;">
+                    <div class="user-avatar-circle" style="cursor:pointer;" id="userAvatar">
+                        <span class="user-avatar-initials" id="avatarInitials">US</span>
+                        <img src="" alt="Profile" class="user-avatar-img" id="avatarImg" style="display: none;">
+                    </div>
+                    <div class="profile-dropdown" id="profileDropdownMenu">
+                        <div class="dropdown-user-info">
+                            <span class="dropdown-name" id="profileName">User</span>
+                            <span class="dropdown-email" id="profileEmail">user@example.com</span>
+                        </div>
+                        <hr class="dropdown-divider">
+                        <div class="dropdown-settings">
+                            <input type="file" id="avatarUploadInput" accept="image/*" style="display:none;">
+                            <button type="button" class="btn-login"
+                                style="background:rgba(56, 189, 248, 0.15); color:var(--accent-blue); border:1px solid rgba(56, 189, 248, 0.4); font-size:12px; padding:10px; width:100%; text-align:center; font-weight:600;"
+                                id="uploadAvatarBtn">Upload Photo</button>
+                            <button class="btn-dropdown-action" id="signOutBtn" style="margin-top:10px;">Sign
+                                Out</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </div>
 
@@ -117,7 +145,7 @@
                 <img src="images/Facility property Manager.png" alt="Facility property Manager">
             </div>
 
-            <h3>Facility Property Manager</h3>
+            <h3></h3>
 
             <button class="choose-btn">
                 Choose Template
@@ -132,7 +160,7 @@
                 <img src="images/GRAPHIC DESIGNERR.png" alt="Graphic designer Resume">
             </div>
 
-            <h3>Graphic Designer </h3>
+            <h3> </h3>
 
             <button class="choose-btn">
                 Choose Template
@@ -150,7 +178,7 @@
                 <img src="images/Teacher.png" alt="Teacher ATS Resume">
             </div>
 
-            <h3>Teacher ATS</h3>
+            <h3></h3>
 
             <button class="choose-btn">
                 Choose Template
@@ -165,7 +193,7 @@
                 <img src="images/PhotoGrapher.jpg" alt="Photo Grapher">
             </div>
 
-            <h3>PhotoGrapher</h3>
+            <h3></h3>
 
             <button class="choose-btn">
                 Choose Template
@@ -179,7 +207,7 @@
                 <img src="images/Marketing Manager.jpg" alt="Marketing Manager">
             </div>
 
-            <h3>Marketing Manager</h3>
+            <h3></h3>
 
             <button class="choose-btn">
                 Choose Template
@@ -194,7 +222,7 @@
                 <img src="images/student.png" alt="Student ATS Resume">
             </div>
 
-            <h3>Student ATS</h3>
+            <h3></h3>
 
             <button class="choose-btn">
                 Choose Template
@@ -209,7 +237,7 @@
                 <img src="images/Senior sales assistant.png" alt="Senior Sales Assistant">
             </div>
 
-            <h3>Senior Sales Assistant</h3>
+            <h3></h3>
 
             <button class="choose-btn">
                 Choose Template
@@ -224,7 +252,7 @@
                 <img src="images/Designer and Architect.jpg" alt="Designer and Architect">
             </div>
 
-            <h3>Designer and Architect</h3>
+            <h3></h3>
 
             <button class="choose-btn">
                 Choose Template
@@ -238,7 +266,7 @@
                 <img src="images/Full Time Educator.png" alt="Full Time Educator">
             </div>
 
-            <h3>Full Time Educator</h3>
+            <h3></h3>
 
             <button class="choose-btn">
                 Choose Template
@@ -252,7 +280,7 @@
                 <img src="images/Marketing Manager.png" alt="Marketing Manager">
             </div>
 
-            <h3>Marketing Manager</h3>
+            <h3></h3>
 
             <button class="choose-btn">
                 Choose Template
@@ -268,7 +296,7 @@
                 <img src="images/fresher.png" alt="Fresher ATS Resume">
             </div>
 
-            <h3>Fresher ATS</h3>
+            <h3></h3>
 
             <button class="choose-btn">
                 Choose Template
@@ -286,7 +314,7 @@
                 <img src="images/software engineer.png" alt="Software ATS Resume">
             </div>
 
-            <h3>Software ATS</h3>
+            <h3></h3>
 
             <button class="choose-btn">
                 Choose Template
@@ -306,7 +334,7 @@
                 <img src="images/Social media marketing manager.png" alt="social media marketing manager">
             </div>
 
-            <h3>Social media marketing manager</h3>
+            <h3></h3>
 
             <button class="choose-btn">
                 Choose Template
@@ -324,7 +352,7 @@
                 <img src="images/Project Manager.png" alt="Project Manager">
             </div>
 
-            <h3>Project Manger</h3>
+            <h3></h3>
 
             <button class="choose-btn">
                 Choose Template
@@ -344,7 +372,7 @@
                 <img src="images/Project Manger.png" alt="Project Manager">
             </div>
 
-            <h3>Project Manager</h3>
+            <h3></h3>
 
             <button class="choose-btn">
                 Choose Template
@@ -357,7 +385,7 @@
             <div class="resume-preview">
                 <img src="images/Operations Manager.png" alt="Operation Manager">
             </div>
-            <h3>Operation Manager</h3>
+            <h3></h3>
             <button class="choose-btn">
                 Choose Template
             </button>
@@ -373,7 +401,7 @@
                 <img src="images/Data Analyst.png" alt="Data Analyst">
             </div>
 
-            <h3>Data Analyst</h3>
+            <h3></h3>
 
             <button class="choose-btn">
                 Choose Template
@@ -391,7 +419,7 @@
                 <img src="images/Driver.png" alt="Driver">
             </div>
 
-            <h3>Driver</h3>
+            <h3></h3>
 
             <button class="choose-btn">
                 Choose Template
@@ -407,7 +435,7 @@
                 <img src="images/Finalyst Manager.png" alt="Finalyst Manager">
             </div>
 
-            <h3>Finalyst Manager</h3>
+            <h3></h3>
 
             <button class="choose-btn">
                 Choose Template
@@ -421,7 +449,7 @@
                 <img src="images/Marketing Executive.png" alt="Marketing Executive">
             </div>
 
-            <h3>Marketing Executive</h3>
+            <h3></h3>
 
             <button class="choose-btn">
                 Choose Template
@@ -435,7 +463,7 @@
                 <img src="images/Flight Attendant.jpg" alt="Flight Attendant">
             </div>
 
-            <h3>Flight Attendant</h3>
+            <h3></h3>
 
             <button class="choose-btn">
                 Choose Template
@@ -473,7 +501,80 @@
         <button class="nav-btn next">&#10095;</button>
 
     </div>
+
+    <!-- Auth Modal copied from index.html to synchronize behavior -->
+    <div id="authModal" class="custom-modal hidden">
+        <div class="modal-card">
+            <div id="modalContentNotice">
+                <div class="modal-icon" id="modalIcon">🔒</div>
+                <h2 id="modalTitle">Access Denied</h2>
+                <p id="modalMessage">
+                    Ee option ni access cheyyalante First Login kani Signup kani avvali.
+                </p>
+            </div>
+
+            <div id="modalContentForm" style="display: none; width: 100%;">
+                <h2 id="formTitle" style="margin-bottom: 20px;">Sign In to GPT Hub</h2>
+                <form id="authForm" style="display: flex; flex-direction: column; gap: 15px; text-align: left;">
+                    <div class="form-group" id="signUpFields" style="display: none; flex-direction: column; gap: 5px;">
+                        <label for="regName" style="font-weight: 600; font-size: 14px;">Full Name</label>
+                        <input type="text" id="regName" placeholder="Enter your name"
+                            style="padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit;">
+                    </div>
+                    <div class="form-group" style="display: flex; flex-direction: column; gap: 5px;">
+                        <label for="authEmail" style="font-weight: 600; font-size: 14px;">Email Address</label>
+                        <input type="email" id="authEmail" required placeholder="name@example.com"
+                            style="padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit;">
+                    </div>
+                    <div class="form-group" style="display: flex; flex-direction: column; gap: 5px;">
+                        <label for="authPassword" style="font-weight: 600; font-size: 14px;">Password</label>
+                        <input type="password" id="authPassword" required placeholder="••••••••"
+                            style="padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit;">
+                    </div>
+                    <div id="authErrorText"
+                        style="color: #ff4a4a; font-size: 13px; font-weight: 600; text-align: center; display: none; margin-top: 5px; margin-bottom: 5px;">
+                    </div>
+                    <button type="submit" class="btn-modal-action" id="submitAuthBtn"
+                        style="margin-top: 10px; width: 100%;">Log In</button>
+
+                    <div
+                        style="display: flex; align-items: center; text-align: center; color: rgba(255,255,255,0.4); font-size: 12px; margin: 5px 0;">
+                        <div style="flex: 1; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"></div>
+                        <span
+                            style="padding: 0 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">or</span>
+                        <div style="flex: 1; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"></div>
+                    </div>
+
+                    <button type="button" id="googleAuthBtn" class="btn-google-action">
+                        <svg width="18" height="18" viewBox="0 0 18 18" style="display: block;">
+                            <path fill="#4285F4"
+                                d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.79 2.7v2.25h2.9c1.7-1.57 2.69-3.88 2.69-6.58z" />
+                            <path fill="#34A853"
+                                d="M9 18c2.43 0 4.47-.8 5.96-2.2l-2.9-2.25c-.8.54-1.83.86-3.06.86-2.36 0-4.35-1.59-5.06-3.73H.95v2.3C2.43 15.93 5.48 18 9 18z" />
+                            <path fill="#FBBC05"
+                                d="M3.94 10.68c-.18-.54-.28-1.12-.28-1.68s.1-1.14.28-1.68V5.02H.95C.34 6.22 0 7.57 0 9s.34 2.78.95 3.98l2.99-2.3z" />
+                            <path fill="#EA4335"
+                                d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.8 11.43 0 9 0 5.48 0 2.43 2.07.95 5.02l2.99 2.3c.71-2.14 2.7-3.73 5.06-3.73z" />
+                        </svg>
+                        Continue with Google
+                    </button>
+                </form>
+                <p style="margin-top: 15px; font-size: 14px;" id="toggleFormText">Don't have an account? <a href="#"
+                        id="switchToSignUp" style="color: #0070f3; font-weight: 600; text-decoration: none;">Sign Up</a>
+                </p>
+            </div>
+
+            <div class="modal-buttons" style="margin-top: 20px; width: 100%;">
+                <button class="btn-modal-action" id="closeModalBtn"
+                    style="background: transparent; color: #666; border: 1px solid #ccc;">Close & Go Back</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script sync -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
     <script src="theme-toggle.js"></script>
+    <script src="script.js"></script>
     <script src="builder.js"></script>
 
 </body>
