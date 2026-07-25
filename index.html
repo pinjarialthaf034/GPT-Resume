@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,11 +8,12 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;600;700;800&display=swap"
+        rel="stylesheet">
 
     <!-- Theme Initializer -->
     <script>
-        (function() {
+        (function () {
             const savedTheme = localStorage.getItem("theme") || "light";
             document.documentElement.setAttribute("data-theme", savedTheme);
             const observer = new MutationObserver(() => {
@@ -27,7 +29,7 @@
     <!-- Supabase JS Library & Initialization -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        (function() {
+        (function () {
             try {
                 if (window.supabase && typeof window.supabase.createClient === 'function') {
                     const client = window.supabase.createClient('https://fwupeplirgbyujdpzsyk.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3dXBlcGxpcmdieXVqZHB6c3lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzNTI0MzMsImV4cCI6MjA5OTkyODQzM30.jpi6dvHuMPA4SAaadido8V51AiwfGbqvoGdshJvlpxY');
@@ -41,6 +43,7 @@
         })();
     </script>
 </head>
+
 <body>
 
     <div class="background-slider">
@@ -76,7 +79,9 @@
                     <hr class="dropdown-divider">
                     <div class="dropdown-settings">
                         <input type="file" id="avatarUploadInput" accept="image/*" style="display:none;">
-                        <button type="button" class="btn-login" style="background:rgba(56, 189, 248, 0.15); color:var(--accent-blue); border:1px solid rgba(56, 189, 248, 0.4); font-size:12px; padding:10px; width:100%; text-align:center; font-weight:600;" id="uploadAvatarBtn">Upload Photo</button>
+                        <button type="button" class="btn-login"
+                            style="background:rgba(56, 189, 248, 0.15); color:var(--accent-blue); border:1px solid rgba(56, 189, 248, 0.4); font-size:12px; padding:10px; width:100%; text-align:center; font-weight:600;"
+                            id="uploadAvatarBtn">Upload Photo</button>
                         <button class="btn-dropdown-action" id="signOutBtn" style="margin-top:10px;">Sign Out</button>
                     </div>
                 </div>
@@ -89,26 +94,39 @@
             <section class="hero-intro">
                 <div class="badge">✨ Next-Generation AI Engine</div>
                 <h1 class="hero-title">Welcome to <br><span class="gradient-box">GPT RESUME BUILDER</span></h1>
-                <p class="hero-subtitle">Create your winning resume and navigate your professional trajectory with custom AI models.</p>
+                <p class="hero-subtitle">Create your winning resume and navigate your professional trajectory with
+                    custom AI models.</p>
             </section>
-
             <section class="options-container">
                 <div class="cards-grid">
                     <div class="feature-card" id="goToBuilder">
                         <div class="icon-wrapper bg-blue">
-                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                            </svg>
                         </div>
                         <h3>AI Resume Builder</h3>
-                        <p>Craft tailored, ATS-optimized resumes designed to catch the eyes of top recruiters automatically.</p>
+                        <p>Craft tailored, ATS-optimized resumes designed to catch the eyes of top recruiters
+                            automatically.</p>
                         <span class="action-link">Launch Builder &rarr;</span>
                     </div>
 
                     <div class="feature-card" id="goToGuidance">
                         <div class="icon-wrapper bg-purple">
-                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24">
+                                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z">
+                                </path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
                         </div>
                         <h3>Career Guidance</h3>
-                        <p>Map your skills against current market frameworks and track growth trajectories with precision.</p>
+                        <p>Map your skills against current market frameworks and track growth trajectories with
+                            precision.</p>
                         <span class="action-link">Explore Pathing &rarr;</span>
                     </div>
                 </div>
@@ -117,53 +135,69 @@
 
         <div id="authModal" class="custom-modal hidden">
             <div class="modal-card">
-               <div id="modalContentNotice">
-    <div class="modal-icon" id="modalIcon">🔒</div>
-    <h2 id="modalTitle">Access Denied</h2>
-    <p id="modalMessage">
-        Ee option ni access cheyyalante First Login kani Signup kani avvali.
-    </p>
-</div>
+                <div id="modalContentNotice">
+                    <div class="modal-icon" id="modalIcon">🔒</div>
+                    <h2 id="modalTitle">Access Denied</h2>
+                    <p id="modalMessage">
+                        Ee option ni access cheyyalante First Login kani Signup kani avvali.
+                    </p>
+                </div>
 
                 <div id="modalContentForm" style="display: none; width: 100%;">
                     <h2 id="formTitle" style="margin-bottom: 20px;">Sign In to GPT Hub</h2>
                     <form id="authForm" style="display: flex; flex-direction: column; gap: 15px; text-align: left;">
-                        <div class="form-group" id="signUpFields" style="display: none; flex-direction: column; gap: 5px;">
+                        <div class="form-group" id="signUpFields"
+                            style="display: none; flex-direction: column; gap: 5px;">
                             <label for="regName" style="font-weight: 600; font-size: 14px;">Full Name</label>
-                            <input type="text" id="regName" placeholder="Enter your name" style="padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit;">
+                            <input type="text" id="regName" placeholder="Enter your name"
+                                style="padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit;">
                         </div>
                         <div class="form-group" style="display: flex; flex-direction: column; gap: 5px;">
                             <label for="authEmail" style="font-weight: 600; font-size: 14px;">Email Address</label>
-                            <input type="email" id="authEmail" required placeholder="name@example.com" style="padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit;">
+                            <input type="email" id="authEmail" required placeholder="name@example.com"
+                                style="padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit;">
                         </div>
                         <div class="form-group" style="display: flex; flex-direction: column; gap: 5px;">
                             <label for="authPassword" style="font-weight: 600; font-size: 14px;">Password</label>
-                            <input type="password" id="authPassword" required placeholder="••••••••" style="padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit;">
+                            <input type="password" id="authPassword" required placeholder="••••••••"
+                                style="padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit;">
                         </div>
-                        <div id="authErrorText" style="color: #ff4a4a; font-size: 13px; font-weight: 600; text-align: center; display: none; margin-top: 5px; margin-bottom: 5px;"></div>
-                        <button type="submit" class="btn-modal-action" id="submitAuthBtn" style="margin-top: 10px; width: 100%;">Log In</button>
-                        
-                        <div style="display: flex; align-items: center; text-align: center; color: rgba(255,255,255,0.4); font-size: 12px; margin: 5px 0;">
+                        <div id="authErrorText"
+                            style="color: #ff4a4a; font-size: 13px; font-weight: 600; text-align: center; display: none; margin-top: 5px; margin-bottom: 5px;">
+                        </div>
+                        <button type="submit" class="btn-modal-action" id="submitAuthBtn"
+                            style="margin-top: 10px; width: 100%;">Log In</button>
+
+                        <div
+                            style="display: flex; align-items: center; text-align: center; color: rgba(255,255,255,0.4); font-size: 12px; margin: 5px 0;">
                             <div style="flex: 1; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"></div>
-                            <span style="padding: 0 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">or</span>
+                            <span
+                                style="padding: 0 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">or</span>
                             <div style="flex: 1; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"></div>
                         </div>
 
                         <button type="button" id="googleAuthBtn" class="btn-google-action">
                             <svg width="18" height="18" viewBox="0 0 18 18" style="display: block;">
-                                <path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.79 2.7v2.25h2.9c1.7-1.57 2.69-3.88 2.69-6.58z"/>
-                                <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.2l-2.9-2.25c-.8.54-1.83.86-3.06.86-2.36 0-4.35-1.59-5.06-3.73H.95v2.3C2.43 15.93 5.48 18 9 18z"/>
-                                <path fill="#FBBC05" d="M3.94 10.68c-.18-.54-.28-1.12-.28-1.68s.1-1.14.28-1.68V5.02H.95C.34 6.22 0 7.57 0 9s.34 2.78.95 3.98l2.99-2.3z"/>
-                                <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.8 11.43 0 9 0 5.48 0 2.43 2.07.95 5.02l2.99 2.3c.71-2.14 2.7-3.73 5.06-3.73z"/>
+                                <path fill="#4285F4"
+                                    d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.79 2.7v2.25h2.9c1.7-1.57 2.69-3.88 2.69-6.58z" />
+                                <path fill="#34A853"
+                                    d="M9 18c2.43 0 4.47-.8 5.96-2.2l-2.9-2.25c-.8.54-1.83.86-3.06.86-2.36 0-4.35-1.59-5.06-3.73H.95v2.3C2.43 15.93 5.48 18 9 18z" />
+                                <path fill="#FBBC05"
+                                    d="M3.94 10.68c-.18-.54-.28-1.12-.28-1.68s.1-1.14.28-1.68V5.02H.95C.34 6.22 0 7.57 0 9s.34 2.78.95 3.98l2.99-2.3z" />
+                                <path fill="#EA4335"
+                                    d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.8 11.43 0 9 0 5.48 0 2.43 2.07.95 5.02l2.99 2.3c.71-2.14 2.7-3.73 5.06-3.73z" />
                             </svg>
                             Continue with Google
                         </button>
                     </form>
-                    <p style="margin-top: 15px; font-size: 14px;" id="toggleFormText">Don't have an account? <a href="#" id="switchToSignUp" style="color: #0070f3; font-weight: 600; text-decoration: none;">Sign Up</a></p>
+                    <p style="margin-top: 15px; font-size: 14px;" id="toggleFormText">Don't have an account? <a href="#"
+                            id="switchToSignUp" style="color: #0070f3; font-weight: 600; text-decoration: none;">Sign
+                            Up</a></p>
                 </div>
 
                 <div class="modal-buttons" style="margin-top: 20px; width: 100%;">
-                    <button class="btn-modal-action" id="closeModalBtn" style="background: transparent; color: #666; border: 1px solid #ccc;">Close & Go Back</button>
+                    <button class="btn-modal-action" id="closeModalBtn"
+                        style="background: transparent; color: #666; border: 1px solid #ccc;">Close & Go Back</button>
                 </div>
             </div>
         </div>
@@ -174,4 +208,5 @@
     <script src="theme-toggle.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>

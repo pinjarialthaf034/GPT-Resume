@@ -1,0 +1,3 @@
+- [x] Integrate the custom CSS block directly in `<style>` tags within `templates/project-manager.html`
+- [x] Refactor card rendering classes in `templates/project-manager.js` (apply `dynamic-card`, `card-header-actions`, `card-item-title`, `btn-remove-item`)
+- [x] Verify functionality (testing visuals and button click actions)

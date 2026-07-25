@@ -829,25 +829,6 @@ function cleanTextResponse(rawText) {
 
 
 // ==========================================
-// BUTTON SPINNER UTILITY wrapper
-// ==========================================
-async function executeWithLoadingState(buttonEl, asyncAction) {
-    if (!buttonEl || buttonEl.classList.contains("loading")) return;
-
-    const originalHtml = buttonEl.innerHTML;
-    buttonEl.classList.add("loading");
-    buttonEl.disabled = true;
-    buttonEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing with AI...`;
-
-    try {
-        await asyncAction();
-    } finally {
-        buttonEl.classList.remove("loading");
-        buttonEl.disabled = false;
-        buttonEl.innerHTML = originalHtml;
-    }
-}
-// ==========================================
 // DYNAMIC AI SKILLS SUGGESTION GENERATOR
 // ==========================================
 async function generateAISkills() {
@@ -856,20 +837,17 @@ async function generateAISkills() {
     if (!container) return;
 
     await executeWithLoadingState(button, async () => {
-        const role = photographer_resume_data.role || "Photographer";
-        const name = photographer_resume_data.name || "Rufus Stewart";
-        const summary = photographer_resume_data.summary || "";
+        const jobTitle = photographer_resume_data.role || "Photographer";
 
         try {
-            const response = await fetch("https://gpt-resume-2smw.onrender.com/api/generate-skills", {
+            const response = await fetch("http://127.0.0.1:8000/api/generate-section", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    role: role,
-                    name: name,
-                    summary: summary
+                    user_input: jobTitle,
+                    section_type: "skills"
                 })
             });
 
@@ -879,11 +857,9 @@ async function generateAISkills() {
             }
 
             const data = await response.json();
-            if (data.status === "success") {
-                const result = data.skills;
-                const skills = Array.isArray(result)
-                    ? result
-                    : result.split(",").map(s => s.replace(/^[-\d\.\s•\*]+/, "").trim()).filter(s => s !== "");
+            const rawSkills = data.text || data.summary || data.skills || "";
+            if (rawSkills) {
+                const skills = rawSkills.split(",").map(s => s.replace(/^[-\d\.\s•\*]+/, "").trim()).filter(s => s !== "");
 
                 if (skills.length > 0) {
                     container.innerHTML = "";
@@ -903,12 +879,12 @@ async function generateAISkills() {
                         });
                         container.appendChild(chip);
                     });
-                    showToast("Skills suggestions updated via Python Backend!", "success");
+                    showToast("Skills suggestions updated!", "success");
                 } else {
                     showToast("No skills were returned by the Backend.", "warning");
                 }
             } else {
-                throw new Error(data.detail || "Unexpected backend response status");
+                throw new Error("Unexpected backend response format");
             }
         } catch (error) {
             console.error("AI Skills Suggestion Failure:", error);
@@ -927,23 +903,17 @@ async function handleAISummary() {
     const button = document.getElementById("aiGenerateSummaryBtn");
     const summaryInput = document.getElementById("summaryInput");
     const previewSummary = document.getElementById("previewSummary");
-    const placeholderText = summaryInput.getAttribute('placeholder') || "";
-    const previewText = previewSummary ? previewSummary.innerText.trim() : "";
-    const promptText = summaryInput.value.trim() || placeholderText || previewText;
+    if (!summaryInput) return;
 
     await executeWithLoadingState(button, async () => {
-        const originalValue = summaryInput.value;
-        let cleanSummary = "";
-
         try {
-            const response = await fetch("https://gpt-resume-2smw.onrender.com/api/generate-summary", {
+            const response = await fetch("http://127.0.0.1:8000/api/generate-summary", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    user_input: promptText,
-                    section_type: "summary"
+                    user_input: summaryInput.value
                 })
             });
 
@@ -953,53 +923,45 @@ async function handleAISummary() {
             }
 
             const data = await response.json();
-            if (data.status === "success") {
-                cleanSummary = data.summary;
-                console.log("⚡ Summary generated via Python Backend");
+            const cleanSummary = data.summary || data.text || "";
+            if (cleanSummary) {
+                summaryInput.value = cleanSummary;
+                if (previewSummary) {
+                    previewSummary.textContent = cleanSummary;
+                }
+                photographer_resume_data.summary = cleanSummary;
+                
+                // Trigger the input event for instant live preview updates
+                summaryInput.dispatchEvent(new Event("input", { bubbles: true }));
+                
+                showToast("Summary generated successfully!", "success");
             } else {
-                throw new Error(data.detail || "Unexpected backend response status");
+                showToast("No summary returned by Backend.", "warning");
             }
         } catch (error) {
             console.error("Summary AI Generation failed:", error);
-            summaryInput.value = originalValue;
             showToast(`AI Generation failed: ${error.message}`, "error");
-            return;
         }
-
-        // Inject the clean processed response directly into #summaryInput and #previewSummary
-        summaryInput.value = cleanSummary;
-        if (previewSummary) {
-            previewSummary.textContent = cleanSummary;
-        }
-
-        // Sync resume state
-        photographer_resume_data.summary = cleanSummary;
-
-        showToast("Summary generated successfully via Python Backend!", "success");
-        triggerAutosave();
     });
 }
 
 async function handleAIAssistant() {
     const button = document.getElementById("aiSuggestAssistantBulletsBtn");
     const input = document.getElementById("assistantInput");
+    if (!button || !input) return;
     const userText = input.value.trim();
-    const placeholderText = input.getAttribute('placeholder') || "";
-    const promptText = userText || placeholderText;
 
     await executeWithLoadingState(button, async () => {
-        const originalValue = input.value;
-        let cleanText = "";
-
         try {
-            const response = await fetch("https://gpt-resume-2smw.onrender.com/api/generate-summary", {
+            const response = await fetch("http://127.0.0.1:8000/api/generate-section", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    user_input: promptText,
-                    section_type: "suggest_bullets"
+                    user_input: userText,
+                    section_type: "experience_bullets",
+                    job_title: "Event Photography Assistant"
                 })
             });
 
@@ -1009,51 +971,46 @@ async function handleAIAssistant() {
             }
 
             const data = await response.json();
-            if (data.status === "success") {
-                cleanText = data.summary;
-                console.log("⚡ Assistant bullets generated via Python Backend");
+            const cleanText = data.text || data.summary || "";
+            if (cleanText) {
+                input.value = cleanText;
+                photographer_resume_data.assistant = cleanText;
+                
+                // Trigger input event
+                input.dispatchEvent(new Event("input", { bubbles: true }));
+                
+                showToast("Assistant bullets generated successfully!", "success");
             } else {
-                throw new Error(data.detail || "Unexpected backend response status");
+                showToast("No bullets were returned by Backend.", "warning");
             }
         } catch (error) {
             console.error("Assistant Bullet AI Generation failed:", error);
-            input.value = originalValue;
             showToast(`AI Generation failed: ${error.message}`, "error");
-            return;
         }
-
-        // Apply cleanText to the input/textarea and preview
-        input.value = cleanText;
-        photographer_resume_data.assistant = cleanText;
-        renderPreview();
-
-        showToast("Assistant bullets generated successfully via Python Backend!", "success");
-        triggerAutosave();
     });
 }
 
 window.handleAIExperience = async function (id) {
     const button = document.getElementById(`ai-btn-${id}`);
     const input = document.getElementById(`exp-desc-${id}`);
+    if (!button || !input) return;
     const userText = input.value.trim();
-    const placeholderText = input.getAttribute('placeholder') || "";
-    const promptText = userText || placeholderText;
 
     await executeWithLoadingState(button, async () => {
         const exp = photographer_resume_data.experience.find(e => e.id === id);
         if (exp) {
-            const originalValue = input.value;
-            let cleanText = "";
+            const jobTitle = exp.title || photographer_resume_data.role || "Photographer";
 
             try {
-                const response = await fetch("https://gpt-resume-2smw.onrender.com/api/generate-summary", {
+                const response = await fetch("http://127.0.0.1:8000/api/generate-section", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        user_input: promptText,
-                        section_type: "experience_bullets"
+                        user_input: userText,
+                        section_type: "experience_bullets",
+                        job_title: jobTitle
                     })
                 });
 
@@ -1063,26 +1020,22 @@ window.handleAIExperience = async function (id) {
                 }
 
                 const data = await response.json();
-                if (data.status === "success") {
-                    cleanText = data.summary;
-                    console.log("⚡ Experience bullets generated via Python Backend");
+                const cleanText = data.text || data.summary || "";
+                if (cleanText) {
+                    input.value = cleanText;
+                    exp.desc = cleanText;
+                    
+                    // Trigger input event
+                    input.dispatchEvent(new Event("input", { bubbles: true }));
+                    
+                    showToast("Experience bullets generated successfully!", "success");
                 } else {
-                    throw new Error(data.detail || "Unexpected backend response status");
+                    showToast("No bullets were returned by Backend.", "warning");
                 }
             } catch (error) {
                 console.error("Experience Bullet AI Generation failed:", error);
-                input.value = originalValue;
                 showToast(`AI Generation failed: ${error.message}`, "error");
-                return;
             }
-
-            // Apply cleanText to the input/textarea and sync with preview
-            input.value = cleanText;
-            exp.desc = cleanText;
-            renderPreview();
-
-            showToast("Experience bullets generated successfully via Python Backend!", "success");
-            triggerAutosave();
         }
     });
 };

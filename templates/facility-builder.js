@@ -111,18 +111,31 @@ document.addEventListener("DOMContentLoaded", () => {
     // 6. AI Tools Bindings
     document.getElementById("aiGenerateSummaryBtn").addEventListener("click", generateSummaryWithAI);
     
-    // Skill Chips Click Bindings
-    document.querySelectorAll(".skill-chip").forEach(chip => {
-        chip.addEventListener("click", () => {
-            const skillName = chip.getAttribute("data-skill");
-            if (!resumeState.skills.includes(skillName)) {
-                resumeState.skills.push(skillName);
-                document.getElementById("skillsInput").value = resumeState.skills.join(", ");
-                renderPreview();
-                triggerAutosave();
-            }
-        });
-    });
+    // Clear hardcoded skill chips and set up dynamic AI suggest button
+    try {
+        const suggestedChipsContainer = document.getElementById("suggestedSkillChips");
+        if (suggestedChipsContainer) {
+            suggestedChipsContainer.innerHTML = `<p style="font-size: 0.85rem; opacity: 0.7; font-style: italic; margin: 5px 0;">Click the button below to generate customized skills for your profile.</p>`;
+        }
+    } catch (err) {
+        console.error("Error setting up suggested chips container:", err);
+    }
+
+    try {
+        const chipsWrapper = document.querySelector(".ai-chips-wrapper");
+        if (chipsWrapper) {
+            const suggestBtn = document.createElement("button");
+            suggestBtn.type = "button";
+            suggestBtn.id = "aiSuggestSkillsBtn";
+            suggestBtn.className = "btn-ai-action";
+            suggestBtn.style.marginTop = "10px";
+            suggestBtn.innerHTML = "✨ AI Generate Suggested Skills";
+            suggestBtn.addEventListener("click", generateAISkills);
+            chipsWrapper.appendChild(suggestBtn);
+        }
+    } catch (err) {
+        console.error("Error setting up suggestBtn wrapper:", err);
+    }
 
     // 7. PDF Export print binding
     document.getElementById("downloadPdfBtn").addEventListener("click", () => {
@@ -251,8 +264,8 @@ function renderExperienceCards() {
             <div class="input-group">
                 <label>Responsibilities & Achievements</label>
                 <div class="textarea-ai-wrapper">
-                    <textarea class="exp-desc" style="height:80px;" placeholder="• Accomplishment 1&#10;• Accomplishment 2" oninput="updateExperience('${exp.id}', 'desc', this.value)">${exp.desc || ''}</textarea>
-                    <button type="button" class="btn-ai-action" onclick="aiSuggestBullets('${exp.id}')">✨ AI Suggest Action Bullets</button>
+                    <textarea class="exp-desc" id="exp-desc-${exp.id}" style="height:80px;" placeholder="• Accomplishment 1&#10;• Accomplishment 2" oninput="updateExperience('${exp.id}', 'desc', this.value)">${exp.desc || ''}</textarea>
+                    <button type="button" id="ai-btn-${exp.id}" class="btn-ai-action" onclick="aiSuggestBullets('${exp.id}')">✨ AI Suggest Action Bullets</button>
                 </div>
             </div>
         `;
@@ -344,46 +357,183 @@ function syncStateToForm() {
 }
 
 // ==========================================
-// INLINE AI ENGINE SIMULATION
 // ==========================================
-
-function generateSummaryWithAI() {
-    const roleVal = document.getElementById("roleInput").value || "Facility Manager";
-    const sampleSummaries = [
-        `Results-driven Operations Specialist and ${roleVal} with over 7 years of expertise directing campus facilities, executing preventive maintenance schedules, and overseeing HVAC controls while ensuring strict alignment with OSHA EHS safety protocols.`,
-        `Cost-conscious ${roleVal} specialized in capital project administration, contract bid development, and service level agreement (SLA) auditing, with a history of reducing operations budget expenditures by up to 15% through vendor renegotiations.`,
-        `Highly organized ${roleVal} utilizing CAFM and CMMS software platforms to track service requests and prevent campus systems downtime. Skilled in HVAC maintenance, emergency response protocols, and building system upgrades.`
-    ];
-    
-    const selectedText = sampleSummaries[Math.floor(Math.random() * sampleSummaries.length)];
-    document.getElementById("summaryInput").value = selectedText;
-    resumeState.summary = selectedText;
-    renderPreview();
-    triggerAutosave();
+// CORE UI LOADING STATE HELPER
+// ==========================================
+async function executeWithLoadingState(buttonElement, actionCallback) {
+    if (!buttonElement) {
+        await actionCallback();
+        return;
+    }
+    const originalText = buttonElement.innerHTML;
+    try {
+        buttonElement.disabled = true;
+        buttonElement.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+        await actionCallback();
+    } catch (err) {
+        console.error("Error in executeWithLoadingState:", err);
+        showToast(`AI Generation failed: ${err.message}`, "error");
+    } finally {
+        buttonElement.disabled = false;
+        buttonElement.innerHTML = originalText;
+    }
 }
 
-window.aiSuggestBullets = function(id) {
+// ==========================================
+// REAL AI API CLIENT INTEGRATION
+// ==========================================
+
+async function generateSummaryWithAI() {
+    const button = document.getElementById("aiGenerateSummaryBtn");
+    const summaryInput = document.getElementById("summaryInput");
+    if (!summaryInput) return;
+
+    await executeWithLoadingState(button, async () => {
+        try {
+            const response = await fetch("http://127.0.0.1:8000/api/generate-summary", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    user_input: summaryInput.value
+                })
+            });
+
+            if (!response.ok) {
+                const errDetail = await response.json().catch(() => ({}));
+                throw new Error(errDetail.detail || response.statusText || "Backend failure");
+            }
+
+            const data = await response.json();
+            const cleanSummary = data.summary || data.text || "";
+            if (cleanSummary) {
+                summaryInput.value = cleanSummary;
+                resumeState.summary = cleanSummary;
+                
+                // Trigger the input event for instant live preview updates
+                summaryInput.dispatchEvent(new Event("input", { bubbles: true }));
+                
+                showToast("Summary updated via Python Backend!", "success");
+            } else {
+                showToast("No summary returned by backend.", "warning");
+            }
+        } catch (error) {
+            console.error("AI Summary Generation failed:", error);
+            showToast(`AI Generation failed: ${error.message}`, "error");
+        }
+    });
+}
+
+async function generateAISkills() {
+    const button = document.getElementById("aiSuggestSkillsBtn");
+    const container = document.getElementById("suggestedSkillChips");
+    if (!container) return;
+
+    await executeWithLoadingState(button, async () => {
+        const roleVal = resumeState.role || "Facility Manager";
+
+        try {
+            const response = await fetch("http://127.0.0.1:8000/api/generate-section", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    user_input: roleVal,
+                    section_type: "skills"
+                })
+            });
+
+            if (!response.ok) {
+                const errDetail = await response.json().catch(() => ({}));
+                throw new Error(errDetail.detail || response.statusText || "Backend failure");
+            }
+
+            const data = await response.json();
+            const rawSkills = data.text || data.summary || data.skills || "";
+            if (rawSkills) {
+                const skills = rawSkills.split(",").map(s => s.replace(/^[-\d\.\s•\*]+/, "").trim()).filter(s => s !== "");
+                if (skills.length > 0) {
+                    container.innerHTML = "";
+                    skills.forEach(skillName => {
+                        const chip = document.createElement("span");
+                        chip.className = "skill-chip";
+                        chip.setAttribute("data-skill", skillName);
+                        chip.textContent = skillName;
+                        chip.addEventListener("click", () => {
+                            const normalizedSkills = resumeState.skills.map(s => s.trim().toLowerCase());
+                            if (!normalizedSkills.includes(skillName.toLowerCase())) {
+                                resumeState.skills.push(skillName);
+                                document.getElementById("skillsInput").value = resumeState.skills.join(", ");
+                                renderPreview();
+                                triggerAutosave();
+                            }
+                        });
+                        container.appendChild(chip);
+                    });
+                    showToast("Skills suggestions updated!", "success");
+                } else {
+                    showToast("No skills were returned by the Backend.", "warning");
+                }
+            } else {
+                throw new Error("Unexpected backend response format");
+            }
+        } catch (error) {
+            console.error("AI Skills Suggestion Failure:", error);
+            showToast(`API Failed: ${error.message}`, "error");
+        }
+    });
+}
+
+window.aiSuggestBullets = async function(id) {
+    const button = document.getElementById(`ai-btn-${id}`);
+    const input = document.getElementById(`exp-desc-${id}`);
+    if (!button || !input) return;
+
     const exp = resumeState.experience.find(e => e.id === id);
-    if (exp) {
-        const FM_suggestions = [
-            "• Managed preventive maintenance schedules across corporate campuses, reducing asset downtime by 20%.",
-            "• Negotiated vendor services and maintenance contracts, achieving a 15% reduction in yearly operating costs.",
-            "• Supervised HVAC system upgrades, CAFM platform configurations, and OSHA compliance operations.",
-            "• Audited utility meters and energy consumption reports, contributing to a 10% decline in campus carbon emissions.",
-            "• Oversaw building security access control, emergency protocols, and local fire department code compliance."
-        ];
-        
-        // Choose 3 random FM bullet suggestions
-        const selected = FM_suggestions.sort(() => 0.5 - Math.random()).slice(0, 3);
-        const currentText = exp.desc || "";
-        const bulletSeparator = currentText ? "\n" : "";
-        const updatedText = (currentText + bulletSeparator + selected.join("\n")).trim();
-        
-        exp.desc = updatedText;
-        renderExperienceCards();
-        renderPreview();
-        triggerAutosave();
-    }
+    if (!exp) return;
+
+    const jobTitle = exp.title || resumeState.role || "Facility Manager";
+    const userText = input.value.trim();
+
+    await executeWithLoadingState(button, async () => {
+        try {
+            const response = await fetch("http://127.0.0.1:8000/api/generate-section", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    user_input: userText,
+                    section_type: "experience_bullets",
+                    job_title: jobTitle
+                })
+            });
+
+            if (!response.ok) {
+                const errDetail = await response.json().catch(() => ({}));
+                throw new Error(errDetail.detail || response.statusText || "Backend failure");
+            }
+
+            const data = await response.json();
+            const cleanText = data.text || data.summary || "";
+            if (cleanText) {
+                input.value = cleanText;
+                exp.desc = cleanText;
+                
+                // Trigger input event
+                input.dispatchEvent(new Event("input", { bubbles: true }));
+                
+                showToast("Suggested bullets added successfully!", "success");
+            } else {
+                showToast("No bullets were returned by backend.", "warning");
+            }
+        } catch (error) {
+            console.error("AI Suggest Bullets failed:", error);
+            showToast(`AI Suggest Bullets failed: ${error.message}`, "error");
+        }
+    });
 };
 
 // ==========================================

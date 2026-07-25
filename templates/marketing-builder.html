@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Manager Workspace - GPT Hub</title>
+
+    <!-- Theme Initializer -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+            const observer = new MutationObserver(() => {
+                if (document.body) {
+                    document.body.setAttribute("data-theme", savedTheme);
+                    observer.disconnect();
+                }
+            });
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+        })();
+    </script>
+
+    <!-- Supabase JS Library & Initialization -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        (function() {
+            try {
+                if (window.supabase && typeof window.supabase.createClient === 'function') {
+                    const client = window.supabase.createClient('https://fwupeplirgbyujdpzsyk.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3dXBlcGxpcmdieXVqZHB6c3lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzNTI0MzMsImV4cCI6MjA5OTkyODQzM30.jpi6dvHuMPA4SAaadido8V51AiwfGbqvoGdshJvlpxY');
+                    window.supabase = client;
+                } else {
+                    console.error("Supabase CDN failed to load properly.");
+                }
+            } catch (error) {
+                console.error("Error initializing Supabase client:", error);
+            }
+        })();
+    </script>
+
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- html2pdf.js for exporting PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <!-- Local Stylesheet -->
+    <link rel="stylesheet" href="marketing-builder.css">
+</head>
+
+<body>
+
+    <!-- TOP NAVBAR -->
+    <header class="builder-header no-print">
+        <div class="logo">
+            <span class="logo-dot"></span>
+            GPT HUB
+        </div>
+        <div class="header-right">
+            <button class="back-btn" onclick="window.location.href='../builder.html'">
+                ← Back to Templates
+            </button>
+            <button id="themeToggle" class="theme-toggle-btn">☀️ Light</button>
+        </div>
+    </header>
+
+    <div class="builder-container">
+
+        <!-- LEFT SIDE FORM PANEL (Wizard) -->
+        <div class="form-panel no-print">
+
+            <!-- Stepper Progress Bar -->
+            <div class="stepper-progress-container">
+                <div class="stepper-track-bg">
+                    <div class="stepper-track-fill" id="stepperProgressFill"></div>
+                </div>
+                <div class="stepper-steps-wrapper">
+                    <div class="step-node active" data-step="1">
+                        <div class="step-circle">1</div>
+                        <span class="step-label">Contact</span>
+                    </div>
+                    <div class="step-node" data-step="2">
+                        <div class="step-circle">2</div>
+                        <span class="step-label">Summary</span>
+                    </div>
+                    <div class="step-node" data-step="3">
+                        <div class="step-circle">3</div>
+                        <span class="step-label">Experience</span>
+                    </div>
+                    <div class="step-node" data-step="4">
+                        <div class="step-circle">4</div>
+                        <span class="step-label">Education</span>
+                    </div>
+                    <div class="step-node" data-step="5">
+                        <div class="step-circle">5</div>
+                        <span class="step-label">Skills & Ref</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 1: Contact Info -->
+            <div id="step1" class="step active">
+                <div class="step-header">
+                    <h2>Personal Information</h2>
+                    <p>Enter your contact and headshot details.</p>
+                </div>
+
+                <div class="input-group">
+                    <label>Profile Photo</label>
+                    <input type="file" id="photoInput" accept="image/*">
+                </div>
+
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="nameInput" placeholder="Olivia Wilson">
+                </div>
+
+                <div class="input-group">
+                    <label>Job Title</label>
+                    <input type="text" id="roleInput" placeholder="Marketing Manager">
+                </div>
+
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="emailInput" placeholder="hello@reallygreatsite.com">
+                </div>
+
+                <div class="input-group">
+                    <label>Phone Number</label>
+                    <input type="text" id="phoneInput" placeholder="+123-456-7890">
+                </div>
+
+                <div class="input-group">
+                    <label>Address / Location</label>
+                    <input type="text" id="addressInput" placeholder="123 Anywhere St., Any City">
+                </div>
+
+                <div class="input-group">
+                    <label>Website URL</label>
+                    <input type="text" id="websiteInput" placeholder="reallygreatsite.com">
+                </div>
+
+                <button class="next-btn" onclick="nextStep()">
+                    Continue
+                </button>
+            </div>
+
+            <!-- STEP 2: Summary -->
+            <div id="step2" class="step">
+                <div class="step-header">
+                    <h2>Executive Summary</h2>
+                    <p>Briefly describe your marketing expertise and achievements.</p>
+                </div>
+
+                <div class="textarea-ai-wrapper">
+                    <textarea id="summaryInput" placeholder="Write your professional bio here or use the AI generator..."></textarea>
+                    <button type="button" id="aiGenerateSummaryBtn" class="btn-ai-action">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Generate with AI
+                    </button>
+                </div>
+
+                <div class="step-buttons">
+                    <button class="back-btn-step" onclick="prevStep()">Back</button>
+                    <button class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Experience -->
+            <div id="step3" class="step">
+                <div class="step-header">
+                    <h2>Work Experience</h2>
+                    <p>Highlight your digital marketing and brand leadership experience.</p>
+                </div>
+
+                <div id="experienceContainer" class="dynamic-list-container">
+                    <!-- Dynamic Experience cards injected here -->
+                </div>
+                
+                <button type="button" id="addExperienceBtn" class="btn-add-item">+ Add Experience</button>
+
+                <div class="step-buttons">
+                    <button class="back-btn-step" onclick="prevStep()">Back</button>
+                    <button class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 4: Education -->
+            <div id="step4" class="step">
+                <div class="step-header">
+                    <h2>Education History</h2>
+                    <p>Enter your academic credentials and degrees.</p>
+                </div>
+
+                <div id="educationContainer" class="dynamic-list-container">
+                    <!-- Dynamic Education cards injected here -->
+                </div>
+                
+                <button type="button" id="addEducationBtn" class="btn-add-item">+ Add Education</button>
+
+                <div class="step-buttons">
+                    <button class="back-btn-step" onclick="prevStep()">Back</button>
+                    <button class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 5: Skills & References -->
+            <div id="step5" class="step">
+                <div class="step-header">
+                    <h2>Skills, Languages & References</h2>
+                    <p>Finalize the core competencies, foreign languages, and professional references.</p>
+                </div>
+
+                <div class="input-group">
+                    <label>Skills (Comma Separated)</label>
+                    <textarea id="skillsInput" placeholder="SEO/SEM, Marketing Automation, Campaign Strategy"></textarea>
+                </div>
+
+                <div class="ai-chips-wrapper">
+                    <span class="chip-title">AI Interactive Skill Chips:</span>
+                    <div class="skill-chips" id="suggestedSkillChips">
+                        <span class="skill-chip" data-skill="SEO/SEM">SEO/SEM</span>
+                        <span class="skill-chip" data-skill="Marketing Automation">Marketing Automation</span>
+                        <span class="skill-chip" data-skill="Campaign Strategy">Campaign Strategy</span>
+                        <span class="skill-chip" data-skill="Lead Generation">Lead Generation</span>
+                        <span class="skill-chip" data-skill="Brand Management">Brand Management</span>
+                        <span class="skill-chip" data-skill="Content Strategy">Content Strategy</span>
+                        <span class="skill-chip" data-skill="Google Analytics">Google Analytics</span>
+                        <span class="skill-chip" data-skill="PPC Advertising">PPC Advertising</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Languages (Comma Separated)</label>
+                    <input type="text" id="langInput" placeholder="English, Spanish, German">
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid rgba(0,0,0,0.1); margin: 10px 0;">
+
+                <div class="input-group">
+                    <label>Reference 1 - Name</label>
+                    <input type="text" id="ref1Name" placeholder="Estelle Darcy">
+                </div>
+                <div class="input-group">
+                    <label>Reference 1 - Role & Company</label>
+                    <input type="text" id="ref1Sub" placeholder="Wardiere Inc. / CEO">
+                </div>
+                <div class="input-group">
+                    <label>Reference 1 - Contact Info</label>
+                    <input type="text" id="ref1Meta" placeholder="Phone: +123-456-7890 | Email: hello@reallygreatsite.com">
+                </div>
+
+                <div class="input-group" style="margin-top: 10px;">
+                    <label>Reference 2 - Name</label>
+                    <input type="text" id="ref2Name" placeholder="Harper Russo">
+                </div>
+                <div class="input-group">
+                    <label>Reference 2 - Role & Company</label>
+                    <input type="text" id="ref2Sub" placeholder="Wardiere Inc. / CEO">
+                </div>
+                <div class="input-group">
+                    <label>Reference 2 - Contact Info</label>
+                    <input type="text" id="ref2Meta" placeholder="Phone: +123-456-7890 | Email: hello@reallygreatsite.com">
+                </div>
+
+                <div class="step-buttons">
+                    <button class="back-btn-step" onclick="prevStep()">Back</button>
+                    <button class="next-btn" id="finishBtn" onclick="finishBuild()">
+                        Save & Exit <i class="fa-solid fa-cloud-arrow-up" style="margin-left: 5px;"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE PREVIEW AND CUSTOMIZER -->
+        <div class="preview-panel">
+
+            <!-- Live Customizer Toolbar -->
+            <div class="customizer-toolbar no-print">
+                <div class="toolbar-section">
+                    <span class="toolbar-label">Accent Theme:</span>
+                    <div class="color-swatches">
+                        <span class="color-swatch swatch-deepblue active" data-color="deepblue" style="background-color: #1e3a8a;"></span>
+                        <span class="color-swatch swatch-indigo" data-color="indigo" style="background-color: #4f46e5;"></span>
+                        <span class="color-swatch swatch-emerald" data-color="emerald" style="background-color: #059669;"></span>
+                        <span class="color-swatch swatch-slate" data-color="slate" style="background-color: #334155;"></span>
+                    </div>
+                </div>
+
+                <div class="toolbar-section">
+                    <span class="toolbar-label">Font Family:</span>
+                    <select id="fontSelector" class="toolbar-select">
+                        <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                        <option value="Inter">Inter</option>
+                        <option value="Outfit">Outfit</option>
+                    </select>
+                </div>
+
+                <div class="toolbar-section">
+                    <button id="downloadPdfBtn" class="btn-pdf-download" onclick="downloadPDF()">
+                        <i class="fa-solid fa-download"></i> Download PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Live A4 Resume page preview canvas (Directly editable inline) -->
+            <div class="resume-page" id="resumePreviewContainer">
+                
+                <!-- LEFT SIDEBAR -->
+                <div class="resume-sidebar">
+                    
+                    <div class="photo-wrapper">
+                        <div class="sidebar-photo-container">
+                            <img id="previewPhoto" class="sidebar-photo" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400" alt="Olivia Wilson">
+                        </div>
+                    </div>
+
+                    <!-- CONTACT -->
+                    <div class="sidebar-section">
+                        <h3 class="sidebar-title" contenteditable="true">Contact</h3>
+                        <div class="sidebar-divider"></div>
+                        
+                        <div class="contact-item">
+                            <i class="fa-regular fa-envelope"></i>
+                            <span id="previewEmail" contenteditable="true">hello@reallygreatsite.com</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fa-solid fa-phone"></i>
+                            <span id="previewPhone" contenteditable="true">+123-456-7890</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <span id="previewAddress" contenteditable="true">123 Anywhere St., Any City</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fa-solid fa-globe"></i>
+                            <span id="previewWebsite" contenteditable="true">reallygreatsite.com</span>
+                        </div>
+                    </div>
+
+                    <!-- EDUCATION -->
+                    <div class="sidebar-section">
+                        <h3 class="sidebar-title" contenteditable="true">Education</h3>
+                        <div class="sidebar-divider"></div>
+                        
+                        <div id="previewEducationList">
+                            <!-- Dynamic Education List In Preview -->
+                        </div>
+                    </div>
+
+                    <!-- SKILLS -->
+                    <div class="sidebar-section">
+                        <h3 class="sidebar-title" contenteditable="true">Skills</h3>
+                        <div class="sidebar-divider"></div>
+                        
+                        <ul id="previewSkills" class="sidebar-list">
+                            <!-- Dynamic Skills List In Preview -->
+                        </ul>
+                    </div>
+
+                    <!-- LANGUAGE -->
+                    <div class="sidebar-section">
+                        <h3 class="sidebar-title" contenteditable="true">Language</h3>
+                        <div class="sidebar-divider"></div>
+                        
+                        <div id="previewLanguages">
+                            <!-- Dynamic Languages List In Preview -->
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT MAIN CONTENT -->
+                <div class="resume-main">
+                    
+                    <!-- HEADER -->
+                    <div class="main-header">
+                        <h1 id="previewName" contenteditable="true">Olivia Wilson</h1>
+                        <div id="previewRole" contenteditable="true">Marketing Manager</div>
+                    </div>
+
+                    <!-- ABOUT ME -->
+                    <div class="main-section">
+                        <h3 class="main-title" contenteditable="true">About Me</h3>
+                        <div class="main-divider"></div>
+                        <p id="previewSummary" class="main-p" contenteditable="true">
+                            Summary text
+                        </p>
+                    </div>
+
+                    <!-- WORK EXPERIENCE -->
+                    <div class="main-section">
+                        <h3 class="main-title" contenteditable="true">Work Experience</h3>
+                        <div class="main-divider"></div>
+                        
+                        <div id="previewExperienceList">
+                            <!-- Dynamic Experience List In Preview -->
+                        </div>
+                    </div>
+
+                    <!-- REFERENCES -->
+                    <div class="main-section" style="margin-bottom: 0;">
+                        <h3 class="main-title" contenteditable="true">References</h3>
+                        <div class="main-divider"></div>
+                        
+                        <div class="references-grid">
+                            <div class="ref-col">
+                                <div id="previewRef1Name" class="ref-name" contenteditable="true">Estelle Darcy</div>
+                                <div id="previewRef1Sub" class="ref-sub" contenteditable="true">Wardiere Inc. / CEO</div>
+                                <div id="previewRef1Meta" class="ref-meta" contenteditable="true">
+                                    Phone: +123-456-7890<br>
+                                    Email: hello@reallygreatsite.com
+                                </div>
+                            </div>
+
+                            <div class="ref-col">
+                                <div id="previewRef2Name" class="ref-name" contenteditable="true">Harper Russo</div>
+                                <div id="previewRef2Sub" class="ref-sub" contenteditable="true">Wardiere Inc. / CEO</div>
+                                <div id="previewRef2Meta" class="ref-meta" contenteditable="true">
+                                    Phone: +123-456-7890<br>
+                                    Email: hello@reallygreatsite.com
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Theme toggler logic loading -->
+    <script src="../theme-toggle.js"></script>
+    <!-- AI Integration Service -->
+    <script src="../ai-service.js"></script>
+    <!-- Main Script file -->
+    <script src="marketing-builder.js"></script>
+</body>
+
+</html>

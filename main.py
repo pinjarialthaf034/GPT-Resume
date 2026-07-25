@@ -37,21 +37,18 @@ app.add_middleware(
 )
 
 class SummaryRequest(BaseModel):
-    user_input: str = None
-    default_text: str = None
-    section_type: str = "summary"
+    user_input: str
 
-class SkillsRequest(BaseModel):
-    role: str = None
-    name: str = None
-    summary: str = None
+class SectionRequest(BaseModel):
+    user_input: str
+    section_type: str
+    job_title: str = None
 
 def is_pure_greeting_or_chatter(text: str) -> bool:
     cleaned = re.sub(r'[^a-zA-Z0-9\s]', '', text.lower()).strip()
     if not cleaned:
         return True
         
-    # List of common chatter, greeting, and introduction words
     chatter_words = {
         "hi", "hello", "hey", "how", "are", "you", "doing", "this", "is", "i", "am", "im", "my", "name", 
         "good", "morning", "afternoon", "evening", "there", "what", "whats", "up", "howdy", "althaf", "rufus",
@@ -59,11 +56,9 @@ def is_pure_greeting_or_chatter(text: str) -> bool:
     }
     
     words = cleaned.split()
-    # Check if all words are within standard casual/conversational greetings
     if all(w in chatter_words for w in words):
         return True
         
-    # Check typical greeting patterns or pure identity statements without professional content
     greeting_patterns = [
         r'^(hi|hello|hey|yo)?\s*(this is|i am|im|my name is)\s+[a-zA-Z]{1,15}(?:\s+[a-zA-Z]{1,15}){0,2}$',
         r'^(hi|hello|hey|yo)?\s*(this is|i am|im|my name is)\s+[a-zA-Z]{1,15}(?:\s+[a-zA-Z]{1,15}){0,2}\s+(how are you|how are you doing|whats up|how do you do|how is it going)$',
@@ -79,70 +74,35 @@ def is_pure_greeting_or_chatter(text: str) -> bool:
 @app.post("/api/generate-summary")
 def generate_summary(req: SummaryRequest):
     user_val = req.user_input.strip() if req.user_input else ""
-    default_val = req.default_text.strip() if req.default_text else ""
-    
-    # 1. Dynamic Fallback Logic
-    prompt_text = user_val or default_val
-    
-    # 2. INTENT DETECTION & GUARDRAIL:
-    if not prompt_text or is_pure_greeting_or_chatter(prompt_text):
+    if not user_val or is_pure_greeting_or_chatter(user_val):
         return {
             "status": "success",
             "summary": "Please enter your target role, skills, or professional experience to generate a resume summary."
         }
 
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+    if not GROQ_API_KEY:
+        raise HTTPException(status_code=500, detail="GROQ_API_KEY is not configured on backend.")
+
     endpoint = "https://api.groq.com/openai/v1/chat/completions"
-
-    seed = random.randint(1, 1000000)
-
-    # 3. Section-Based Prompt Dispatching:
-    section_type = req.section_type.lower().strip()
-    if section_type == "summary":
-        section_instruction = "Generate a crisp 2-3 sentence resume summary centered strictly on the facts in the user prompt."
-    elif section_type == "experience_bullets":
-        section_instruction = (
-            "Convert the user prompt into 3 powerful, high-impact bullet points using strong action verbs (e.g., Developed, Managed, Spearheaded). "
-            "Output ONLY raw bullet points starting with standard dashes (e.g., - Developed...)."
-        )
-    elif section_type == "suggest_bullets":
-        section_instruction = (
-            "Based on the role/text provided, generate 3 strategic industry-standard achievement bullets. "
-            "Output ONLY raw bullet points starting with standard dashes (e.g., - Spearheaded...)."
-        )
-    else:
-        section_instruction = "Generate a professional resume summary."
-
-    # Strict AI System Prompt (Anti-Hallucination rules):
     system_rules = (
-        "Strictly use ONLY the facts/skills/role provided in the input prompt. "
-        "NEVER invent fictional military service, past companies, or random skills if not mentioned by the user.\n"
-        "BANNED WORDS: 'Results-driven', 'proven track record', 'passionate', 'dynamic'.\n"
-        "Output ONLY raw text resume content without conversational chatter, greetings, quotes, or bracketed notes."
+        "You are a World-Class Executive Resume Writer.\n"
+        "Transform the raw text notes provided into a compelling, 2-3 sentence executive resume summary.\n"
+        "STRICT RULES:\n"
+        "1. Do NOT repeat or wrap the input sentence verbatim.\n"
+        "2. Output ONLY the polished summary text. No introductions, headers, quotes, or chatter.\n"
+        "3. Keep tone objective, metric-oriented, and professional."
     )
-
-    messages = [
-        {
-            "role": "system",
-            "content": f"{system_rules}\n\nTask: {section_instruction}"
-        },
-        {
-            "role": "user",
-            "content": prompt_text
-        }
-    ]
 
     payload = {
         "model": "llama-3.3-70b-versatile",
-        "messages": messages,
-        "temperature": 0.85,
-        "max_tokens": 300,
-        "seed": seed
+        "messages": [
+            {"role": "system", "content": system_rules},
+            {"role": "user", "content": f"Candidate Notes: {user_val}"}
+        ],
+        "temperature": 0.5,
+        "max_tokens": 250
     }
-
-    # Explicit logging to print the exact Model Name and Key prefix being sent to Groq
-    key_debug = f"{GROQ_API_KEY[:7]}...{GROQ_API_KEY[-4:]}" if GROQ_API_KEY else "None"
-    print(f"[DEBUG] Sending Request. Model: {payload['model']}, Key Prefix: {key_debug}", flush=True)
 
     try:
         req_data = json.dumps(payload).encode("utf-8")
@@ -160,65 +120,74 @@ def generate_summary(req: SummaryRequest):
         with urllib.request.urlopen(req_obj) as response:
             res_json = json.loads(response.read().decode("utf-8"))
             raw_text = res_json["choices"][0]["message"]["content"]
-            
-            # Apply Python re Regex cleaning on the response
-            cleaned = re.sub(r'\(.*?\)', '', raw_text)
-            cleaned = re.sub(r'^(Here\'s|Here is|Output)[^:]*:\s*', '', cleaned)
-            cleaned = cleaned.strip('"\'').strip()
-            
+            cleaned = re.sub(r'^(Here\'s|Here is|Output|Summary)[^:]*:\s*', '', raw_text, flags=re.IGNORECASE).strip('"\' \n')
             return {"status": "success", "summary": cleaned}
-            
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Groq API connection or processing failed: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Groq API call failed: {str(e)}"
+        )
 
-@app.post("/api/generate-skills")
-def generate_skills(req: SkillsRequest):
-    role_val = req.role.strip() if req.role else "Photographer"
-    name_val = req.name.strip() if req.name else "Rufus Stewart"
-    summary_val = req.summary.strip() if req.summary else ""
-    
-    prompt_text = (
-        f"Based on the job role \"{role_val}\", candidate name \"{name_val}\", and summary \"{summary_val}\", "
-        f"suggest exactly 7-10 high-impact technical or creative skills for a professional resume. "
-        f"Return ONLY a comma-separated list of skills, with no numbering, introduction, or additional text. "
-        f"Example: Studio Lighting, Adobe Lightroom, Color Grading"
-    )
+@app.post("/api/generate-section")
+def generate_section(req: SectionRequest):
+    user_val = req.user_input.strip() if req.user_input else ""
+    section_type = req.section_type.lower().strip()
+    job_title = req.job_title.strip() if req.job_title else "Professional"
 
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")
     if not GROQ_API_KEY:
-        raise HTTPException(status_code=500, detail="GROQ_API_KEY is not configured on the backend.")
-        
+        raise HTTPException(status_code=500, detail="GROQ_API_KEY is not configured on backend.")
+
+    if section_type == "experience_bullets":
+        if not user_val or is_pure_greeting_or_chatter(user_val):
+            placeholder = "• Please enter raw notes or experience details to generate professional bullets."
+            return {
+                "status": "success",
+                "text": placeholder,
+                "summary": placeholder,
+                "skills": placeholder
+            }
+
+        system_rules = (
+            "You are a World-Class Executive Resume Writer.\n"
+            f"Transform the raw text notes/experience details provided into 3-4 powerful STAR-method action bullet points (Action Verb + Task + Impact/Metric) for the role '{job_title}'.\n"
+            "STRICT RULES:\n"
+            "1. Transform raw notes into 3-4 action-oriented bullets.\n"
+            "2. Each bullet point MUST begin strictly with '• ' followed by a space.\n"
+            "3. Do NOT repeat or wrap the input sentence verbatim.\n"
+            "4. Output ONLY the action bullets. No introductions, headers, quotes, explanations, or conversational chatter.\n"
+            "5. Keep tone objective, metric-oriented, and professional."
+        )
+        prompt_content = f"Enhance raw experience details: '{user_val}'"
+        max_tokens = 300
+        temp = 0.5
+    elif section_type == "skills":
+        system_rules = (
+            "You are an expert Tech & Industry Talent Recruiter.\n"
+            "Suggest exactly 7-10 high-impact technical or creative skills for a professional resume "
+            f"appropriate for the job title or context: '{user_val}'.\n"
+            "STRICT RULES:\n"
+            "1. Suggest high-impact skills based on the input.\n"
+            "2. Return ONLY a clean, comma-separated list of skills, with no numbering, introduction, quotes, explanations, or additional text.\n"
+            "Example: Project Management, Risk Assessment, Budgeting"
+        )
+        prompt_content = f"Generate skills for job role: '{user_val}'"
+        max_tokens = 150
+        temp = 0.5
+    else:
+        raise HTTPException(status_code=400, detail=f"Unsupported section_type: {section_type}")
+
     endpoint = "https://api.groq.com/openai/v1/chat/completions"
-    seed = random.randint(1, 1000000)
-
-    system_rules = (
-        "You are an elite AI portfolio and resume strategist. Generate professional skills.\n"
-        "Strictly use the role and context provided in the input prompt. Return ONLY a comma-separated list of skills. "
-        "Do not include numbers, introductions, markdown formatting, quotes, or conversational explanations."
-    )
-
-    messages = [
-        {
-            "role": "system",
-            "content": system_rules
-        },
-        {
-            "role": "user",
-            "content": prompt_text
-        }
-    ]
 
     payload = {
         "model": "llama-3.3-70b-versatile",
-        "messages": messages,
-        "temperature": 0.7,
-        "max_tokens": 150,
-        "seed": seed
+        "messages": [
+            {"role": "system", "content": system_rules},
+            {"role": "user", "content": prompt_content}
+        ],
+        "temperature": temp,
+        "max_tokens": max_tokens
     }
-
-    # Explicit logging to print the exact Model Name and Key prefix being sent to Groq
-    key_debug = f"{GROQ_API_KEY[:7]}...{GROQ_API_KEY[-4:]}" if GROQ_API_KEY else "None"
-    print(f"[DEBUG] Sending Request. Model: {payload['model']}, Key Prefix: {key_debug}", flush=True)
 
     try:
         req_data = json.dumps(payload).encode("utf-8")
@@ -237,12 +206,32 @@ def generate_skills(req: SkillsRequest):
             res_json = json.loads(response.read().decode("utf-8"))
             raw_text = res_json["choices"][0]["message"]["content"]
             
-            # Apply Regex cleaning on the response
             cleaned = re.sub(r'\(.*?\)', '', raw_text)
-            cleaned = re.sub(r'^(Here\'s|Here is|Output|Skills|Suggested|Sure)[^:]*:\s*', '', cleaned, flags=re.IGNORECASE)
+            cleaned = re.sub(r'^(Here\'s|Here is|Output|Skills|Suggested|Sure|Summary)[^:]*:\s*', '', cleaned, flags=re.IGNORECASE)
             cleaned = cleaned.strip('"\'').strip()
             
-            return {"status": "success", "skills": cleaned}
+            if section_type == "experience_bullets":
+                lines = cleaned.split('\n')
+                cleaned_lines = []
+                for line in lines:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    line_cleaned = re.sub(r'^[-•\*#\d\.\s]+', '', line).strip()
+                    if line_cleaned:
+                        cleaned_lines.append(f"• {line_cleaned}")
+                cleaned = "\n".join(cleaned_lines)
+            
+            return {
+                "status": "success",
+                "text": cleaned,
+                "summary": cleaned,
+                "skills": cleaned
+            }
             
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Groq API connection or processing failed: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Groq API call failed: {str(e)}"
+        )
+

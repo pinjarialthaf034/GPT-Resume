@@ -124,6 +124,10 @@ function initializeBuilderPage() {
                     window.location.href = "templates/facility-builder.html?template_id=facility_property_manager";
                 } else if (templateId === "PhotoGrapher" || templateId === "photographer") {
                     window.location.href = "templates/Photographer.html?template_id=photographer";
+                } else if (templateId === "Marketing Manager" || templateId === "marketing_manager") {
+                    window.location.href = "templates/marketing-builder.html?template_id=marketing_manager";
+                } else if (templateId === "Project Manager" || templateId === "project_manager") {
+                    window.location.href = "templates/project-manager.html?template_id=project_manager";
                 }
                 return;
             }
