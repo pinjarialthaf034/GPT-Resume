@@ -87,10 +87,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Google Sign-In Trigger Function forcing account selection
     async function signInWithGoogle() {
         if (!isSupabaseReady) return;
-        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const redirectUrl = isLocalhost 
-            ? window.location.origin + '/index.html' 
-            : 'https://YOUR-NETLIFY-SITE.netlify.app/index.html';
+        const redirectUrl = window.location.origin.includes('netlify.app') 
+            ? 'https://gpt-resume.netlify.app/index.html' 
+            : `${window.location.origin}/index.html`;
 
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
@@ -127,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 } else {
                     localStorage.removeItem("userAvatar");
                 }
-                
+
                 isLoggedIn = true;
                 updateLoginButton();
             }
@@ -161,17 +160,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 const isOAuthCallback = window.location.hash.includes("access_token=") || window.location.hash.includes("id_token=");
                 if (isOAuthCallback && !localStorage.getItem("googleLoginHandled")) {
                     localStorage.setItem("googleLoginHandled", "true");
-                    
+
                     // Clear hash from URL so it doesn't fire repeatedly
                     if (window.history && window.history.replaceState) {
                         window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
                     }
-                    
+
                     // Show blocking success modal with redirect callback on close button click
                     showNoticeModal(
-                        "🎉", 
-                        "Login Successful", 
-                        `Welcome back, ${nameVal}! You have logged in successfully with Google.`, 
+                        "🎉",
+                        "Login Successful",
+                        `Welcome back, ${nameVal}! You have logged in successfully with Google.`,
                         "#10B981",
                         () => {
                             localStorage.removeItem("googleLoginHandled");
@@ -248,7 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Global Click Listener for Event Delegation
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         // 1. Open/Toggle Profile Modal on clicking the avatar element (or its initials/img)
         const avatarBtn = e.target.closest('#userAvatar');
         if (avatarBtn) {
@@ -337,7 +336,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 localStorage.setItem("userAvatar", publicUrl);
-                
+
                 // Instantly set src for all avatar <img> tags on the current page
                 const avatarImgs = document.querySelectorAll(".user-avatar-img");
                 avatarImgs.forEach(img => {
@@ -363,7 +362,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Handle Sign Out Click
     async function handleSignOut(event) {
         if (event) event.stopPropagation();
-        
+
         isSigningOut = true;
 
         const isBuilderPage = window.location.pathname.includes("builder.html");
@@ -416,12 +415,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.error("Sign out session error:", err);
             }
         }
-        
+
         // Simultaneously open and display the custom success modal
         showNoticeModal(
-            "👋", 
-            "Signout Successful", 
-            "You have been signed out successfully.", 
+            "👋",
+            "Signout Successful",
+            "You have been signed out successfully.",
             "#10B981"
         );
         isSigningOut = false;
@@ -462,6 +461,17 @@ document.addEventListener("DOMContentLoaded", () => {
     // Check for signedout/action URL parameters to show signout modal
     const hasSignedOutParam = urlParams.get("action") === "signedout" || urlParams.get("signedout") === "true";
     if (hasSignedOutParam) {
+        // IMMEDIATELY clean up and remove the query parameter from the browser URL so F5 won't show it again
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        
+        // Clear any temporary signout flags stored in sessionStorage or localStorage
+        localStorage.removeItem("signedout");
+        sessionStorage.removeItem("signedout");
+        localStorage.removeItem("action");
+        sessionStorage.removeItem("action");
+
         localStorage.removeItem("isLoggedIn");
         localStorage.removeItem("userEmail");
         localStorage.removeItem("userName");
@@ -471,15 +481,10 @@ document.addEventListener("DOMContentLoaded", () => {
         updateLoginButton();
 
         showNoticeModal(
-            "👋", 
-            "Signout Successful", 
-            "You have been signed out successfully.", 
-            "#10B981",
-            () => {
-                if (window.history && window.history.replaceState) {
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                }
-            }
+            "👋",
+            "Signout Successful",
+            "You have been signed out successfully.",
+            "#10B981"
         );
     }
 
@@ -495,7 +500,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (formTitle) formTitle.textContent = signUp ? "Create an Account" : "Sign In to GPT Hub";
         if (submitAuthBtn) submitAuthBtn.textContent = signUp ? "Sign Up" : "Log In";
         if (signUpFields) signUpFields.style.display = signUp ? "flex" : "none";
-        
+
         if (toggleFormText) {
             if (signUp) {
                 toggleFormText.innerHTML = `Already have an account? <a href="#" id="switchToSignUp" style="color: #0070f3; font-weight: 600; text-decoration: none;">Log In</a>`;
@@ -665,10 +670,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
                         authForm.reset();
                         updateLoginButton();
-                        
+
                         showNoticeModal(
-                            "🎉", 
-                            "Login Successful", 
+                            "🎉",
+                            "Login Successful",
                             `Welcome, ${finalName}! Registration successful.`,
                             "#10B981",
                             () => {
@@ -726,7 +731,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 if (!signUpError) {
                                     authData = signUpData;
                                     authError = null;
-                                    
+
                                     // If signUp does not give a session, sign in manually
                                     if (!authData.session) {
                                         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
@@ -775,10 +780,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
                         updateLoginButton();
                         authForm.reset();
-                        
+
                         showNoticeModal(
-                            "🎉", 
-                            "Login Successful", 
+                            "🎉",
+                            "Login Successful",
                             `Welcome back, ${nameVal}!`,
                             "#10B981",
                             () => {
@@ -835,12 +840,12 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Safe template preview helper in case script.js is loaded on builder views
-window.openPreviewFromScript = async function(index) {
+window.openPreviewFromScript = async function (index) {
     const cards = document.querySelectorAll(".template-card");
     if (cards.length === 0) return;
     const current = index % cards.length;
     const card = cards[current];
-    
+
     const previewImage = document.getElementById("previewImage");
     if (previewImage && card) {
         const img = card.querySelector(".resume-preview img");
