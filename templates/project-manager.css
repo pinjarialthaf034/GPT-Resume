@@ -810,137 +810,56 @@ body {
    PRINT AND PDF EXPORT MEDIA STYLES
    ========================================= */
 @media print {
-    body {
-        background: none !important;
-        padding: 0 !important;
-        color: #000000 !important;
+    /* Standard A4 Page Setup */
+    @page {
+        size: A4 portrait;
+        margin: 0;
     }
-    
-    .builder-header,
+
+    html, body {
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Hide all UI elements, side forms, control toolbars, theme toggles, and buttons */
+    .panel-wrapper,
     .form-panel,
+    .color-panel,
+    .ai-panel,
+    .builder-header,
     .customizer-toolbar,
-    .no-print {
+    .toast-container,
+    .stepper-progress-container,
+    .no-print,
+    button,
+    input[type="file"] {
         display: none !important;
     }
 
-    .builder-container {
-        display: block !important;
-        margin: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-
+    /* Display ONLY the Target Resume Canvas */
+    .builder-container,
     .preview-panel {
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
         width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    .resume-page {
-        position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
-        width: 210mm !important;
-        height: 297mm !important;
+        background: none !important;
         box-shadow: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        display: flex !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
+    }
+
+    #resume-pdf-target {
+        width: 210mm !important;
+        min-height: 297mm !important;
+        box-shadow: none !important;
         border: none !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
     }
-
-    .resume-sidebar {
-        background-color: var(--theme-color) !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-}
-
-/* =========================================
-   RESPONSIVE DESIGN FALLBACK
-   ========================================= */
-@media(max-width: 1200px) {
-    .builder-container { 
-        flex-direction: column; 
-    }
-    .form-panel, 
-    .preview-panel { 
-        width: 100%; 
-    }
-    .form-panel { 
-        position: static; 
-        min-height: auto;
-    }
-}
-
-/* =========================================
-   AI LOADING SPINNER STYLES
-   ========================================= */
-.btn-ai-action.loading {
-    opacity: 0.75;
-    cursor: not-allowed;
-    background: rgba(124, 58, 237, 0.2) !important;
-    color: #7c3aed !important;
-    pointer-events: none;
-}
-
-[data-theme="dark"] .btn-ai-action.loading {
-    background: rgba(168, 85, 247, 0.2) !important;
-    color: #c084fc !important;
-}
-
-/* =========================================
-   TOAST NOTIFICATION STYLES
-   ========================================= */
-.toast-container {
-    position: fixed;
-    bottom: 25px;
-    right: 25px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    z-index: 10000;
-    pointer-events: none;
-}
-
-.toast {
-    background: #1e293b;
-    color: #ffffff;
-    padding: 12px 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-    font-size: 13px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border-left: 4px solid var(--accent-blue);
-    pointer-events: auto;
-}
-
-[data-theme="dark"] .toast {
-    background: #0f172a;
-    border-left-color: #a855f7;
-}
-
-.toast.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.toast.warning {
-    border-left-color: #f59e0b;
-}
-
-.toast.error {
-    border-left-color: #ef4444;
-}
-
-.toast.success {
-    border-left-color: #10b981;
 }

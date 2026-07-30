@@ -735,430 +735,56 @@ body {
 
 /* PRINT AND EXPORT MEDIA Directives */
 @media print {
-    body {
-        background: none !important;
-        padding: 0 !important;
-        color: #000000 !important;
+    /* Standard A4 Page Setup */
+    @page {
+        size: A4 portrait;
+        margin: 0;
     }
-    .builder-container {
-        display: block !important;
+
+    html, body {
+        background: #ffffff !important;
+        padding: 0 !important;
         margin: 0 !important;
         width: 100% !important;
-        max-width: 100% !important;
+        height: 100% !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
-    .form-panel, 
-    .customizer-toolbar, 
-    .stepper-progress-container, 
-    #backToTemplatesBtn, 
-    #downloadPdfBtn,
+
+    /* Hide all UI elements, side forms, control toolbars, theme toggles, and buttons */
+    .panel-wrapper,
+    .form-panel,
+    .color-panel,
+    .ai-panel,
     .builder-header,
-    .no-print {
+    .customizer-toolbar,
+    .toast-container,
+    .stepper-progress-container,
+    .no-print,
+    button,
+    input[type="file"] {
         display: none !important;
     }
+
+    /* Display ONLY the Target Resume Canvas */
+    .builder-container,
     .preview-panel {
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
         width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    .resume-page {
-        position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
-        width: 210mm !important;
-        height: 297mm !important;
+        background: none !important;
         box-shadow: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        display: flex !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
+    }
+
+    #resume-pdf-target {
+        width: 210mm !important;
+        min-height: 297mm !important;
+        box-shadow: none !important;
         border: none !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
     }
-    .sidebar {
-        background: linear-gradient(180deg, var(--theme-primary, #f28c1b), var(--theme-secondary, #b15d05)) !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-    .top-orange {
-        background: rgba(255, 255, 255, 0.2) !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-    .orange-line {
-        background: var(--theme-primary, #f28c1b) !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-}
-
-/* ==========================================================================
-   UPGRADED WORKSPACE STYLES (NAVBAR, STEPS, AI, CUSTOMIZER, REPEATABLE CARDS)
-   ========================================================================== */
-
-/* HEADER NAVBAR */
-.builder-header {
-    width: 100%;
-    height: 75px;
-    background: var(--bg-card);
-    border-bottom: 1px solid var(--border-color);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 40px;
-    position: sticky;
-    top: 0;
-    z-index: 999;
-    transition: background 0.3s ease, border-color 0.3s ease;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 22px;
-    font-weight: 800;
-    color: var(--text-primary);
-}
-
-.logo-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--accent-blue, #2563eb);
-}
-
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-/* PREVIEW PANEL & LIVE CUSTOMIZER TOOLBAR */
-.preview-panel {
-    width: 58%;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.customizer-toolbar {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 15px 25px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-    margin-bottom: 5px;
-    transition: all 0.3s ease;
-}
-
-.toolbar-section {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.toolbar-label {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.color-swatches {
-    display: flex;
-    gap: 8px;
-}
-
-.color-swatch {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    cursor: pointer;
-    border: 2px solid transparent;
-    transition: transform 0.2s, border-color 0.2s;
-    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.2);
-}
-
-.color-swatch:hover {
-    transform: scale(1.1);
-}
-
-.color-swatch.active {
-    border-color: var(--text-primary);
-    transform: scale(1.1);
-}
-
-.toolbar-select {
-    padding: 6px 12px;
-    border-radius: 6px;
-    border: 1px solid var(--border-input);
-    font-size: 13px;
-    font-weight: 600;
-    outline: none;
-    cursor: pointer;
-    background: var(--bg-input);
-    color: var(--text-input);
-    transition: all 0.3s ease;
-}
-
-.btn-pdf-download {
-    background: #ef4444;
-    color: #ffffff;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
-}
-
-.btn-pdf-download:hover {
-    background: #dc2626;
-}
-
-.btn-pdf-download:active {
-    transform: scale(0.98);
-}
-
-/* WIZARD CARD INPUT LAYOUTS */
-.input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    text-align: left;
-    margin-bottom: 5px;
-}
-
-.input-group label {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-muted);
-}
-
-/* REPEATABLE CARD FORMS */
-.dynamic-list-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    width: 100%;
-}
-
-.repeatable-card {
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    position: relative;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
-.repeatable-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 8px;
-    margin-bottom: 5px;
-}
-
-.repeatable-card-title {
-    font-size: 13px;
-    font-weight: 800;
-    color: var(--text-primary);
-}
-
-.btn-delete-card {
-    background: transparent;
-    color: #ef4444;
-    border: none;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 700;
-    padding: 2px 6px;
-    transition: opacity 0.2s;
-}
-
-.btn-delete-card:hover {
-    opacity: 0.8;
-    text-decoration: underline;
-}
-
-.btn-add-item {
-    background: transparent;
-    color: var(--theme-primary, #f28c1b);
-    border: 1px dashed var(--theme-primary, #f28c1b);
-    padding: 12px;
-    width: 100%;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 13px;
-    margin-top: 10px;
-    margin-bottom: 20px;
-    transition: all 0.2s ease;
-}
-
-.btn-add-item:hover {
-    background: rgba(242, 140, 27, 0.05);
-}
-
-.row-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-/* AI COMPONENT STYLES */
-.textarea-ai-wrapper {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-}
-
-.btn-ai-action {
-    align-self: flex-end;
-    background: rgba(124, 58, 237, 0.1);
-    color: #7c3aed;
-    border: 1px solid rgba(124, 58, 237, 0.25);
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    transition: all 0.2s ease;
-}
-
-.btn-ai-action:hover {
-    background: #7c3aed;
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
-}
-
-[data-theme="dark"] .btn-ai-action {
-    background: rgba(168, 85, 247, 0.15);
-    color: #c084fc;
-    border-color: rgba(168, 85, 247, 0.3);
-}
-
-[data-theme="dark"] .btn-ai-action:hover {
-    background: #a855f7;
-    color: #ffffff;
-}
-
-.ai-chips-wrapper {
-    margin-top: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    text-align: left;
-}
-
-.chip-title {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.skill-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.skill-chip {
-    background: rgba(242, 140, 27, 0.08);
-    color: var(--theme-primary, #f28c1b);
-    border: 1px solid rgba(242, 140, 27, 0.2);
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.skill-chip:hover {
-    background: var(--theme-primary, #f28c1b);
-    color: #ffffff;
-    transform: translateY(-1px);
-}
-
-/* STEPPER LABELS */
-.step-label {
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--text-muted);
-    margin-top: 6px;
-    transition: color 0.3s ease;
-    text-align: center;
-}
-
-.step-node.active .step-label {
-    color: var(--theme-primary, #f28c1b);
-}
-
-.step-node.completed .step-label {
-    color: var(--text-primary);
-}
-
-/* PREVIEW RENDER FORMATTING */
-.preview-item {
-    margin-bottom: 12px;
-    text-align: left;
-}
-
-.preview-item-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-}
-
-.preview-item-title {
-    font-size: 12px;
-    font-weight: 800;
-    color: #0f172a;
-}
-
-.preview-item-org {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--theme-primary, #f28c1b);
-}
-
-.preview-item-meta {
-    font-size: 10px;
-    color: #64748b;
-    font-weight: 500;
-}
-
-.preview-item-desc {
-    font-size: 10.5px;
-    color: #334155;
-    margin-top: 3px;
-    line-height: 1.4;
-}
-
-.preview-item-desc ul {
-    padding-left: 14px;
-    margin: 3px 0 0 0;
-}
-
-.preview-item-desc li {
-    margin-bottom: 2px;
 }

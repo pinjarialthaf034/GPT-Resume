@@ -959,20 +959,6 @@ function loadSampleData() {
 // PDF Download Generation
 // ==========================================
 window.downloadPDF = function() {
-    const element = document.getElementById("resumePreviewContainer");
-    const name = document.getElementById("previewName").innerText.trim() || "Resume";
-
-    const options = {
-        margin:       0,
-        filename:     `${name.replace(/\s+/g, '_')}_Resume.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { 
-            scale: 2, 
-            useCORS: true,
-            letterRendering: true 
-        },
-        jsPDF:        { unit: 'px', format: [794, 1123], orientation: 'portrait' }
-    };
-
-    html2pdf().set(options).from(element).save();
+    if (document.activeElement) document.activeElement.blur();
+    window.print();
 }

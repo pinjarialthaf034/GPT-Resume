@@ -110,24 +110,8 @@ window.prevStep = function() {
 
 // PDF Download Generation
 function downloadPDF() {
-    const element = document.getElementById("resume-pdf-target");
-    if (!element) return;
-    const previewName = document.getElementById("previewName");
-    const name = previewName ? previewName.innerText.replace(/<br>/g, " ").trim() : "Resume";
-
-    const options = {
-        margin:       0,
-        filename:     `${name.replace(/\s+/g, '_')}_Resume.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { 
-            scale: 2, 
-            useCORS: true,
-            letterRendering: true 
-        },
-        jsPDF:        { unit: 'px', format: [794, 1123], orientation: 'portrait' }
-    };
-
-    html2pdf().set(options).from(element).save();
+    if (document.activeElement) document.activeElement.blur();
+    window.print();
 }
 
 // ==========================================

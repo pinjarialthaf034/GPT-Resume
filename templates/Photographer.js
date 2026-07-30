@@ -1317,33 +1317,7 @@ function loadSampleData() {
 // ==========================================
 // HIGH-FIDELITY PDF RENDERING EXPORT
 // ==========================================
-window.downloadPDF = function () {
-    if (typeof html2pdf === "undefined") {
-        alert("The PDF export library (html2pdf) is not loaded. Please check your internet connection.");
-        return;
-    }
-    const element = document.getElementById("resume-pdf-target");
-    if (!element) {
-        console.error("Resume target element not found for PDF export.");
-        return;
-    }
-    const name = photographer_resume_data.name || "Resume";
-
-    const options = {
-        margin: 0,
-        filename: `${name.replace(/\s+/g, '_')}_Resume.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: {
-            scale: 2.5,        // Prevents text pixelation
-            useCORS: true,      // Allows cross-origin photos to render safely
-            letterRendering: true
-        },
-        jsPDF: { unit: 'px', format: [794, 1123], orientation: 'portrait' }
-    };
-
-    try {
-        html2pdf().set(options).from(element).save();
-    } catch (e) {
-        console.error("PDF generation failed:", e);
-    }
-};
+window.downloadPDF = function() {
+    if (document.activeElement) document.activeElement.blur();
+    window.print();
+}

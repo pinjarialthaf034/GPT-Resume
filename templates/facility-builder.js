@@ -139,6 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 7. PDF Export print binding
     document.getElementById("downloadPdfBtn").addEventListener("click", () => {
+        if (document.activeElement) document.activeElement.blur();
         window.print();
     });
 
@@ -231,7 +232,7 @@ function renderPreview() {
 }
 
 function renderExperienceCards() {
-    const container = document.getElementById("experienceContainer");
+    const container = document.getElementById("experienceInputsContainer");
     container.innerHTML = "";
     resumeState.experience.forEach((exp, index) => {
         const card = document.createElement("div");
@@ -274,7 +275,7 @@ function renderExperienceCards() {
 }
 
 function renderEducationCards() {
-    const container = document.getElementById("educationContainer");
+    const container = document.getElementById("educationInputsContainer");
     container.innerHTML = "";
     resumeState.education.forEach((edu, index) => {
         const card = document.createElement("div");
