@@ -19,7 +19,8 @@ env_path = Path(__file__).resolve().parent / ".env"
 load_dotenv(dotenv_path=env_path, override=True)
 
 # Startup check to verify backend loading (without logging raw secret)
-groq_key = os.getenv("GROQ_API_KEY")
+raw_key = os.getenv("GROQ_API_KEY", "")
+groq_key = raw_key.strip().strip('"').strip("'")
 if groq_key:
     print(f"✅ [SUCCESS] Loaded GROQ_API_KEY: {groq_key[:7]}...{groq_key[-4:]}", flush=True)
 else:
@@ -235,3 +236,7 @@ def generate_section(req: SectionRequest):
             detail=f"Groq API call failed: {str(e)}"
         )
 
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -429,7 +429,7 @@ async function generateSummaryWithAI() {
 
     await executeWithLoadingState(button, async () => {
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/generate-summary", {
+            const response = await fetch(`http://${window.location.hostname}:8000/api/generate-summary`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -477,7 +477,7 @@ window.aiSuggestBullets = async function(id) {
 
     await executeWithLoadingState(button, async () => {
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/generate-section", {
+            const response = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -523,7 +523,7 @@ async function generateAISkills() {
         const roleVal = resumeState.role || "Marketing Manager";
 
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/generate-section", {
+            const response = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
