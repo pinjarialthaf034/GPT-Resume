@@ -1,0 +1,85 @@
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\main.py:253: uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\test_backend.py:4: BASE_URL = "http://127.0.0.1:8000"
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\data analyst.html:1249: const res = await fetch(`http://${window.location.hostname}:8000/api/generate-summary`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\data analyst.html:1277: const response = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\data analyst.html:1332: const res = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\designer architecture.html:1312: const res = await fetch(`http://${host}:8000/api/generate-summary`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\designer architecture.html:1335: alert("API Connection Failed: Ensure your Python FastAPI server (main.py) is running on port 8000.");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\designer architecture.html:1357: const res = await fetch(`http://${host}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\designer architecture.html:1402: alert("API Connection Failed: Ensure your Python FastAPI server (main.py) is running on port 8000.");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\designer architecture.html:1422: const res = await fetch(`http://${host}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\designer architecture.html:1446: alert("API Connection Failed: Ensure your Python FastAPI server (main.py) is running on port 8000.");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\driver.html:1209: const res = await fetch(`http://${window.location.hostname}:8000/api/generate-summary`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\driver.html:1239: const res = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\driver.html:1301: const res = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\facility-builder.js:394: const response = await fetch(`http://${window.location.hostname}:8000/api/generate-summary`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\facility-builder.js:445: const response = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\facility-builder.js:518: const response = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\financial.html:1358: const res = await fetch(`http://${window.location.hostname}:8000/api/generate-summary`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\financial.html:1380: const res = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\financial.html:1430: const res = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\financial.html:1480: const res = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\flight.html:1416: const res = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\flight.html:1473: const res = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\fresher.html:1149: const res = await fetch(`http://${host}:8000/api/generate-summary`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\fresher.html:1171: alert("API Connection Error: Ensure FastAPI server is running on http://localhost:8000");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\fresher.html:1191: const res = await fetch(`http://${host}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\fresher.html:1236: alert("API Connection Error: Ensure FastAPI server is running on http://localhost:8000");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\full_time_educator.html:1277: const res = await fetch(`http://${host}:8000${endpoint}`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\full_time_educator.html:1328: alert("API Connection Error: Ensure FastAPI server is running on http://localhost:8000");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\full_time_educator.html:1351: const res = await fetch(`http://${host}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\full_time_educator.html:1379: alert("API Connection Error: Ensure FastAPI server is running on http://localhost:8000");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\graphic designer.html:1741: const res = await fetch(`http://${host}:8000/api/generate-summary`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\graphic designer.html:1762: alert("API Connection Failed: Ensure main.py is running on port 8000.");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\graphic designer.html:1771: // AI SKILLS GENERATOR (Connects to main.py at http://127.0.0.1:8000)
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\graphic designer.html:1789: const endpoint = `http://${host}:8000/api/generate-section`;
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\graphic designer.html:1867: alert(`API Connection Failed: Ensure "python main.py" is running in terminal on port 8000.`);
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\graphic designer.html:1888: const res = await fetch("http://127.0.0.1:8000/api/generate-section", {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\graphic designer.html:1909: alert(`Connection Failed: Make sure main.py is running on port 8000.`);
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\marketing executive.html:1302: const res = await fetch(`http://${window.location.hostname}:8000/api/generate-summary`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\marketing executive.html:1327: const res = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\marketing executive.html:1370: const res = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\marketing-builder.js:405: const res = await fetch(`http://${host}:8000/api/generate-summary`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\marketing-builder.js:426: alert("API Connection Error: Ensure FastAPI server is running on http://localhost:8000");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\marketing-builder.js:450: const res = await fetch(`http://${host}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\marketing-builder.js:482: alert("API Connection Error: Ensure FastAPI server is running on http://localhost:8000");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\marketing-builder.js:502: const res = await fetch(`http://${host}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\marketing-builder.js:544: alert("API Connection Error: Ensure FastAPI server is running on http://localhost:8000");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\marketing-manager.html:1398: const res = await fetch(`http://${host}:8000/api/generate-summary`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\marketing-manager.html:1420: alert("API Connection Failed: Ensure main.py is running on port 8000.");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\marketing-manager.html:1443: const res = await fetch(`http://${host}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\marketing-manager.html:1467: alert("API Connection Failed: Ensure main.py is running on port 8000.");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\marketing-manager.html:1493: const res = await fetch(`http://${host}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\marketing-manager.html:1537: alert("API Connection Failed: Ensure main.py is running on port 8000.");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\operations manager.html:1265: const res = await fetch(`http://${window.location.hostname}:8000/api/generate-summary`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\operations manager.html:1293: const response = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\operations manager.html:1351: const res = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\Photographer.js:851: const response = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\Photographer.js:918: const response = await fetch(`http://${window.location.hostname}:8000/api/generate-summary`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\Photographer.js:964: const response = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\Photographer.js:1013: const response = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\project-manager.js:179: const response = await fetch(`http://${window.location.hostname}:8000/api/generate-summary`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\project-manager.js:209: const response = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\project-manager.js:269: const response = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\seniorsaleassocative.html:1064: const res = await fetch(`http://${host}:8000/api/generate-summary`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\seniorsaleassocative.html:1086: alert("API Connection Failed: Ensure main.py is running on port 8000.");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\seniorsaleassocative.html:1108: const res = await fetch(`http://${host}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\seniorsaleassocative.html:1134: alert("API Connection Failed: Ensure main.py is running on port 8000.");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\seniorsaleassocative.html:1158: const res = await fetch(`http://${host}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\seniorsaleassocative.html:1202: alert("API Connection Failed: Ensure main.py is running on port 8000.");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\socialmediamarketing.html:1130: alert("API Connection Error: Ensure FastAPI server is running on http://localhost:8000");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\socialmediamarketing.html:1206: alert("API Connection Error: Ensure FastAPI server is running on http://localhost:8000");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\socialmediamarketing.html:1236: alert("API Connection Error: Ensure FastAPI server is running on http://localhost:8000");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\software.html:1270: alert("API Connection Error: Ensure FastAPI server is running on http://localhost:8000");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\software.html:1347: alert("API Connection Error: Ensure FastAPI server is running on http://localhost:8000");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\software.html:1375: alert("API Connection Error: Ensure FastAPI server is running on http://localhost:8000");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\student1.html:1326: const res = await fetch(`http://${host}:8000/api/generate-summary`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\student1.html:1348: alert("API Connection Failed: Ensure main.py is running on port 8000.");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\student1.html:1376: const res = await fetch(`http://${host}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\student1.html:1420: alert("API Connection Failed: Ensure main.py is running on port 8000.");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\student1.html:1443: const res = await fetch(`http://${host}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\student1.html:1467: alert("API Connection Failed: Ensure main.py is running on port 8000.");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\teacher.html:1263: const res = await fetch(`http://${host}:8000/api/generate-summary`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\teacher.html:1286: alert("API Connection Failed: Ensure main.py is running on port 8000.");
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\teacher.html:1301: const res = await fetch(`http://${host}:8000/api/generate-section`, {
+c:\Users\DELL\Documents\OneDrive\Documents\Desktop\GPT-Resume\templates\teacher.html:1320: alert("API Connection Failed: Ensure main.py is running on port 8000.");

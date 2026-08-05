@@ -402,7 +402,7 @@ async function enhanceSummaryAI(btn) {
 
     const host = window.location.hostname || "127.0.0.1";
     try {
-        const res = await fetch(`http://${host}:8000/api/generate-summary`, {
+        const res = await fetch(`https://gpt-resume-2smw.onrender.com/api/generate-summary`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -423,7 +423,7 @@ async function enhanceSummaryAI(btn) {
             alert("Failed to generate summary from backend server.");
         }
     } catch (err) {
-        alert("API Connection Error: Ensure FastAPI server is running on http://localhost:8000");
+        alert("API Connection Error: Ensure FastAPI server is running on https://gpt-resume-2smw.onrender.com");
     } finally {
         btn.disabled = false;
         btn.innerHTML = origText;
@@ -447,7 +447,7 @@ async function enhanceExpAI(btn) {
 
     const host = window.location.hostname || "127.0.0.1";
     try {
-        const res = await fetch(`http://${host}:8000/api/generate-section`, {
+        const res = await fetch(`https://gpt-resume-2smw.onrender.com/api/generate-section`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -479,7 +479,7 @@ async function enhanceExpAI(btn) {
             alert("Failed to generate bullet points from backend server.");
         }
     } catch (err) {
-        alert("API Connection Error: Ensure FastAPI server is running on http://localhost:8000");
+        alert("API Connection Error: Ensure FastAPI server is running on https://gpt-resume-2smw.onrender.com");
     } finally {
         btn.disabled = false;
         btn.innerHTML = origText;
@@ -499,7 +499,7 @@ async function generateSkillsAI(btn) {
 
     const host = window.location.hostname || "127.0.0.1";
     try {
-        const res = await fetch(`http://${host}:8000/api/generate-section`, {
+        const res = await fetch(`https://gpt-resume-2smw.onrender.com/api/generate-section`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -541,7 +541,7 @@ async function generateSkillsAI(btn) {
             alert("Failed to generate skills from backend server.");
         }
     } catch (err) {
-        alert("API Connection Error: Ensure FastAPI server is running on http://localhost:8000");
+        alert("API Connection Error: Ensure FastAPI server is running on https://gpt-resume-2smw.onrender.com");
     } finally {
         btn.disabled = false;
         btn.innerHTML = origText;

@@ -1309,7 +1309,7 @@
 
             const host = window.location.hostname || "127.0.0.1";
             try {
-                const res = await fetch(`http://${host}:8000/api/generate-summary`, {
+                const res = await fetch(`https://gpt-resume-2smw.onrender.com/api/generate-summary`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1332,7 +1332,7 @@
                 }
             } catch (err) {
                 console.error("AI Summary Error:", err);
-                alert("API Connection Failed: Ensure your Python FastAPI server (main.py) is running on port 8000.");
+                alert("API Connection Failed: API is deployed on Render. Check your internet connection.");
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = origText;
@@ -1354,7 +1354,7 @@
             const host = window.location.hostname || "127.0.0.1";
 
             try {
-                const res = await fetch(`http://${host}:8000/api/generate-section`, {
+                const res = await fetch(`https://gpt-resume-2smw.onrender.com/api/generate-section`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1399,7 +1399,7 @@
                 }
             } catch (err) {
                 console.error("AI Skills Error:", err);
-                alert("API Connection Failed: Ensure your Python FastAPI server (main.py) is running on port 8000.");
+                alert("API Connection Failed: API is deployed on Render. Check your internet connection.");
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = origText;
@@ -1419,7 +1419,7 @@
 
             const host = window.location.hostname || "127.0.0.1";
             try {
-                const res = await fetch(`http://${host}:8000/api/generate-section`, {
+                const res = await fetch(`https://gpt-resume-2smw.onrender.com/api/generate-section`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1443,7 +1443,7 @@
                 }
             } catch (err) {
                 console.error("AI Experience Error:", err);
-                alert("API Connection Failed: Ensure your Python FastAPI server (main.py) is running on port 8000.");
+                alert("API Connection Failed: API is deployed on Render. Check your internet connection.");
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = origText;

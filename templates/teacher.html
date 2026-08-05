@@ -1260,7 +1260,7 @@
 
             try {
                 // Calls backend endpoint specifically mapped for summaries
-                const res = await fetch(`http://${host}:8000/api/generate-summary`, {
+                const res = await fetch(`https://gpt-resume-2smw.onrender.com/api/generate-summary`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1283,7 +1283,7 @@
                 }
             } catch (err) {
                 console.error("AI Summary Error:", err);
-                alert("API Connection Failed: Ensure main.py is running on port 8000.");
+                alert("API Connection Failed: API is deployed on Render. Check your internet connection.");
             } finally {
                 if (btn) {
                     btn.disabled = false;
@@ -1298,7 +1298,7 @@
             btn.innerHTML = `<i class=\"fa-solid fa-spinner fa-spin\"></i> Generating...`;
             try {
                 const host = window.location.hostname || "127.0.0.1";
-                const res = await fetch(`http://${host}:8000/api/generate-section`, {
+                const res = await fetch(`https://gpt-resume-2smw.onrender.com/api/generate-section`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1317,7 +1317,7 @@
                 }
             } catch (err) {
                 console.error("AI Error:", err);
-                alert("API Connection Failed: Ensure main.py is running on port 8000.");
+                alert("API Connection Failed: API is deployed on Render. Check your internet connection.");
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = orig;

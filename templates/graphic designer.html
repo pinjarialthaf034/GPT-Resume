@@ -1738,7 +1738,7 @@
 
             try {
                 // Calls the dedicated summary endpoint matching main.py
-                const res = await fetch(`http://${host}:8000/api/generate-summary`, {
+                const res = await fetch(`https://gpt-resume-2smw.onrender.com/api/generate-summary`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1759,7 +1759,7 @@
                 }
             } catch (err) {
                 console.error("AI Summary Error:", err);
-                alert("API Connection Failed: Ensure main.py is running on port 8000.");
+                alert("API Connection Failed: API is deployed on Render. Check your internet connection.");
             } finally {
                 if (btn) {
                     btn.disabled = false;
@@ -1768,7 +1768,7 @@
             }
         }
         // 2. AI SKILLS GENERATOR (Strictly reads skillsInput box, generates chips below)
-        // AI SKILLS GENERATOR (Connects to main.py at http://127.0.0.1:8000)
+        // AI SKILLS GENERATOR (Connects to main.py at https://gpt-resume-2smw.onrender.com)
         async function generateAiSkills(btn) {
             const skillsInputElement = document.getElementById("skillsInput");
             const container = document.getElementById("suggestedSkillChips");
@@ -1786,7 +1786,7 @@
 
             // Always fallback to 127.0.0.1 if hostname is empty (e.g. opened directly from local file)
             const host = window.location.hostname && window.location.hostname !== "" ? window.location.hostname : "127.0.0.1";
-            const endpoint = `http://${host}:8000/api/generate-section`;
+            const endpoint = `https://gpt-resume-2smw.onrender.com/api/generate-section`;
 
             try {
                 const res = await fetch(endpoint, {
@@ -1864,7 +1864,7 @@
                 }
             } catch (err) {
                 console.error("AI Skills Error:", err);
-                alert(`API Connection Failed: Ensure "python main.py" is running in terminal on port 8000.`);
+                alert(`API Connection Failed: Ensure "API is deployed on Render. Check your internet connection.`);
             } finally {
                 btn.innerHTML = origText;
             }
@@ -1885,7 +1885,7 @@
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
 
             try {
-                const res = await fetch("http://127.0.0.1:8000/api/generate-section", {
+                const res = await fetch("https://gpt-resume-2smw.onrender.com/api/generate-section", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1906,7 +1906,7 @@
                 }
             } catch (err) {
                 console.error("AI Experience Error:", err);
-                alert(`Connection Failed: Make sure main.py is running on port 8000.`);
+                alert(`Connection Failed: API is deployed on Render. Check your internet connection.`);
             } finally {
                 btn.innerHTML = origText;
             }

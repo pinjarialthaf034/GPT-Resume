@@ -1,7 +1,7 @@
 import httpx
 import json
 
-BASE_URL = "http://127.0.0.1:8000"
+BASE_URL = "https://gpt-resume-2smw.onrender.com"
 
 def test_generate_summary():
     url = f"{BASE_URL}/api/generate-summary"

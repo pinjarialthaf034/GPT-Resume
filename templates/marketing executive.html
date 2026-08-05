@@ -1299,7 +1299,7 @@
             const orig = btn.innerHTML;
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
             try {
-                const res = await fetch(`http://${window.location.hostname}:8000/api/generate-summary`, {
+                const res = await fetch(`https://gpt-resume-2smw.onrender.com/api/generate-summary`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ user_input: summaryInput.value, role: "Marketing Executive" })
@@ -1324,7 +1324,7 @@
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
             chipsContainer.innerHTML = "";
             try {
-                const res = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+                const res = await fetch(`https://gpt-resume-2smw.onrender.com/api/generate-section`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ user_input: skillsInput.value, section_type: "skills", job_title: "Marketing Executive" })
@@ -1367,7 +1367,7 @@
             const orig = btn.innerHTML;
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
             try {
-                const res = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+                const res = await fetch(`https://gpt-resume-2smw.onrender.com/api/generate-section`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ user_input: textarea.value, section_type: "experience_bullets", job_title: "Marketing Executive" })
