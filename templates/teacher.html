@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Workspace</title>
+
+    <!-- Theme Initializer -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+            window.addEventListener("DOMContentLoaded", () => {
+                document.body.setAttribute("data-theme", savedTheme);
+            });
+        })();
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* =========================================
+           VARIABLES & SYSTEM THEMING
+           ========================================= */
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --text-primary: #0f172a;
+            --text-muted: #64748b;
+            --text-input: #0f172a;
+            --bg-input: #ffffff;
+            --border-input: #d1d5db;
+            --accent-blue: #2563eb;
+            --theme-color: #6B4226;
+            /* Default Primary Teacher Accent Color */
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-input: #f8fafc;
+            --bg-input: #1e293b;
+            --border-input: #475569;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-body);
+            padding: 25px;
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* =========================================
+           HEADER NAVBAR STYLING
+           ========================================= */
+        .builder-header {
+            width: 100%;
+            height: 70px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            position: sticky;
+            top: 15px;
+            z-index: 999;
+            margin-bottom: 25px;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .logo-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--theme-color);
+            transition: background 0.3s ease;
+        }
+
+        .theme-toggle-btn {
+            background: transparent;
+            border: 1px solid var(--border-input);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        [data-theme="dark"] .theme-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        /* =========================================
+           MAIN CONTAINER GRID LAYOUT
+           ========================================= */
+        .builder-container {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* =========================================
+           LEFT PANEL FORM CONSOLE
+           ========================================= */
+        .form-panel {
+            width: 40%;
+            min-height: 650px;
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 100px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .form-panel input,
+        .form-panel textarea,
+        .form-panel select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-input);
+            background: var(--bg-input);
+            color: var(--text-input);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .form-panel textarea {
+            height: 90px;
+            resize: vertical;
+        }
+
+        .form-panel input:focus,
+        .form-panel textarea:focus {
+            border-color: var(--theme-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(107, 66, 38, 0.15);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .input-group label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .step {
+            display: none !important;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .step.active {
+            display: flex !important;
+        }
+
+        .step-header {
+            margin-bottom: 10px;
+        }
+
+        .step-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .step-header p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* =========================================
+           INTERACTIVE STEPPER PROGRESS BAR
+           ========================================= */
+        .stepper-progress-container {
+            position: relative;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .stepper-track-bg {
+            position: absolute;
+            top: 14px;
+            left: 15px;
+            right: 15px;
+            height: 3px;
+            background: rgba(0, 0, 0, 0.08);
+            z-index: 1;
+            border-radius: 2px;
+        }
+
+        [data-theme="dark"] .stepper-track-bg {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .stepper-track-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--theme-color);
+            border-radius: 2px;
+            transition: width 0.35s ease;
+        }
+
+        .stepper-steps-wrapper {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .step-circle {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--border-input);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .step-node.active .step-circle {
+            border-color: var(--theme-color);
+            background: var(--theme-color);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+        }
+
+        /* =========================================
+           AI ACTION BUTTONS & CHIPS
+           ========================================= */
+        .textarea-ai-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-ai-action {
+            align-self: flex-end;
+            background: rgba(124, 58, 237, 0.08);
+            color: #7c3aed;
+            border: 1px solid rgba(124, 58, 237, 0.25);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-ai-action:hover {
+            background: #7c3aed;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+        }
+
+        [data-theme="dark"] .btn-ai-action {
+            background: rgba(168, 85, 247, 0.12);
+            color: #c084fc;
+            border-color: rgba(168, 85, 247, 0.3);
+        }
+
+        [data-theme="dark"] .btn-ai-action:hover {
+            background: #a855f7;
+            color: #ffffff;
+        }
+
+        /* Dynamic Input Cards */
+        .card-box {
+            border: 1px solid var(--border-input);
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            background: var(--bg-input);
+            position: relative;
+        }
+
+        .remove-card-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #fee2e2;
+            color: #ef4444;
+            border: 1px solid #fca5a5;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .remove-card-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .add-btn {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px dashed var(--border-input);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+            transition: background 0.2s ease;
+        }
+
+        .add-btn:hover {
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        /* BUTTON CONSOLE */
+        .step-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .next-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: var(--theme-color);
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .next-btn:hover {
+            opacity: 0.9;
+        }
+
+        .back-btn {
+            padding: 12px 20px;
+            border: 1px solid var(--border-input);
+            border-radius: 8px;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* =========================================
+           RIGHT SIDE PANEL & CUSTOMIZER TOOLBAR
+           ========================================= */
+        .preview-panel {
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .customizer-toolbar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+        }
+
+        .toolbar-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toolbar-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .color-swatches {
+            display: flex;
+            gap: 8px;
+        }
+
+        .color-swatch {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.15);
+        }
+
+        .color-swatch.active {
+            border-color: var(--text-primary);
+            transform: scale(1.15);
+        }
+
+        .toolbar-select {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-input);
+            font-size: 12px;
+            font-weight: 700;
+            background: var(--bg-input);
+            color: var(--text-input);
+            cursor: pointer;
+        }
+
+        .btn-pdf-download {
+            background: #ef4444;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .btn-pdf-download:hover {
+            background: #dc2626;
+        }
+
+        /* =========================================
+           TEACHER RESUME CANVAS
+           ========================================= */
+        .resume-page {
+            width: 794px;
+            min-height: 1123px;
+            background: #ffffff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+            padding: 45px 50px;
+            position: relative;
+            color: #222222;
+            margin: 0 auto;
+        }
+
+        .header-section {
+            border-bottom: 1.5px solid #d3d3d3;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .name-title {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #000000;
+            text-transform: uppercase;
+        }
+
+        .sub-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--theme-color);
+            margin-top: 2px;
+            margin-bottom: 15px;
+            transition: color 0.3s ease;
+        }
+
+        .contact-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 13px;
+            color: #333333;
+            font-weight: 500;
+        }
+
+        .contact-row i {
+            color: var(--theme-color);
+            margin-right: 5px;
+            transition: color 0.3s ease;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--theme-color);
+            text-transform: uppercase;
+            border-bottom: 1px solid #d3d3d3;
+            padding-bottom: 4px;
+            margin-top: 20px;
+            margin-bottom: 12px;
+            transition: color 0.3s ease;
+        }
+
+        .summary-text {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #222222;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 3px;
+        }
+
+        .item-heading {
+            font-size: 14px;
+            font-weight: 700;
+            color: #000000;
+        }
+
+        .item-sub {
+            font-size: 13px;
+            color: #333333;
+            margin-bottom: 6px;
+        }
+
+        .item-date {
+            font-size: 13px;
+            color: #000000;
+            font-weight: 500;
+        }
+
+        .bullet-list {
+            list-style-type: disc;
+            padding-left: 20px;
+            margin-bottom: 12px;
+        }
+
+        .bullet-list li {
+            font-size: 13px;
+            color: #222222;
+            line-height: 1.5;
+            margin-bottom: 4px;
+        }
+
+        .simple-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .simple-list li {
+            font-size: 13px;
+            line-height: 1.6;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .simple-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #000000;
+        }
+
+        [contenteditable="true"]:hover {
+            outline: 1px dashed var(--theme-color) !important;
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        /* PRINT STYLES - Triggers standard browser print / save-as-PDF preview */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+
+            body {
+                padding: 0;
+                background: #ffffff;
+            }
+
+            .builder-header,
+            .form-panel,
+            .customizer-toolbar,
+            .no-print {
+                display: none !important;
+            }
+
+            .builder-container,
+            .preview-panel {
+                display: block !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .resume-page {
+                box-shadow: none !important;
+                width: 210mm !important;
+                min-height: 297mm !important;
+                margin: 0 auto !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TOP NAVBAR -->
+    <header class="builder-header no-print">
+        <div class="logo">
+            <span class="logo-dot"></span>
+            GPT HUB
+        </div>
+        <div>
+            <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()">☀️ Toggle Theme</button>
+        </div>
+    </header>
+
+    <div class="builder-container">
+
+        <!-- LEFT SIDE FORM PANEL -->
+        <div class="form-panel no-print">
+
+            <!-- Stepper Progress Bar -->
+            <div class="stepper-progress-container">
+                <div class="stepper-track-bg">
+                    <div class="stepper-track-fill" id="stepperProgressFill"></div>
+                </div>
+                <div class="stepper-steps-wrapper">
+                    <div class="step-node active" data-step="1">
+                        <div class="step-circle">1</div>
+                    </div>
+                    <div class="step-node" data-step="2">
+                        <div class="step-circle">2</div>
+                    </div>
+                    <div class="step-node" data-step="3">
+                        <div class="step-circle">3</div>
+                    </div>
+                    <div class="step-node" data-step="4">
+                        <div class="step-circle">4</div>
+                    </div>
+                    <div class="step-node" data-step="5">
+                        <div class="step-circle">5</div>
+                    </div>
+                    <div class="step-node" data-step="6">
+                        <div class="step-circle">6</div>
+                    </div>
+                    <div class="step-node" data-step="7">
+                        <div class="step-circle">7</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 1: Personal Information -->
+            <div id="step1" class="step active">
+                <div class="step-header">
+                    <h2>Personal Information</h2>
+                    <p>Enter basic personal contact details.</p>
+                </div>
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="nameInput" value="POOJA SHARMA">
+                </div>
+                <div class="input-group">
+                    <label>Title / Role</label>
+                    <input type="text" id="titleInput" value="Teacher">
+                </div>
+                <div class="input-group">
+                    <label>Phone Number</label>
+                    <input type="text" id="phoneInput" value="+91 9876543210">
+                </div>
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="emailInput" value="pooja.sharma@email.com">
+                </div>
+                <div class="input-group">
+                    <label>Location</label>
+                    <input type="text" id="locationInput" value="Lucknow, India">
+                </div>
+                <div class="step-buttons">
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 2: Professional Summary -->
+            <div id="step2" class="step">
+                <div class="step-header">
+                    <h2>Professional Summary</h2>
+                    <p>Provide a summary of your teaching background.</p>
+                </div>
+                <div class="textarea-ai-wrapper">
+                    <textarea
+                        id="summaryInput">Dedicated and passionate teacher with 5+ years of experience in teaching and mentoring students to achieve academic excellence.</textarea>
+                    <button type="button" id="aiSummaryBtn" class="btn-ai-action"
+                        onclick="generateAiSummary()">✨Generate with Ai</button>
+                </div>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Education -->
+            <div id="step3" class="step">
+                <div class="step-header">
+                    <h2>Education</h2>
+                    <p>List academic degrees and achievements.</p>
+                </div>
+                <div id="eduFormContainer">
+                    <div class="card-box edu-entry">
+                        <button type="button" class="remove-card-btn" onclick="removeCard(this, renderEducation)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="edu-degree-input" placeholder="Degree Title"
+                            value="Master of Education (M.Ed.)">
+                        <input type="text" class="edu-school-input" placeholder="University/School"
+                            value="University of Lucknow, Lucknow" style="margin-top: 6px;">
+                        <input type="text" class="edu-date-input" placeholder="Dates" value="2018 – 2020"
+                            style="margin-top: 6px;">
+                    </div>
+                    <div class="card-box edu-entry">
+                        <button type="button" class="remove-card-btn" onclick="removeCard(this, renderEducation)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="edu-degree-input" placeholder="Degree Title"
+                            value="Bachelor of Education (B.Ed.)">
+                        <input type="text" class="edu-school-input" placeholder="University/School"
+                            value="University of Lucknow, Lucknow" style="margin-top: 6px;">
+                        <input type="text" class="edu-date-input" placeholder="Dates" value="2016 – 2018"
+                            style="margin-top: 6px;">
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addEducationInput()">＋ Add Education</button>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 4: Experience -->
+            <div id="step4" class="step">
+                <div class="step-header">
+                    <h2>Teaching Experience</h2>
+                    <p>Specify teaching roles and achievements.</p>
+                </div>
+                <div id="expFormContainer">
+                    <div class="card-box exp-entry">
+                        <button type="button" class="remove-card-btn" onclick="removeCard(this, renderExperiences)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="job-role-input" placeholder="Role Title" value="Teacher">
+                        <input type="text" class="job-sub-input" placeholder="School / Location"
+                            value="ABC Public School, Lucknow" style="margin-top:6px;">
+                        <input type="text" class="job-date-input" placeholder="Dates" value="Jun 2020 – Present"
+                            style="margin-top:6px;">
+                        <div class="textarea-ai-wrapper" style="margin-top: 6px;">
+                            <textarea class="job-bullets-input"
+                                placeholder="Responsibilities (One per line)">Teach Mathematics to students of grades 6–10.&#10;Develop lesson plans and evaluate student performance.</textarea>
+                            <button type="button" class="btn-ai-action" onclick="generateAiExperience(this)">✨ AI
+                                Generated Bullet Points</button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addExperienceInput()">＋ Add Experience</button>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 5: Certifications -->
+            <div id="step5" class="step">
+                <div class="step-header">
+                    <h2>Certifications</h2>
+                    <p>List teaching credentials or courses.</p>
+                </div>
+                <div class="textarea-ai-wrapper">
+                    <textarea id="certInput"
+                        placeholder="Certifications (One per line)">CTET Qualified&#10;Teaching Strategies – NPTEL</textarea>
+                </div>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 6: Achievements & Languages -->
+            <div id="step6" class="step">
+                <div class="step-header">
+                    <h2>Achievements & Languages</h2>
+                    <p>Key highlights and spoken languages.</p>
+                </div>
+                <div class="input-group">
+                    <label>Achievements</label>
+                    <textarea id="achievementsInput">Best Teacher Award – 2022</textarea>
+                </div>
+                <div class="input-group">
+                    <label>Languages</label>
+                    <input type="text" id="languagesInput" value="English, Hindi">
+                </div>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 7: References & Download -->
+            <div id="step7" class="step">
+                <div class="step-header">
+                    <h2>References & Export</h2>
+                    <p>Finalize references and export document.</p>
+                </div>
+                <div class="input-group">
+                    <label>References</label>
+                    <input type="text" id="referencesInput" value="Available upon request.">
+                </div>
+                <div class="step-buttons" style="margin-top: 15px;">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="downloadPDF()">Download PDF <i
+                            class="fa-solid fa-download"></i></button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE PREVIEW & CUSTOMIZER TOOLBAR -->
+        <div class="preview-panel">
+
+            <!-- Live Customizer Toolbar -->
+            <div class="customizer-toolbar no-print">
+                <div class="toolbar-section">
+                    <span class="toolbar-label">Accent Color:</span>
+                    <div class="color-swatches">
+                        <span class="color-swatch active" style="background-color: #6B4226;"
+                            onclick="changeTheme('#6B4226')"></span>
+                        <span class="color-swatch" style="background-color: #1a365d;"
+                            onclick="changeTheme('#1a365d')"></span>
+                        <span class="color-swatch" style="background-color: #0f5132;"
+                            onclick="changeTheme('#0f5132')"></span>
+                        <span class="color-swatch" style="background-color: #581845;"
+                            onclick="changeTheme('#581845')"></span>
+                        <span class="color-swatch" style="background-color: #2d3748;"
+                            onclick="changeTheme('#2d3748')"></span>
+                    </div>
+                </div>
+                <div class="toolbar-section">
+                    <span class="toolbar-label">Font Style:</span>
+                    <select id="fontSelector" class="toolbar-select">
+                        <option value="Montserrat">Montserrat</option>
+                        <option value="Inter">Inter</option>
+                        <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                        <option value="Outfit">Outfit</option>
+                    </select>
+                </div>
+                <div class="toolbar-section">
+                    <button class="btn-pdf-download" onclick="downloadPDF()">Download PDF <i
+                            class="fa-solid fa-download"></i></button>
+                </div>
+            </div>
+
+            <!-- Live Resume Page -->
+            <div class="resume-page" id="resume-pdf-target">
+
+                <div class="header-section">
+                    <div class="name-title" id="previewName" contenteditable="true">POOJA SHARMA</div>
+                    <div class="sub-title" id="previewTitle" contenteditable="true">Teacher</div>
+                    <div class="contact-row">
+                        <span><i class="fa-solid fa-phone"></i> <span id="previewPhone" contenteditable="true">+91
+                                9876543210</span></span>
+                        |
+                        <span><i class="fa-solid fa-envelope"></i> <span id="previewEmail"
+                                contenteditable="true">pooja.sharma@email.com</span></span>
+                        |
+                        <span><i class="fa-solid fa-location-dot"></i> <span id="previewLocation"
+                                contenteditable="true">Lucknow, India</span></span>
+                    </div>
+                </div>
+
+                <div class="section-title">PROFESSIONAL SUMMARY</div>
+                <p class="summary-text" id="previewSummary" contenteditable="true">
+                    Dedicated and passionate teacher with 5+ years of experience in teaching and mentoring students to
+                    achieve academic excellence.
+                </p>
+
+                <div class="section-title">EDUCATION</div>
+                <div id="previewEducation">
+                    <!-- Dynamic rendering -->
+                </div>
+
+                <div class="section-title">EXPERIENCE</div>
+                <div id="previewExperience">
+                    <!-- Dynamic rendering -->
+                </div>
+
+                <div class="section-title">CERTIFICATIONS</div>
+                <ul id="previewCertifications" class="simple-list">
+                    <li contenteditable="true">CTET Qualified</li>
+                    <li contenteditable="true">Teaching Strategies – NPTEL</li>
+                </ul>
+
+                <div class="section-title">ACHIEVEMENTS & LANGUAGES</div>
+                <div style="font-size: 13px; line-height: 1.6;">
+                    <div><strong>Achievements:</strong> <span id="previewAchievements" contenteditable="true">Best
+                            Teacher Award – 2022</span></div>
+                    <div><strong>Languages:</strong> <span id="previewLanguages" contenteditable="true">English,
+                            Hindi</span></div>
+                </div>
+
+                <div class="section-title">REFERENCES</div>
+                <div id="previewReferences" class="summary-text" contenteditable="true">
+                    Available upon request.
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // STEPPER CONTROL
+        let currentStep = 1;
+        const totalSteps = 7;
+
+        function updateStepperUI() {
+            for (let i = 1; i <= totalSteps; i++) {
+                const stepEl = document.getElementById(`step${i}`);
+                if (stepEl) stepEl.classList.toggle("active", i === currentStep);
+            }
+            document.querySelectorAll(".step-node").forEach(node => {
+                const stepNum = parseInt(node.getAttribute("data-step"));
+                node.classList.toggle("active", stepNum <= currentStep);
+            });
+            const fill = document.getElementById("stepperProgressFill");
+            if (fill) fill.style.width = `${((currentStep - 1) / (totalSteps - 1)) * 100}%`;
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) { currentStep++; updateStepperUI(); }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) { currentStep--; updateStepperUI(); }
+        }
+
+        // ACCENT COLOR & THEME SWITCHING
+        function changeTheme(color) {
+            document.documentElement.style.setProperty('--theme-color', color);
+            document.querySelectorAll('.color-swatch').forEach(s => {
+                s.classList.toggle('active', s.getAttribute('onclick').includes(color));
+            });
+        }
+
+        function toggleTheme() {
+            const curTheme = document.documentElement.getAttribute("data-theme") || "light";
+            const nextTheme = curTheme === "light" ? "dark" : "light";
+            document.documentElement.setAttribute("data-theme", nextTheme);
+            if (document.body) {
+                document.body.setAttribute("data-theme", nextTheme);
+            }
+            localStorage.setItem("theme", nextTheme);
+        }
+
+        // FONT CONTROL
+        document.getElementById("fontSelector").addEventListener("change", function () {
+            document.getElementById("resume-pdf-target").style.fontFamily = `'${this.value}', sans-serif`;
+        });
+
+        // TWO-WAY BINDING FOR STATIC FIELDS
+        function bindTwoWay(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            if (input && preview) {
+                input.addEventListener("input", () => { preview.innerText = input.value; });
+                preview.addEventListener("input", () => { input.value = preview.innerText; });
+            }
+        }
+
+        bindTwoWay("nameInput", "previewName");
+        bindTwoWay("titleInput", "previewTitle");
+        bindTwoWay("phoneInput", "previewPhone");
+        bindTwoWay("emailInput", "previewEmail");
+        bindTwoWay("locationInput", "previewLocation");
+        bindTwoWay("summaryInput", "previewSummary");
+        bindTwoWay("achievementsInput", "previewAchievements");
+        bindTwoWay("languagesInput", "previewLanguages");
+        bindTwoWay("referencesInput", "previewReferences");
+
+        // Two-Way Binding for Certifications List
+        const certInput = document.getElementById("certInput");
+        const certPreview = document.getElementById("previewCertifications");
+
+        certInput.addEventListener("input", function () {
+            const lines = this.value.split("\n");
+            certPreview.innerHTML = "";
+            lines.forEach(line => {
+                if (line.trim() !== "") {
+                    const li = document.createElement("li");
+                    li.textContent = line.trim();
+                    li.setAttribute("contenteditable", "true");
+                    certPreview.appendChild(li);
+                }
+            });
+        });
+
+        certPreview.addEventListener("input", function () {
+            const items = certPreview.querySelectorAll("li");
+            const lines = Array.from(items).map(li => li.innerText.trim());
+            certInput.value = lines.join("\n");
+        });
+
+        // Dynamic Experience Inputs & Two-Way Sync
+        function addExperienceInput() {
+            const container = document.getElementById("expFormContainer");
+            const div = document.createElement("div");
+            div.className = "card-box exp-entry";
+            div.innerHTML = `
+                <button type="button" class="remove-card-btn" onclick="removeCard(this, renderExperiences)"><i class="fa-solid fa-xmark"></i></button>
+                <input type="text" class="job-role-input" placeholder="Role Title">
+                <input type="text" class="job-sub-input" placeholder="School / Location" style="margin-top:6px;">
+                <input type="text" class="job-date-input" placeholder="Dates" style="margin-top:6px;">
+                <div class="textarea-ai-wrapper" style="margin-top:6px;">
+                    <textarea class="job-bullets-input" placeholder="Responsibilities (One per line)"></textarea>
+                    <button type="button" class="btn-ai-action" onclick="generateAiExperience(this)">✨ AI Generated Bullet Points</button>
+                </div>
+            `;
+            container.appendChild(div);
+            bindExpEvents();
+        }
+
+        function bindExpEvents() {
+            document.querySelectorAll(".exp-entry").forEach(entry => {
+                entry.querySelectorAll("input, textarea").forEach(input => {
+                    input.removeEventListener("input", renderExperiences);
+                    input.addEventListener("input", renderExperiences);
+                });
+            });
+            renderExperiences();
+        }
+
+        function renderExperiences() {
+            const container = document.getElementById("previewExperience");
+            container.innerHTML = "";
+            const entries = document.querySelectorAll(".exp-entry");
+
+            entries.forEach((entry, idx) => {
+                const roleInput = entry.querySelector(".job-role-input");
+                const subInput = entry.querySelector(".job-sub-input");
+                const dateInput = entry.querySelector(".job-date-input");
+                const bulletsInput = entry.querySelector(".job-bullets-input");
+
+                const role = roleInput.value.trim();
+                const sub = subInput.value.trim();
+                const date = dateInput.value.trim();
+                const bulletsText = bulletsInput.value;
+
+                if (role || sub || date) {
+                    const item = document.createElement("div");
+                    item.style.marginBottom = "12px";
+
+                    let bulletsHtml = "";
+                    if (bulletsText) {
+                        bulletsText.split("\n").forEach(line => {
+                            if (line.trim() !== "") bulletsHtml += `<li contenteditable="true">${line.trim()}</li>`;
+                        });
+                    }
+
+                    item.innerHTML = `
+                        <div class="item-row"><div class="item-heading" contenteditable="true">${role || 'ROLE TITLE'}</div></div>
+                        <div class="item-row">
+                            <div class="item-sub" contenteditable="true">${sub || ''}</div>
+                            <div class="item-date" contenteditable="true">${date || ''}</div>
+                        </div>
+                        <ul class="bullet-list">${bulletsHtml}</ul>
+                    `;
+
+                    // Two-way sync: Preview to Form
+                    const headEl = item.querySelector(".item-heading");
+                    const subEl = item.querySelector(".item-sub");
+                    const dateEl = item.querySelector(".item-date");
+                    const ulEl = item.querySelector(".bullet-list");
+
+                    headEl.addEventListener("input", () => { roleInput.value = headEl.innerText; });
+                    subEl.addEventListener("input", () => { subInput.value = subEl.innerText; });
+                    dateEl.addEventListener("input", () => { dateInput.value = dateEl.innerText; });
+                    ulEl.addEventListener("input", () => {
+                        const lis = ulEl.querySelectorAll("li");
+                        bulletsInput.value = Array.from(lis).map(li => li.innerText.trim()).join("\n");
+                    });
+
+                    container.appendChild(item);
+                }
+            });
+        }
+
+        // Dynamic Education Inputs & Two-Way Sync
+        function addEducationInput() {
+            const container = document.getElementById("eduFormContainer");
+            const div = document.createElement("div");
+            div.className = "card-box edu-entry";
+            div.innerHTML = `
+                <button type="button" class="remove-card-btn" onclick="removeCard(this, renderEducation)"><i class="fa-solid fa-xmark"></i></button>
+                <input type="text" class="edu-degree-input" placeholder="Degree Title">
+                <input type="text" class="edu-school-input" placeholder="University/School" style="margin-top:6px;">
+                <input type="text" class="edu-date-input" placeholder="Dates" style="margin-top:6px;">
+            `;
+            container.appendChild(div);
+            bindEduEvents();
+        }
+
+        function bindEduEvents() {
+            document.querySelectorAll(".edu-entry").forEach(entry => {
+                entry.querySelectorAll("input").forEach(input => {
+                    input.removeEventListener("input", renderEducation);
+                    input.addEventListener("input", renderEducation);
+                });
+            });
+            renderEducation();
+        }
+
+        function renderEducation() {
+            const container = document.getElementById("previewEducation");
+            container.innerHTML = "";
+            const entries = document.querySelectorAll(".edu-entry");
+
+            entries.forEach((entry) => {
+                const degreeInput = entry.querySelector(".edu-degree-input");
+                const schoolInput = entry.querySelector(".edu-school-input");
+                const dateInput = entry.querySelector(".edu-date-input");
+
+                const degree = degreeInput.value.trim();
+                const school = schoolInput.value.trim();
+                const date = dateInput.value.trim();
+
+                if (degree || school || date) {
+                    const item = document.createElement("div");
+                    item.style.marginBottom = "8px";
+                    item.innerHTML = `
+                        <div class="item-row">
+                            <div class="item-heading" contenteditable="true">${degree || 'DEGREE TITLE'}</div>
+                            <div class="item-date" contenteditable="true">${date || ''}</div>
+                        </div>
+                        <div class="item-sub" contenteditable="true">${school || ''}</div>
+                    `;
+
+                    // Two-way sync: Preview to Form
+                    const degEl = item.querySelector(".item-heading");
+                    const dateEl = item.querySelector(".item-date");
+                    const schEl = item.querySelector(".item-sub");
+
+                    degEl.addEventListener("input", () => { degreeInput.value = degEl.innerText; });
+                    dateEl.addEventListener("input", () => { dateInput.value = dateEl.innerText; });
+                    schEl.addEventListener("input", () => { schoolInput.value = schEl.innerText; });
+
+                    container.appendChild(item);
+                }
+            });
+        }
+
+        function removeCard(btn, renderCallback) {
+            btn.parentElement.remove();
+            if (renderCallback) renderCallback();
+        }
+
+        // AI FEATURE ACTIONS (BACKEND CONNECTORS)
+        // =======================================================
+        // AI SUMMARY GENERATOR (Connected to main.py)
+        // =======================================================
+        async function generateAiSummary() {
+            const textarea = document.getElementById("summaryInput");
+            const btn = document.getElementById("aiSummaryBtn");
+            if (!textarea) return;
+
+            const userVal = textarea.value.trim();
+            if (!userVal) {
+                alert("Please enter draft notes or keywords first!");
+                textarea.focus();
+                return;
+            }
+
+            const origText = btn ? btn.innerHTML : "";
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+            }
+
+            const host = window.location.hostname || "127.0.0.1";
+
+            try {
+                // Calls backend endpoint specifically mapped for summaries
+                const res = await fetch(`http://${host}:8000/api/generate-summary`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_input: userVal,
+                        job_title: "Teacher"
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const summaryResult = data.summary || data.text || "";
+                    if (summaryResult) {
+                        textarea.value = summaryResult;
+                        // Dispatch input event to refresh preview live
+                        textarea.dispatchEvent(new Event('input'));
+                    }
+                } else {
+                    const errData = await res.json().catch(() => ({}));
+                    alert(`Error (${res.status}): ${errData.detail || "Failed to generate summary."}`);
+                }
+            } catch (err) {
+                console.error("AI Summary Error:", err);
+                alert("API Connection Failed: Ensure main.py is running on port 8000.");
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = origText;
+                }
+            }
+        }
+        async function generateAiExperience(btn) {
+            const textarea = btn.previousElementSibling;
+            const orig = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<i class=\"fa-solid fa-spinner fa-spin\"></i> Generating...`;
+            try {
+                const host = window.location.hostname || "127.0.0.1";
+                const res = await fetch(`http://${host}:8000/api/generate-section`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_input: textarea.value || "Teacher responsibilities",
+                        section_type: "experience_bullets",
+                        job_title: "Teacher"
+                    })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    textarea.value = data.text || data.summary || "";
+                    renderExperiences(); // Refreshes the live preview panel
+                } else {
+                    const errData = await res.json().catch(() => ({}));
+                    alert(`Error (${res.status}): ${errData.detail || "Failed to generate experience bullets."}`);
+                }
+            } catch (err) {
+                console.error("AI Error:", err);
+                alert("API Connection Failed: Ensure main.py is running on port 8000.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = orig;
+            }
+        }
+
+
+        // PRINT / SAVE AS PDF DIALOG TRIGGER
+        function downloadPDF() {
+            window.print();
+        }
+
+        // Initialize Init State
+        bindExpEvents();
+        bindEduEvents();
+        updateStepperUI();
+    </script>
+
+</body>
+
+</html>

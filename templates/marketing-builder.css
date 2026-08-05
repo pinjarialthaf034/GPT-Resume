@@ -137,11 +137,11 @@ body {
     background: #ffffff;
     padding: 25px;
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
     gap: 20px;
-    border: 1px solid rgba(0,0,0,0.06);
+    border: 1px solid rgba(0, 0, 0, 0.06);
     position: sticky;
     top: 90px;
     max-height: calc(100vh - 120px);
@@ -152,7 +152,7 @@ body {
 [data-theme="dark"] .form-panel {
     background: #1e293b;
     border-color: #334155;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
 /* STEP NAVIGATION PROGRESS BAR */
@@ -493,7 +493,7 @@ body {
     gap: 10px;
 }
 
-.row-2 > .input-group {
+.row-2>.input-group {
     flex: 1;
 }
 
@@ -730,7 +730,7 @@ body {
     min-height: 1123px;
     background: #ffffff;
     display: flex;
-    box-shadow: 0 10px 30px rgba(0,0,0,.15);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
     overflow: hidden;
     flex-shrink: 0;
     position: relative;
@@ -1018,17 +1018,19 @@ body {
 }
 
 /* Responsive grid layout */
-@media(max-width:1250px){
+@media(max-width:1250px) {
     .builder-container {
         flex-direction: column;
         align-items: center;
         margin-top: 80px;
     }
+
     .form-panel {
         width: 794px;
         position: static;
         max-height: none;
     }
+
     .preview-panel {
         width: 794px;
     }
@@ -1036,13 +1038,15 @@ body {
 
 /* PDF PRINT MEDIA STYLING */
 @media print {
+
     /* Standard A4 Page Setup */
     @page {
         size: A4 portrait;
         margin: 0;
     }
 
-    html, body {
+    html,
+    body {
         background: #ffffff !important;
         padding: 0 !important;
         margin: 0 !important;
@@ -1088,4 +1092,69 @@ body {
         page-break-after: avoid !important;
         page-break-inside: avoid !important;
     }
+}
+
+/* ========================================== */
+/* AI BUTTON & SUGGESTION CHIPS STYLING       */
+/* ========================================== */
+.textarea-ai-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.btn-ai-action {
+    align-self: flex-end;
+    background: rgba(124, 58, 237, 0.1);
+    color: #7c3aed;
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.btn-ai-action:hover {
+    background: #7c3aed;
+    color: #fff;
+}
+
+.btn-ai-action:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.ai-chip-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+    margin-bottom: 12px;
+}
+
+.ai-suggestion-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background-color: rgba(124, 58, 237, 0.08);
+    color: #7c3aed;
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ai-suggestion-chip:hover {
+    background-color: #7c3aed;
+    color: #fff;
 }

@@ -1,23 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eleanor Fitzgerald Resume Builder</title>
+    <title>Resume Workspace</title>
+
+    <!-- Theme Initializer -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+        })();
+    </script>
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <!-- Google Fonts -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ultra&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Ultra&family=Inter:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700;900&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Open+Sans:wght@300;400;600;700;800&family=Poppins:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700;900&display=swap">
+
     <!-- html2pdf.js for exporting PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
+        /* =========================================
+           VARIABLES & SYSTEM THEMING
+           ========================================= */
         :root {
             --navy-header: #0d2c6c;
             --title-blue: #0d2c6c;
             --text-dark: #2c3e50;
             --text-muted: #55606e;
-            --bg-light: #f4f6f9;
+            --bg-body: #dbe2ef;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-input: #0f172a;
+            --bg-input: #ffffff;
+            --border-input: #cbd5e1;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --resume-font: 'Montserrat', sans-serif;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-input: #f8fafc;
+            --bg-input: #1e293b;
+            --border-input: #475569;
         }
 
         * {
@@ -27,10 +63,56 @@
         }
 
         body {
-            background-color: #dbe2ef;
+            background-color: var(--bg-body);
             font-family: 'Montserrat', sans-serif;
-            padding: 30px;
-            color: #333;
+            padding: 25px;
+            color: var(--text-primary);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* TOP NAVBAR */
+        .builder-header {
+            width: 100%;
+            height: 70px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            position: sticky;
+            top: 15px;
+            z-index: 999;
+            margin-bottom: 25px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .logo-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--navy-header);
+        }
+
+        .theme-toggle-btn {
+            background: transparent;
+            border: 1px solid var(--border-input);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
         }
 
         /* MAIN APP WRAPPER */
@@ -46,14 +128,67 @@
         /* FORM WIZARD PANEL */
         .form-panel {
             width: 380px;
-            background: #ffffff;
+            background: var(--bg-card);
             padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-            max-height: 90vh;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+            max-height: 80vh;
             overflow-y: auto;
             position: sticky;
-            top: 20px;
+            top: 100px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* STEPPER PROGRESS TRACKER */
+        .stepper-progress-container {
+            position: relative;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .stepper-track-bg {
+            position: absolute;
+            top: 12px;
+            left: 10px;
+            right: 10px;
+            height: 2px;
+            background: var(--border-input);
+            z-index: 1;
+        }
+
+        .stepper-steps-wrapper {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-node {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .step-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--border-input);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+
+        .step-node.active .step-circle {
+            border-color: var(--navy-header);
+            background: var(--navy-header);
+            color: #ffffff;
         }
 
         .form-panel label {
@@ -61,7 +196,8 @@
             font-size: 12px;
             font-weight: 600;
             margin-bottom: 5px;
-            color: var(--navy-header);
+            color: var(--text-primary);
+            text-transform: uppercase;
         }
 
         .form-panel input,
@@ -70,7 +206,9 @@
             width: 100%;
             padding: 10px 12px;
             margin-bottom: 12px;
-            border: 1px solid #cbd5e1;
+            border: 1px solid var(--border-input);
+            background: var(--bg-input);
+            color: var(--text-input);
             border-radius: 6px;
             font-size: 13px;
             font-family: inherit;
@@ -81,25 +219,27 @@
             resize: vertical;
         }
 
-        .step { display: none; }
-        .step.active { display: block; }
-
-        .step-header { margin-bottom: 15px; }
-        .step-number {
-            display: inline-block;
-            background: #e2e8f0;
-            color: var(--navy-header);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
+        .step {
+            display: none;
         }
-        .step-header h2 { margin-top: 8px; font-size: 18px; color: var(--navy-header); }
+
+        .step.active {
+            display: block;
+        }
+
+        .step-header {
+            margin-bottom: 15px;
+        }
+
+        .step-header h2 {
+            font-size: 18px;
+            color: var(--text-primary);
+        }
 
         .add-btn {
-            background: #f1f5f9;
-            color: var(--navy-header);
-            border: 1px dashed var(--navy-header);
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px dashed var(--border-input);
             padding: 8px 12px;
             border-radius: 6px;
             font-size: 12px;
@@ -108,9 +248,77 @@
             width: 100%;
             margin-bottom: 15px;
         }
-        .add-btn:hover { background: #e2e8f0; }
 
-        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        /* AI BUTTON STYLES */
+        /* AI BUTTON & CHIPS STYLING */
+        .textarea-ai-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .btn-ai-action {
+            align-self: flex-end;
+            background: rgba(124, 58, 237, 0.1);
+            color: #7c3aed;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-ai-action:hover {
+            background: #7c3aed;
+            color: #fff;
+        }
+
+        .btn-ai-action:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .ai-chip-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+            margin-bottom: 12px;
+        }
+
+        .ai-suggestion-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            background-color: rgba(124, 58, 237, 0.08);
+            color: #7c3aed;
+            border: 1px solid rgba(124, 58, 237, 0.25);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ai-suggestion-chip:hover {
+            background-color: #7c3aed;
+            color: #fff;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
         .next-btn {
             flex: 1;
             padding: 12px;
@@ -122,24 +330,23 @@
             cursor: pointer;
             font-weight: 600;
         }
-        .next-btn:hover { background: #081d4a; }
 
         .back-btn {
             padding: 12px 20px;
-            border: none;
+            border: 1px solid var(--border-input);
             border-radius: 6px;
             cursor: pointer;
-            background: #e2e8f0;
+            background: transparent;
             font-weight: 600;
-            color: var(--navy-header);
+            color: var(--text-primary);
         }
 
         .card-box {
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border-input);
             padding: 12px;
             border-radius: 6px;
             margin-bottom: 12px;
-            background: #f8fafc;
+            background: var(--bg-input);
             position: relative;
         }
 
@@ -157,20 +364,97 @@
             cursor: pointer;
         }
 
-        /* =========================================
-           RESUME TEMPLATE (ELEANOR FITZGERALD DESIGN)
-           A4 RATIO EXACT FIT
-           ========================================= */
+        /* RIGHT PANEL & CUSTOMIZER TOOLBAR */
+        .preview-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .customizer-toolbar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+        }
+
+        .toolbar-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toolbar-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .color-swatches {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .color-swatch {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.2);
+        }
+
+        .color-swatch.active {
+            border-color: var(--text-primary);
+            transform: scale(1.2);
+        }
+
+        .toolbar-select {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-input);
+            font-size: 12px;
+            font-weight: 600;
+            background: var(--bg-input);
+            color: var(--text-input);
+            cursor: pointer;
+        }
+
+        .btn-pdf-download {
+            background: #ef4444;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* RESUME TEMPLATE CANVAS */
         .resume-page {
             width: 794px;
             min-height: 1123px;
             background-color: #ffffff;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             overflow: hidden;
             box-sizing: border-box;
             position: relative;
             display: flex;
             flex-direction: column;
+            font-family: var(--resume-font);
         }
 
         /* HEADER BANNER */
@@ -180,6 +464,9 @@
             padding: 40px 50px;
             position: relative;
             overflow: hidden;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            transition: background-color 0.3s ease;
         }
 
         .header-content {
@@ -202,18 +489,6 @@
             letter-spacing: 1px;
             margin-top: 18px;
             color: #e0e6ed;
-        }
-
-        /* DECORATIVE WATERMARK APPLE ICON */
-        .header-icon-watermark {
-            position: absolute;
-            right: 40px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: rgba(255, 255, 255, 0.08);
-            font-size: 130px;
-            pointer-events: none;
-            z-index: 1;
         }
 
         /* MAIN TWO-COLUMN BODY Layout */
@@ -245,6 +520,9 @@
             color: var(--title-blue);
             margin-bottom: 12px;
             letter-spacing: 0.5px;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            transition: color 0.3s ease;
         }
 
         /* CONTENT STYLES */
@@ -255,14 +533,16 @@
             text-align: justify;
         }
 
-        .skill-list, .contact-list {
+        .skill-list,
+        .contact-list {
             list-style: none;
             display: flex;
             flex-direction: column;
             gap: 6px;
         }
 
-        .skill-list li, .contact-list li {
+        .skill-list li,
+        .contact-list li {
             font-size: 12px;
             color: var(--text-dark);
             line-height: 1.4;
@@ -315,353 +595,444 @@
         }
 
         [contenteditable="true"]:hover {
-            outline: 1px dashed rgba(13, 44, 108, 0.4);
+            outline: 1px dashed var(--navy-header) !important;
             cursor: text;
         }
 
-        @media(max-width:1200px){
-            .app-container { flex-direction: column; align-items: center; }
-            .form-panel { width: 794px; position: static; }
-        }
-
         @media print {
-            @page {
-                size: A4 portrait !important;
-                margin: 0mm !important;
+            body {
+                padding: 0;
+                background: white;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
-            html, body {
-                width: 210mm !important;
-                height: 297mm !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                background: #ffffff !important;
-                overflow: hidden !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
+
             .builder-header,
             .form-panel,
-            .customizer-toolbar,
-            .no-print,
-            button,
-            input,
-            select {
+            .customizer-toolbar {
                 display: none !important;
             }
+
             .app-container,
-            .builder-container {
+            .preview-panel {
                 display: block !important;
-                padding: 0 !important;
+                width: 100% !important;
                 margin: 0 !important;
-                width: 210mm !important;
-                height: 297mm !important;
             }
-            #resume-pdf-target {
-                display: flex !important;
-                position: absolute !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 210mm !important;
-                height: 297mm !important;
-                min-height: 297mm !important;
-                max-height: 297mm !important;
-                margin: 0 !important;
-                padding: 0 !important;
+
+            .resume-page {
                 box-shadow: none !important;
-                border: none !important;
-                box-sizing: border-box !important;
-                overflow: hidden !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            .resume-sidebar,
-            .resume-body,
-            .main-content {
-                height: 297mm !important;
+                width: 210mm !important;
                 min-height: 297mm !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .resume-header,
+            .section-title {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
         }
     </style>
 </head>
+
 <body>
 
-    <div class="builder-header no-print" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 28px; background: #0f172a; color: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 1000;">
-        <a href="index.html" style="color: #cbd5e1; text-decoration: none; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: color 0.2s;">
-            <i class="fa-solid fa-arrow-left"></i> Back to Templates
-        </a>
-        <div class="customizer-toolbar" style="display: flex; align-items: center; gap: 24px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 13px; font-weight: 600; color: #94a3b8;">Accent Color:</span>
-                <input type="color" id="accentColorPicker" value="#0d2c6c" onchange="document.documentElement.style.setProperty('--navy-header', this.value); document.documentElement.style.setProperty('--title-blue', this.value);" style="border: 2px solid #334155; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; background: transparent;">
-            </div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 13px; font-weight: 600; color: #94a3b8;">Font Face:</span>
-                <select id="fontSelector" onchange="document.getElementById('resume-pdf-target').style.fontFamily = this.value;" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: #ffffff; font-size: 13px; outline: none; cursor: pointer;">
-                    <option value="'Montserrat', sans-serif">Montserrat</option>
-                    <option value="'Inter', sans-serif">Inter</option>
-                    <option value="'Roboto', sans-serif">Roboto</option>
-                    <option value="'Poppins', sans-serif">Poppins</option>
-                    <option value="'Ultra', serif">Ultra</option>
-                </select>
-            </div>
-            <button onclick="downloadPDF()" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #ffffff; border: none; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(37,99,235,0.3);">
-                <i class="fa-solid fa-file-pdf"></i> Download PDF
-            </button>
+    <!-- TOP NAVBAR -->
+    <header class="builder-header no-print">
+        <div class="logo">
+            <span class="logo-dot"></span>
+            GPT HUB
         </div>
-    </div>
-
-<div class="app-container">
-
-    <!-- FORM WIZARD PANEL -->
-    <div class="form-panel">
-        
-        <!-- STEP 1 -->
-        <div id="step1" class="step active">
-            <div class="step-header">
-                <span class="step-number">Step 1 of 8</span>
-                <h2>Personal Details</h2>
-            </div>
-            <label>Full Name</label>
-            <input type="text" id="nameInput" placeholder="ELEANOR FITZGERALD">
-            <label>Job Title</label>
-            <input type="text" id="roleInput" placeholder="Full-time Educator">
-            <button class="next-btn" onclick="nextStep()">Continue</button>
+        <div>
+            <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()">☀️ Toggle Theme</button>
         </div>
+    </header>
 
-        <!-- STEP 2 -->
-        <div id="step2" class="step">
-            <div class="step-header">
-                <span class="step-number">Step 2 of 8</span>
-                <h2>Personal Profile</h2>
-            </div>
-            <label>Profile Statement</label>
-            <textarea id="profileInput" placeholder="I am a second grade teacher seeking a full-time position..."></textarea>
-            <button class="add-btn" style="background-color: var(--navy-header); color: #fff; margin-bottom: 10px;" onclick="generateAIContent('profile', 'profileInput')">✨ Generate AI Summary</button>
-            <div class="btn-group">
-                <button class="back-btn" onclick="prevStep()">Back</button>
-                <button class="next-btn" onclick="nextStep()">Continue</button>
-            </div>
-        </div>
+    <div class="app-container">
 
-        <!-- STEP 3 -->
-        <div id="step3" class="step">
-            <div class="step-header">
-                <span class="step-number">Step 3 of 8</span>
-                <h2>Classroom Skills</h2>
-            </div>
-            <label>Classroom Skills (One per line)</label>
-            <textarea id="classroomSkillsInput" placeholder="Interpersonal student development&#10;Enriching extracurricular activities..."></textarea>
-            <button class="add-btn" style="background-color: var(--navy-header); color: #fff; margin-bottom: 10px;" onclick="generateAIContent('skills', 'classroomSkillsInput')">✨ Suggest AI Skills</button>
-            <div class="btn-group">
-                <button class="back-btn" onclick="prevStep()">Back</button>
-                <button class="next-btn" onclick="nextStep()">Continue</button>
-            </div>
-        </div>
+        <!-- FORM WIZARD PANEL -->
+        <div class="form-panel no-print">
 
-        <!-- STEP 4 -->
-        <div id="step4" class="step">
-            <div class="step-header">
-                <span class="step-number">Step 4 of 8</span>
-                <h2>Contact Information</h2>
-            </div>
-            <label>Contact Details (One per line)</label>
-            <textarea id="contactInput" placeholder="123 Anywhere St., Any City&#10;helloreallygreatsite.com&#10;Mobile No.: 123-456-7890"></textarea>
-            <div class="btn-group">
-                <button class="back-btn" onclick="prevStep()">Back</button>
-                <button class="next-btn" onclick="nextStep()">Continue</button>
-            </div>
-        </div>
-
-        <!-- STEP 5 -->
-        <div id="step5" class="step">
-            <div class="step-header">
-                <span class="step-number">Step 5 of 8</span>
-                <h2>Other Skills</h2>
-            </div>
-            <label>Other Skills (One per line)</label>
-            <textarea id="otherSkillsInput" placeholder="Microsoft Office proficiency&#10;SMART board experience..."></textarea>
-            <button class="add-btn" style="background-color: var(--navy-header); color: #fff; margin-bottom: 10px;" onclick="generateAIContent('skills', 'otherSkillsInput')">✨ Suggest AI Skills</button>
-            <div class="btn-group">
-                <button class="back-btn" onclick="prevStep()">Back</button>
-                <button class="next-btn" onclick="nextStep()">Continue</button>
-            </div>
-        </div>
-
-        <!-- STEP 6 -->
-        <div id="step6" class="step">
-            <div class="step-header">
-                <span class="step-number">Step 6 of 8</span>
-                <h2>Professional History</h2>
-            </div>
-            <div id="expFormContainer">
-                <div class="card-box exp-entry">
-                    <button class="remove-card-btn" onclick="removeCard(this, renderExperiences)"><i class="fa-solid fa-xmark"></i></button>
-                    <input type="text" class="job-role-input" placeholder="Role (e.g. SECOND GRADE TEACHER)">
-                    <input type="text" class="job-sub-input" placeholder="School & Dates (e.g. Beechtown High School | 2016 to 2020)">
-                    <textarea class="job-bullets-input" placeholder="Key Duties (One per line)"></textarea>
-                    <button class="add-btn" style="background-color: var(--navy-header); color: #fff; margin-top: 5px;" onclick="generateAIContent('experience', this.previousElementSibling)">✨ Enhance Bullet Points with AI</button>
+            <!-- 9 STEPPER PROGRESS TRACKER -->
+            <div class="stepper-progress-container">
+                <div class="stepper-track-bg"></div>
+                <div class="stepper-steps-wrapper">
+                    <div class="step-node active" data-step="1" onclick="jumpToStep(1)">
+                        <div class="step-circle">1</div>
+                    </div>
+                    <div class="step-node" data-step="2" onclick="jumpToStep(2)">
+                        <div class="step-circle">2</div>
+                    </div>
+                    <div class="step-node" data-step="3" onclick="jumpToStep(3)">
+                        <div class="step-circle">3</div>
+                    </div>
+                    <div class="step-node" data-step="4" onclick="jumpToStep(4)">
+                        <div class="step-circle">4</div>
+                    </div>
+                    <div class="step-node" data-step="5" onclick="jumpToStep(5)">
+                        <div class="step-circle">5</div>
+                    </div>
+                    <div class="step-node" data-step="6" onclick="jumpToStep(6)">
+                        <div class="step-circle">6</div>
+                    </div>
+                    <div class="step-node" data-step="7" onclick="jumpToStep(7)">
+                        <div class="step-circle">7</div>
+                    </div>
+                    <div class="step-node" data-step="8" onclick="jumpToStep(8)">
+                        <div class="step-circle">8</div>
+                    </div>
+                    <div class="step-node" data-step="9" onclick="jumpToStep(9)">
+                        <div class="step-circle">9</div>
+                    </div>
                 </div>
             </div>
-            <button class="add-btn" onclick="addExperienceInput()">＋ Add Work Experience</button>
-            <div class="btn-group">
-                <button class="back-btn" onclick="prevStep()">Back</button>
-                <button class="next-btn" onclick="nextStep()">Continue</button>
+
+            <!-- STEP 1 -->
+            <div id="step1" class="step active">
+                <div class="step-header">
+                    <h2>1. Personal Details</h2>
+                </div>
+                <label>Full Name</label>
+                <input type="text" id="nameInput" placeholder="ELEANOR FITZGERALD">
+                <label>Job Title</label>
+                <input type="text" id="roleInput" placeholder="Full-time Educator">
+                <div class="btn-group">
+                    <button class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
             </div>
+
+            <!-- STEP 2 -->
+            <div id="step2" class="step">
+                <div class="step-header">
+                    <h2>2. Personal Profile</h2>
+                </div>
+                <label>Profile Statement</label>
+                <div class="textarea-ai-wrapper">
+                    <textarea id="profileInput"
+                        placeholder="I am a second grade teacher seeking a full-time position..."></textarea>
+                    <button type="button" class="btn-ai-action"
+                        onclick="enhanceAI('profileInput', 'previewProfile')">✨Generate with AI</button>
+                </div>
+                <div class="btn-group">
+                    <button class="back-btn" onclick="prevStep()">Back</button>
+                    <button class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 3 -->
+            <div id="step3" class="step">
+                <div class="step-header">
+                    <h2>3. Classroom Skills</h2>
+                </div>
+                <label>Classroom Skills (One per line)</label>
+                <div class="textarea-ai-wrapper">
+                    <textarea id="classroomSkillsInput"
+                        placeholder="Interpersonal student development&#10;Enriching extracurricular activities..."></textarea>
+                    <button type="button" class="btn-ai-action"
+                        onclick="enhanceAI('classroomSkillsInput', 'previewClassroomSkills', true)">✨AI Generated
+                        Suggestion skills</button>
+                </div>
+
+                <div id="classroomSkillsSuggestionsWrapper" style="display: none; margin-bottom: 12px;">
+                    <label style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Suggested
+                        Skills (Click to add):</label>
+                    <div id="classroomSkillsChips" class="ai-chip-container"></div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="back-btn" onclick="prevStep()">Back</button>
+                    <button class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 4 -->
+            <div id="step4" class="step">
+                <div class="step-header">
+                    <h2>4. Contact Information</h2>
+                </div>
+                <label>Contact Details (One per line)</label>
+                <textarea id="contactInput"
+                    placeholder="123 Anywhere St., Any City&#10;helloreallygreatsite.com&#10;Mobile No.: 123-456-7890"></textarea>
+                <div class="btn-group">
+                    <button class="back-btn" onclick="prevStep()">Back</button>
+                    <button class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 5 -->
+            <div id="step5" class="step">
+                <div class="step-header">
+                    <h2>5. Other Skills</h2>
+                </div>
+                <label>Other Skills (One per line)</label>
+                <div class="textarea-ai-wrapper">
+                    <textarea id="otherSkillsInput"
+                        placeholder="Microsoft Office proficiency&#10;SMART board experience..."></textarea>
+                    <button type="button" class="btn-ai-action"
+                        onclick="enhanceAI('otherSkillsInput', 'previewOtherSkills', false, true)">✨AI Generated
+                        Suggestion skills</button>
+                </div>
+
+                <div id="otherSkillsSuggestionsWrapper" style="display: none; margin-bottom: 12px;">
+                    <label style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Suggested
+                        Skills (Click to add):</label>
+                    <div id="otherSkillsChips" class="ai-chip-container"></div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="back-btn" onclick="prevStep()">Back</button>
+                    <button class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 6 -->
+            <div id="step6" class="step">
+                <div class="step-header">
+                    <h2>6. Professional History</h2>
+                </div>
+                <div id="expFormContainer">
+                    <div class="card-box exp-entry">
+                        <button class="remove-card-btn" onclick="removeCard(this, renderExperiences)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="job-role-input" placeholder="Role (e.g. SECOND GRADE TEACHER)">
+                        <input type="text" class="job-sub-input"
+                            placeholder="School & Dates (e.g. Beechtown High School | 2016 to 2020)">
+                        <div class="textarea-ai-wrapper">
+                            <textarea class="job-bullets-input" placeholder="Key Duties (One per line)"></textarea>
+                            <button type="button" class="btn-ai-action" onclick="enhanceExpAI(this)">✨AI Generated
+                                Bullet Points</button>
+                        </div>
+                    </div>
+                </div>
+                <button class="add-btn" onclick="addExperienceInput()">＋ Add Work Experience</button>
+                <div class="btn-group">
+                    <button class="back-btn" onclick="prevStep()">Back</button>
+                    <button class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 7 -->
+            <div id="step7" class="step">
+                <div class="step-header">
+                    <h2>7. Education History</h2>
+                </div>
+                <div id="eduFormContainer">
+                    <div class="card-box edu-entry">
+                        <button class="remove-card-btn" onclick="removeCard(this, renderEducation)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="edu-school-input"
+                            placeholder="University (e.g. OLIVIA CURTIN UNIVERSITY)">
+                        <input type="text" class="edu-degree-input"
+                            placeholder="Degree & Class (e.g. MA in Primary Education | Class of 2015)">
+                        <textarea class="edu-bullets-input" placeholder="Highlights / Thesis (One per line)"></textarea>
+                    </div>
+                </div>
+                <button class="add-btn" onclick="addEducationInput()">＋ Add Education</button>
+                <div class="btn-group">
+                    <button class="back-btn" onclick="prevStep()">Back</button>
+                    <button class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 8 -->
+            <div id="step8" class="step">
+                <div class="step-header">
+                    <h2>8. Certifications & Achievements</h2>
+                </div>
+                <label>Certifications / Achievements (One per line)</label>
+                <textarea id="certInput"
+                    placeholder="Awarded Best Educator 2022&#10;Advanced Pedagogy Certificate"></textarea>
+                <div class="btn-group">
+                    <button class="back-btn" onclick="prevStep()">Back</button>
+                    <button class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 9 -->
+            <div id="step9" class="step">
+                <div class="step-header">
+                    <h2>9. Export PDF</h2>
+                </div>
+                <p style="font-size:13px; color: var(--text-muted); margin-bottom:15px;">Your resume preview is ready!
+                    Click below to preview and download your full-page PDF.</p>
+                <div class="btn-group">
+                    <button class="back-btn" onclick="prevStep()">Back</button>
+                    <button class="next-btn" onclick="downloadPDF()">Download / Preview PDF <i
+                            class="fa-solid fa-download"></i></button>
+                </div>
+            </div>
+
         </div>
 
-        <!-- STEP 7 -->
-        <div id="step7" class="step">
-            <div class="step-header">
-                <span class="step-number">Step 7 of 8</span>
-                <h2>Education History</h2>
-            </div>
-            <div id="eduFormContainer">
-                <div class="card-box edu-entry">
-                    <button class="remove-card-btn" onclick="removeCard(this, renderEducation)"><i class="fa-solid fa-xmark"></i></button>
-                    <input type="text" class="edu-school-input" placeholder="University (e.g. OLIVIA CURTIN UNIVERSITY)">
-                    <input type="text" class="edu-degree-input" placeholder="Degree & Class (e.g. MA in Primary Education | Class of 2015)">
-                    <textarea class="edu-bullets-input" placeholder="Highlights / Thesis (One per line)"></textarea>
-                </div>
-            </div>
-            <button class="add-btn" onclick="addEducationInput()">＋ Add Education</button>
-            <div class="btn-group">
-                <button class="back-btn" onclick="prevStep()">Back</button>
-                <button class="next-btn" onclick="nextStep()">Continue</button>
-            </div>
-        </div>
+        <!-- RIGHT SIDE PREVIEW PANEL -->
+        <div class="preview-panel">
 
-        <!-- STEP 8 -->
-        <div id="step8" class="step">
-            <div class="step-header">
-                <span class="step-number">Step 8 of 8</span>
-                <h2>Export PDF</h2>
-            </div>
-            <p style="font-size:13px; color:#555; margin-bottom:15px;">Your resume preview is ready! Click below to download your full-page PDF.</p>
-            <div class="btn-group">
-                <button class="back-btn" onclick="prevStep()">Back</button>
-                <button class="next-btn" onclick="downloadPDF()">Download PDF <i class="fa-solid fa-download"></i></button>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- RESUME TEMPLATE CANVAS -->
-    <div class="resume-page" id="resume-pdf-target">
-        
-        <!-- HEADER -->
-        <div class="resume-header">
-            <div class="header-content">
-                <h1 id="previewName" class="name" contenteditable="true">ELEANOR<br>FITZGERALD</h1>
-                <div id="previewRole" class="job-title" contenteditable="true">Full-time Educator</div>
-            </div>
-            <div class="header-icon-watermark">
-                <i class="fa-solid fa-apple-whole"></i>
-            </div>
-        </div>
-
-        <!-- BODY -->
-        <div class="resume-body">
-            
-            <!-- LEFT COLUMN -->
-            <div class="left-col">
-                
-                <!-- PERSONAL PROFILE -->
-                <div>
-                    <h2 class="section-title">Personal Profile</h2>
-                    <p id="previewProfile" class="body-text" contenteditable="true">
-                        I am a second grade teacher seeking a full-time position in the field of education where I can apply my knowledge and skills for continuous improvement.
-                    </p>
+            <!-- CUSTOMIZER TOOLBAR WITH COLOR SWATCHES & FONT PICKER -->
+            <div class="customizer-toolbar no-print">
+                <div class="toolbar-section">
+                    <span class="toolbar-label">Theme Color:</span>
+                    <div class="color-swatches">
+                        <div class="color-swatch active" style="background-color: #0d2c6c;"
+                            onclick="changeThemeColor('#0d2c6c', this)"></div>
+                        <div class="color-swatch" style="background-color: #1e3a8a;"
+                            onclick="changeThemeColor('#1e3a8a', this)"></div>
+                        <div class="color-swatch" style="background-color: #065f46;"
+                            onclick="changeThemeColor('#065f46', this)"></div>
+                        <div class="color-swatch" style="background-color: #831843;"
+                            onclick="changeThemeColor('#831843', this)"></div>
+                        <div class="color-swatch" style="background-color: #4c1d95;"
+                            onclick="changeThemeColor('#4c1d95', this)"></div>
+                    </div>
                 </div>
 
-                <!-- CLASSROOM SKILLS -->
-                <div>
-                    <h2 class="section-title">Classroom Skills</h2>
-                    <ul id="previewClassroomSkills" class="skill-list">
-                        <li contenteditable="true">Interpersonal student development</li>
-                        <li contenteditable="true">Enriching extracurricular activities</li>
-                        <li contenteditable="true">Classroom management and discipline</li>
-                        <li contenteditable="true">Lesson plan creation and adjustments</li>
-                    </ul>
+                <div class="toolbar-section">
+                    <span class="toolbar-label">Font Family:</span>
+                    <select class="toolbar-select" onchange="changeResumeFont(this.value)">
+                        <option value="'Montserrat', sans-serif">Montserrat</option>
+                        <option value="'Inter', sans-serif">Inter</option>
+                        <option value="'Poppins', sans-serif">Poppins</option>
+                        <option value="'Roboto', sans-serif">Roboto</option>
+                        <option value="'Lato', sans-serif">Lato</option>
+                        <option value="'Open Sans', sans-serif">Open Sans</option>
+                    </select>
                 </div>
 
-                <!-- CONTACT INFORMATION -->
-                <div>
-                    <h2 class="section-title">Contact Information</h2>
-                    <ul id="previewContact" class="contact-list">
-                        <li contenteditable="true">123 Anywhere St., Any City, State, Country 12345</li>
-                        <li contenteditable="true">helloreallygreatsite.com</li>
-                        <li contenteditable="true">www.reallygreatsite.com</li>
-                        <li contenteditable="true">Mobile No.: 123-456-7890</li>
-                        <li contenteditable="true">Home No.: 123-456-7890</li>
-                    </ul>
-                </div>
-
-                <!-- OTHER SKILLS -->
-                <div>
-                    <h2 class="section-title">Other Skills</h2>
-                    <ul id="previewOtherSkills" class="skill-list">
-                        <li contenteditable="true">Microsoft Office proficiency</li>
-                        <li contenteditable="true">SMART board experience</li>
-                        <li contenteditable="true">Innovative and research-proven teaching strategies</li>
-                        <li contenteditable="true">Adaptability to ESL students of all ages</li>
-                    </ul>
-                </div>
-
+                <button class="btn-pdf-download" onclick="downloadPDF()"><i class="fa-solid fa-file-pdf"></i> Download
+                    PDF</button>
             </div>
 
-            <!-- RIGHT COLUMN -->
-            <div class="right-col">
-                
-                <!-- PROFESSIONAL HISTORY -->
-                <div>
-                    <h2 class="section-title">Professional History</h2>
-                    <div id="previewExperience">
-                        
-                        <div class="history-item">
-                            <div class="item-role" contenteditable="true">SECOND GRADE TEACHER</div>
-                            <div class="item-sub" contenteditable="true">Beechtown High School | 2016 to 2020</div>
-                            <ul class="bullet-list">
-                                <li contenteditable="true">Taught science and basic arithmetic classes for second grade students</li>
-                                <li contenteditable="true">Facilitated after-school study hall and tutoring sessions for students</li>
+            <!-- RESUME TEMPLATE CANVAS -->
+            <div class="resume-page" id="resume-pdf-target">
+
+                <!-- HEADER -->
+                <div class="resume-header">
+                    <div class="header-content">
+                        <h1 id="previewName" class="name" contenteditable="true">ELEANOR<br>FITZGERALD</h1>
+                        <div id="previewRole" class="job-title" contenteditable="true">Full-time Educator</div>
+                    </div>
+                </div>
+
+                <!-- BODY -->
+                <div class="resume-body">
+
+                    <!-- LEFT COLUMN -->
+                    <div class="left-col">
+
+                        <!-- PERSONAL PROFILE -->
+                        <div>
+                            <h2 class="section-title">Personal Profile</h2>
+                            <p id="previewProfile" class="body-text" contenteditable="true">
+                                I am a second grade teacher seeking a full-time position in the field of education where
+                                I can apply my knowledge and skills for continuous improvement.
+                            </p>
+                        </div>
+
+                        <!-- CLASSROOM SKILLS -->
+                        <div>
+                            <h2 class="section-title">Classroom Skills</h2>
+                            <ul id="previewClassroomSkills" class="skill-list">
+                                <li contenteditable="true">Interpersonal student development</li>
+                                <li contenteditable="true">Enriching extracurricular activities</li>
+                                <li contenteditable="true">Classroom management and discipline</li>
+                                <li contenteditable="true">Lesson plan creation and adjustments</li>
                             </ul>
                         </div>
 
-                        <div class="history-item">
-                            <div class="item-role" contenteditable="true">SUMMER SCHOOL TEACHER</div>
-                            <div class="item-sub" contenteditable="true">Bijou Isle High School | 2015 to 2016</div>
-                            <ul class="bullet-list">
-                                <li contenteditable="true">Taught science class using a highly-streamlined lesson plan for summer school</li>
-                                <li contenteditable="true">Maintained the optimum learning environment within the classroom</li>
+                        <!-- CONTACT INFORMATION -->
+                        <div>
+                            <h2 class="section-title">Contact Information</h2>
+                            <ul id="previewContact" class="contact-list">
+                                <li contenteditable="true">123 Anywhere St., Any City, State, Country 12345</li>
+                                <li contenteditable="true">helloreallygreatsite.com</li>
+                                <li contenteditable="true">www.reallygreatsite.com</li>
+                                <li contenteditable="true">Mobile No.: 123-456-7890</li>
+                                <li contenteditable="true">Home No.: 123-456-7890</li>
+                            </ul>
+                        </div>
+
+                        <!-- OTHER SKILLS -->
+                        <div>
+                            <h2 class="section-title">Other Skills</h2>
+                            <ul id="previewOtherSkills" class="skill-list">
+                                <li contenteditable="true">Microsoft Office proficiency</li>
+                                <li contenteditable="true">SMART board experience</li>
+                                <li contenteditable="true">Innovative and research-proven teaching strategies</li>
+                                <li contenteditable="true">Adaptability to ESL students of all ages</li>
                             </ul>
                         </div>
 
                     </div>
-                </div>
 
-                <!-- EDUCATION HISTORY -->
-                <div>
-                    <h2 class="section-title">Education History</h2>
-                    <div id="previewEducation">
-                        
-                        <div class="history-item">
-                            <div class="item-role" contenteditable="true">OLIVIA CURTIN UNIVERSITY</div>
-                            <div class="item-sub" contenteditable="true">MA in Primary Education | Class of 2015</div>
-                            <ul class="bullet-list">
-                                <li contenteditable="true">Studied "The effectivity of output-based learning curriculums with children ages 7 to 10"</li>
-                                <li contenteditable="true">Completed hands-on educational training within two semesters</li>
-                            </ul>
+                    <!-- RIGHT COLUMN -->
+                    <div class="right-col">
+
+                        <!-- PROFESSIONAL HISTORY -->
+                        <div>
+                            <h2 class="section-title">Professional History</h2>
+                            <div id="previewExperience">
+
+                                <div class="history-item">
+                                    <div class="item-role" contenteditable="true">SECOND GRADE TEACHER</div>
+                                    <div class="item-sub" contenteditable="true">Beechtown High School | 2016 to 2020
+                                    </div>
+                                    <ul class="bullet-list">
+                                        <li contenteditable="true">Taught science and basic arithmetic classes for
+                                            second grade students</li>
+                                        <li contenteditable="true">Facilitated after-school study hall and tutoring
+                                            sessions for students</li>
+                                    </ul>
+                                </div>
+
+                                <div class="history-item">
+                                    <div class="item-role" contenteditable="true">SUMMER SCHOOL TEACHER</div>
+                                    <div class="item-sub" contenteditable="true">Bijou Isle High School | 2015 to 2016
+                                    </div>
+                                    <ul class="bullet-list">
+                                        <li contenteditable="true">Taught science class using a highly-streamlined
+                                            lesson plan for summer school</li>
+                                        <li contenteditable="true">Maintained the optimum learning environment within
+                                            the classroom</li>
+                                    </ul>
+                                </div>
+
+                            </div>
                         </div>
 
-                        <div class="history-item">
-                            <div class="item-role" contenteditable="true">SILTON DANE STATE COLLEGE</div>
-                            <div class="item-sub" contenteditable="true">BS in Applied Physics | Class of 2012</div>
-                            <ul class="bullet-list">
-                                <li contenteditable="true">Studied "The dynamics between magnetic force fields in developing sustainable farming alternatives"</li>
-                                <li contenteditable="true">Awarded the Henrik Feller Best Thesis of 2012</li>
-                            </ul>
+                        <!-- EDUCATION HISTORY -->
+                        <div>
+                            <h2 class="section-title">Education History</h2>
+                            <div id="previewEducation">
+
+                                <div class="history-item">
+                                    <div class="item-role" contenteditable="true">OLIVIA CURTIN UNIVERSITY</div>
+                                    <div class="item-sub" contenteditable="true">MA in Primary Education | Class of 2015
+                                    </div>
+                                    <ul class="bullet-list">
+                                        <li contenteditable="true">Studied "The effectivity of output-based learning
+                                            curriculums with children ages 7 to 10"</li>
+                                        <li contenteditable="true">Completed hands-on educational training within two
+                                            semesters</li>
+                                    </ul>
+                                </div>
+
+                                <div class="history-item">
+                                    <div class="item-role" contenteditable="true">SILTON DANE STATE COLLEGE</div>
+                                    <div class="item-sub" contenteditable="true">BS in Applied Physics | Class of 2012
+                                    </div>
+                                    <ul class="bullet-list">
+                                        <li contenteditable="true">Studied "The dynamics between magnetic force fields
+                                            in developing sustainable farming alternatives"</li>
+                                        <li contenteditable="true">Awarded the Henrik Feller Best Thesis of 2012</li>
+                                    </ul>
+                                </div>
+
+                            </div>
                         </div>
 
                     </div>
+
                 </div>
 
             </div>
@@ -670,240 +1041,416 @@
 
     </div>
 
-</div>
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        let currentStep = 1;
+        const totalSteps = 9;
 
-<!-- JAVASCRIPT LOGIC -->
-<script>
-    function bindInput(inputId, previewId) {
-        const input = document.getElementById(inputId);
-        const preview = document.getElementById(previewId);
-        if (input && preview) {
-            input.addEventListener("input", () => {
-                if (input.value.trim() !== "") {
-                    if (inputId === "nameInput") {
-                        preview.innerHTML = input.value.replace(/\s+/g, '<br>');
-                    } else {
-                        preview.innerText = input.value;
+        function bindInput(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            if (input && preview) {
+                input.addEventListener("input", () => {
+                    if (input.value.trim() !== "") {
+                        if (inputId === "nameInput") {
+                            preview.innerHTML = input.value.replace(/\s+/g, '<br>');
+                        } else {
+                            preview.innerText = input.value;
+                        }
                     }
+                });
+            }
+        }
+
+        bindInput("nameInput", "previewName");
+        bindInput("roleInput", "previewRole");
+        bindInput("profileInput", "previewProfile");
+
+        // Line-separated List Binders
+        function bindLineListInput(inputId, previewListId) {
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.addEventListener("input", function () {
+                    updateLineListPreview(this.value, previewListId);
+                });
+            }
+        }
+
+        function updateLineListPreview(textValue, previewListId) {
+            const lines = textValue.split("\n");
+            const list = document.getElementById(previewListId);
+            list.innerHTML = "";
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (trimmed !== "") {
+                    const li = document.createElement("li");
+                    li.textContent = trimmed;
+                    li.setAttribute("contenteditable", "true");
+                    list.appendChild(li);
                 }
             });
         }
-    }
 
-    bindInput("nameInput", "previewName");
-    bindInput("roleInput", "previewRole");
-    bindInput("profileInput", "previewProfile");
+        bindLineListInput("classroomSkillsInput", "previewClassroomSkills");
+        bindLineListInput("contactInput", "previewContact");
+        bindLineListInput("otherSkillsInput", "previewOtherSkills");
 
-    // Line-separated List Binders
-    function bindLineListInput(inputId, previewListId) {
-        const input = document.getElementById(inputId);
-        if (input) {
-            input.addEventListener("input", function() {
-                const lines = this.value.split("\n");
-                const list = document.getElementById(previewListId);
-                list.innerHTML = "";
-                lines.forEach(line => {
-                    const trimmed = line.trim();
-                    if (trimmed !== "") {
-                        const li = document.createElement("li");
-                        li.textContent = trimmed;
-                        li.setAttribute("contenteditable", "true");
-                        list.appendChild(li);
-                    }
-                });
-            });
-        }
-    }
-
-    bindLineListInput("classroomSkillsInput", "previewClassroomSkills");
-    bindLineListInput("contactInput", "previewContact");
-    bindLineListInput("otherSkillsInput", "previewOtherSkills");
-
-    // Dynamic Experience Entry
-    function addExperienceInput() {
-        const container = document.getElementById("expFormContainer");
-        const div = document.createElement("div");
-        div.className = "card-box exp-entry";
-        div.innerHTML = `
+        // Dynamic Experience Entry
+        function addExperienceInput() {
+            const container = document.getElementById("expFormContainer");
+            const div = document.createElement("div");
+            div.className = "card-box exp-entry";
+            div.innerHTML = `
             <button class="remove-card-btn" onclick="removeCard(this, renderExperiences)"><i class="fa-solid fa-xmark"></i></button>
             <input type="text" class="job-role-input" placeholder="Role Title">
             <input type="text" class="job-sub-input" placeholder="School & Dates">
-            <textarea class="job-bullets-input" placeholder="Key Duties"></textarea>
+            <div class="textarea-ai-wrapper">
+                <textarea class="job-bullets-input" placeholder="Key Duties (One per line)"></textarea>
+                <button type="button" class="btn-ai-action" onclick="enhanceExpAI(this)">✨AI Generated Bullet Points</button>
+            </div>
         `;
-        container.appendChild(div);
-        bindExpEvents();
-    }
+            container.appendChild(div);
+            bindExpEvents();
+        }
 
-    function bindExpEvents() {
-        const entries = document.querySelectorAll(".exp-entry");
-        entries.forEach(entry => {
-            const inputs = entry.querySelectorAll("input, textarea");
-            inputs.forEach(input => {
-                input.removeEventListener("input", renderExperiences);
-                input.addEventListener("input", renderExperiences);
+        function bindExpEvents() {
+            const entries = document.querySelectorAll(".exp-entry");
+            entries.forEach(entry => {
+                const inputs = entry.querySelectorAll("input, textarea");
+                inputs.forEach(input => {
+                    input.removeEventListener("input", renderExperiences);
+                    input.addEventListener("input", renderExperiences);
+                });
             });
-        });
-        renderExperiences();
-    }
+            renderExperiences();
+        }
 
-    function renderExperiences() {
-        const entries = document.querySelectorAll(".exp-entry");
-        const container = document.getElementById("previewExperience");
-        
-        if (entries.length === 0) return;
-        
-        container.innerHTML = "";
+        function renderExperiences() {
+            const entries = document.querySelectorAll(".exp-entry");
+            const container = document.getElementById("previewExperience");
 
-        entries.forEach(entry => {
-            const role = entry.querySelector(".job-role-input").value.trim();
-            const sub = entry.querySelector(".job-sub-input").value.trim();
-            const bulletsText = entry.querySelector(".job-bullets-input").value;
+            if (entries.length === 0) return;
 
-            if (role || sub) {
-                const item = document.createElement("div");
-                item.className = "history-item";
+            container.innerHTML = "";
 
-                let bulletsHtml = "";
-                if (bulletsText) {
-                    const lines = bulletsText.split("\n");
-                    lines.forEach(line => {
-                        if (line.trim() !== "") {
-                            bulletsHtml += `<li contenteditable="true">${line.replace(/^[•\-\*]\s*/, '').trim()}</li>`;
-                        }
-                    });
-                }
+            entries.forEach(entry => {
+                const role = entry.querySelector(".job-role-input").value.trim();
+                const sub = entry.querySelector(".job-sub-input").value.trim();
+                const bulletsText = entry.querySelector(".job-bullets-input").value;
 
-                item.innerHTML = `
+                if (role || sub) {
+                    const item = document.createElement("div");
+                    item.className = "history-item";
+
+                    let bulletsHtml = "";
+                    if (bulletsText) {
+                        const lines = bulletsText.split("\n");
+                        lines.forEach(line => {
+                            if (line.trim() !== "") {
+                                bulletsHtml += `<li contenteditable="true">${line.replace(/^[•\-\*]\s*/, '').trim()}</li>`;
+                            }
+                        });
+                    }
+
+                    item.innerHTML = `
                     <div class="item-role" contenteditable="true">${role || 'JOB TITLE'}</div>
                     <div class="item-sub" contenteditable="true">${sub || ''}</div>
                     <ul class="bullet-list">
                         ${bulletsHtml}
                     </ul>
                 `;
-                container.appendChild(item);
-            }
-        });
-    }
+                    container.appendChild(item);
+                }
+            });
+        }
 
-    // Dynamic Education Entry
-    function addEducationInput() {
-        const container = document.getElementById("eduFormContainer");
-        const div = document.createElement("div");
-        div.className = "card-box edu-entry";
-        div.innerHTML = `
+        // Dynamic Education Entry
+        function addEducationInput() {
+            const container = document.getElementById("eduFormContainer");
+            const div = document.createElement("div");
+            div.className = "card-box edu-entry";
+            div.innerHTML = `
             <button class="remove-card-btn" onclick="removeCard(this, renderEducation)"><i class="fa-solid fa-xmark"></i></button>
             <input type="text" class="edu-school-input" placeholder="University Name">
             <input type="text" class="edu-degree-input" placeholder="Degree & Class">
-            <textarea class="edu-bullets-input" placeholder="Highlights / Thesis"></textarea>
+            <textarea class="edu-bullets-input" placeholder="Highlights / Thesis (One per line)"></textarea>
         `;
-        container.appendChild(div);
-        bindEduEvents();
-    }
+            container.appendChild(div);
+            bindEduEvents();
+        }
 
-    function bindEduEvents() {
-        const entries = document.querySelectorAll(".edu-entry");
-        entries.forEach(entry => {
-            const inputs = entry.querySelectorAll("input, textarea");
-            inputs.forEach(input => {
-                input.removeEventListener("input", renderEducation);
-                input.addEventListener("input", renderEducation);
+        function bindEduEvents() {
+            const entries = document.querySelectorAll(".edu-entry");
+            entries.forEach(entry => {
+                const inputs = entry.querySelectorAll("input, textarea");
+                inputs.forEach(input => {
+                    input.removeEventListener("input", renderEducation);
+                    input.addEventListener("input", renderEducation);
+                });
             });
-        });
-        renderEducation();
-    }
+            renderEducation();
+        }
 
-    function renderEducation() {
-        const entries = document.querySelectorAll(".edu-entry");
-        const container = document.getElementById("previewEducation");
-        
-        if (entries.length === 0) return;
+        function renderEducation() {
+            const entries = document.querySelectorAll(".edu-entry");
+            const container = document.getElementById("previewEducation");
 
-        container.innerHTML = "";
+            if (entries.length === 0) return;
 
-        entries.forEach(entry => {
-            const school = entry.querySelector(".edu-school-input").value.trim();
-            const degree = entry.querySelector(".edu-degree-input").value.trim();
-            const bulletsText = entry.querySelector(".edu-bullets-input").value;
+            container.innerHTML = "";
 
-            if (school || degree) {
-                const item = document.createElement("div");
-                item.className = "history-item";
+            entries.forEach(entry => {
+                const school = entry.querySelector(".edu-school-input").value.trim();
+                const degree = entry.querySelector(".edu-degree-input").value.trim();
+                const bulletsText = entry.querySelector(".edu-bullets-input").value;
 
-                let bulletsHtml = "";
-                if (bulletsText) {
-                    const lines = bulletsText.split("\n");
-                    lines.forEach(line => {
-                        if (line.trim() !== "") {
-                            bulletsHtml += `<li contenteditable="true">${line.replace(/^[•\-\*]\s*/, '').trim()}</li>`;
-                        }
-                    });
-                }
+                if (school || degree) {
+                    const item = document.createElement("div");
+                    item.className = "history-item";
 
-                item.innerHTML = `
+                    let bulletsHtml = "";
+                    if (bulletsText) {
+                        const lines = bulletsText.split("\n");
+                        lines.forEach(line => {
+                            if (line.trim() !== "") {
+                                bulletsHtml += `<li contenteditable="true">${line.replace(/^[•\-\*]\s*/, '').trim()}</li>`;
+                            }
+                        });
+                    }
+
+                    item.innerHTML = `
                     <div class="item-role" contenteditable="true">${school || 'UNIVERSITY NAME'}</div>
                     <div class="item-sub" contenteditable="true">${degree || ''}</div>
                     <ul class="bullet-list">
                         ${bulletsHtml}
                     </ul>
                 `;
-                container.appendChild(item);
-            }
-        });
-    }
-
-    function removeCard(btn, renderCallback) {
-        btn.parentElement.remove();
-        if (renderCallback && typeof renderCallback === "function") {
-            renderCallback();
+                    container.appendChild(item);
+                }
+            });
         }
-    }
 
-    // Wizard Navigation
-    let currentStep = 1;
-    const totalSteps = 8;
+        function removeCard(btn, renderCallback) {
+            btn.parentElement.remove();
+            if (renderCallback && typeof renderCallback === "function") {
+                renderCallback();
+            }
+        }
 
-    function nextStep() {
-        if (currentStep >= totalSteps) return;
-        document.getElementById("step" + currentStep).classList.remove("active");
-        currentStep++;
-        document.getElementById("step" + currentStep).classList.add("active");
-    }
+        /* CUSTOMIZER TOOLBAR LOGIC */
+        function changeThemeColor(color, swatchElem) {
+            document.documentElement.style.setProperty('--navy-header', color);
+            document.documentElement.style.setProperty('--title-blue', color);
+            document.querySelectorAll('.color-swatch').forEach(swatch => swatch.classList.remove('active'));
+            if (swatchElem) swatchElem.classList.add('active');
+        }
 
-    function prevStep() {
-        if (currentStep <= 1) return;
-        document.getElementById("step" + currentStep).classList.remove("active");
-        currentStep--;
-        document.getElementById("step" + currentStep).classList.add("active");
-    }
+        function changeResumeFont(fontFamily) {
+            document.getElementById('resume-pdf-target').style.fontFamily = fontFamily;
+        }
 
-    // PDF Export Function
-    function downloadPDF() {
-        if (document.activeElement) document.activeElement.blur();
-        window.print();
-    }
+        /* AI ACTIONS */
 
-    // AI Assist Modal/Function
-    function generateAIContent(fieldType, inputElementIdOrElement) {
-        const inputElement = typeof inputElementIdOrElement === 'string' 
-            ? document.getElementById(inputElementIdOrElement)
-            : inputElementIdOrElement;
-        
-        if (!inputElement) return;
 
-        // Mock AI response for now (to be wired to OpenAI/Supabase)
-        const mockResponses = {
-            profile: "Passionate and dedicated educator with a strong commitment to fostering a positive learning environment. Skilled in developing engaging lesson plans and adapting teaching methods to meet diverse student needs.",
-            skills: "Curriculum Development\nStudent Engagement\nClassroom Management\nSpecial Education Support\nTechnology Integration",
-            experience: "• Spearheaded the development of a comprehensive curriculum that increased student engagement by 20%.\n• Mentored junior teachers and facilitated professional development workshops on effective classroom management strategies."
-        };
+        async function enhanceAI(inputId, previewId, isSkills = false, isOtherSkills = false) {
+            const inputField = document.getElementById(inputId);
+            const userVal = inputField.value.trim();
 
-        inputElement.value = mockResponses[fieldType] || "✨ [AI Generated Content] Integration ready for backend.";
-        
-        // Trigger input event to auto-sync with the live preview
-        const event = new Event('input', { bubbles: true });
-        inputElement.dispatchEvent(event);
-    }
-</script>
+            // Find the button inside the parent wrapper
+            const wrapper = inputField.closest('.textarea-ai-wrapper');
+            const btn = wrapper.querySelector('.btn-ai-action');
+
+            const origText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+
+            const host = window.location.hostname || "127.0.0.1";
+            let endpoint = "/api/generate-summary";
+            let payload = { user_input: userVal || "Professional educator background", job_title: "Full Time Educator" };
+
+            if (isSkills || isOtherSkills) {
+                endpoint = "/api/generate-section";
+                payload = { user_input: userVal || "Core teaching skills", section_type: "skills", job_title: "Full Time Educator" };
+            }
+
+            try {
+                const res = await fetch(`http://${host}:8000${endpoint}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const rawResult = data.summary || data.skills || data.text || "";
+
+                    if (isSkills || isOtherSkills) {
+                        // Parse skills into a list for chips
+                        let skillList = Array.isArray(rawResult)
+                            ? rawResult
+                            : rawResult.split(/[\n,]+/).map(s => s.replace(/^[-•*#\d.\s]+/, "").trim()).filter(Boolean);
+
+                        const wrapperId = isSkills ? "classroomSkillsSuggestionsWrapper" : "otherSkillsSuggestionsWrapper";
+                        const chipsId = isSkills ? "classroomSkillsChips" : "otherSkillsChips";
+
+                        const wrapDiv = document.getElementById(wrapperId);
+                        const chipsContainer = document.getElementById(chipsId);
+                        chipsContainer.innerHTML = "";
+
+                        skillList.forEach(skill => {
+                            const chip = document.createElement("button");
+                            chip.type = "button";
+                            chip.className = "ai-suggestion-chip";
+                            chip.innerHTML = `<i class="fa-solid fa-plus" style="font-size: 9px;"></i> ${skill}`;
+
+                            chip.onclick = () => {
+                                let current = inputField.value.trim();
+                                inputField.value = current ? `${current}\n${skill}` : skill;
+                                inputField.dispatchEvent(new Event('input'));
+                                chip.remove();
+                                if (chipsContainer.children.length === 0) {
+                                    wrapDiv.style.display = "none";
+                                }
+                            };
+                            chipsContainer.appendChild(chip);
+                        });
+
+                        wrapDiv.style.display = "block";
+                    } else {
+                        // Direct replacement for Summary
+                        inputField.value = rawResult;
+                        inputField.dispatchEvent(new Event('input'));
+                    }
+                } else {
+                    alert("Failed to fetch response from backend AI server.");
+                }
+            } catch (err) {
+                alert("API Connection Error: Ensure FastAPI server is running on http://localhost:8000");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origText;
+            }
+        }
+        // 3. GENERATE EXPERIENCE BULLET POINTS WITH AI + LOADING SPINNER
+        async function enhanceExpAI(btn) {
+            const card = btn.closest('.exp-entry');
+            const roleInput = card.querySelector('.job-role-input');
+            const subInput = card.querySelector('.job-sub-input');
+            const bulletsInput = card.querySelector('.job-bullets-input');
+
+            const jobRole = roleInput.value.trim() || "Teacher";
+            const jobSub = subInput.value.trim() || "";
+            const userVal = bulletsInput.value.trim();
+
+            const origText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+
+            const host = window.location.hostname || "127.0.0.1";
+            try {
+                const res = await fetch(`http://${host}:8000/api/generate-section`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_input: userVal || `Key duties and achievements for ${jobRole} at ${jobSub}`,
+                        section_type: "experience_bullets",
+                        job_title: jobRole
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const rawResult = data.bullets || data.text || data.summary || "";
+
+                    // Format response into bullet lines
+                    let bulletLines = Array.isArray(rawResult)
+                        ? rawResult
+                        : rawResult.split(/[\n]+/).map(s => s.replace(/^[-•*#\d.\s]+/, "").trim()).filter(Boolean);
+
+                    if (bulletLines.length > 0) {
+                        bulletsInput.value = bulletLines.join("\n");
+                        // Trigger input listener so the preview updates automatically
+                        bulletsInput.dispatchEvent(new Event('input'));
+                    }
+                } else {
+                    alert("Failed to generate bullet points from backend server.");
+                }
+            } catch (err) {
+                alert("API Connection Error: Ensure FastAPI server is running on http://localhost:8000");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origText;
+            }
+        }
+        /* THEME TOGGLE */
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute("data-theme");
+            const newTheme = currentTheme === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+        }
+
+        // Wizard Navigation
+        function nextStep() {
+            if (currentStep >= totalSteps) return;
+            document.getElementById("step" + currentStep).classList.remove("active");
+            currentStep++;
+            document.getElementById("step" + currentStep).classList.add("active");
+            updateStepperUI();
+        }
+
+        function prevStep() {
+            if (currentStep <= 1) return;
+            document.getElementById("step" + currentStep).classList.remove("active");
+            currentStep--;
+            document.getElementById("step" + currentStep).classList.add("active");
+            updateStepperUI();
+        }
+
+        function jumpToStep(stepNum) {
+            document.getElementById("step" + currentStep).classList.remove("active");
+            currentStep = stepNum;
+            document.getElementById("step" + currentStep).classList.add("active");
+            updateStepperUI();
+        }
+
+        function updateStepperUI() {
+            document.querySelectorAll('.step-node').forEach((node, idx) => {
+                if (idx + 1 <= currentStep) {
+                    node.classList.add('active');
+                } else {
+                    node.classList.remove('active');
+                }
+            });
+        }
+
+        // PDF Export Function with Print Preview & Logo Removal
+        function downloadPDF() {
+            const element = document.getElementById("resume-pdf-target");
+            const nameText = document.getElementById("previewName").innerText.replace(/[\n\r]/g, " ").trim() || "Resume";
+
+            const options = {
+                margin: 0,
+                filename: `${nameText.replace(/\s+/g, '_')}_Resume.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    letterRendering: true,
+                    scrollX: 0,
+                    scrollY: 0
+                },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // 1. Trigger the browser print preview first
+            window.print();
+
+            // 2. Automatically save/download the PDF file using html2pdf
+            html2pdf().set(options).from(element).save();
+        }
+    </script>
 
 </body>
+
 </html>

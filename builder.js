@@ -50,8 +50,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-
-
     // Initialize page features
     initializeBuilderPage();
 });
@@ -120,6 +118,12 @@ function initializeBuilderPage() {
             if (e.target.classList.contains("choose-btn")) {
                 e.stopPropagation();
                 const templateId = card.getAttribute("data-template-id");
+                
+                if (templateId === "Senior Project Manager") {
+                    window.location.href = "templates/seniorprojectmanager.html";
+                    return;
+                }
+
                 if (templateId === "Facility Property Manager" || templateId === "facility_property_manager") {
                     window.location.href = "templates/facility-builder.html?template_id=facility_property_manager";
                 } else if (templateId === "PhotoGrapher" || templateId === "photographer") {
@@ -177,6 +181,10 @@ function initializeBuilderPage() {
         chooseTemplateBtn.onclick = function () {
             const card = cards[current];
             if (card) {
+                if (card.getAttribute("data-template-id") === "Senior Project Manager") {
+                    window.location.href = "templates/seniorprojectmanager.html";
+                    return;
+                }
                 const btn = card.querySelector(".choose-btn");
                 if (btn) btn.click();
             }

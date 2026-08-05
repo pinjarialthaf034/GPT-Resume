@@ -1,10 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import urllib.request
+import httpx
 import json
 import re
-import random
 import os
 import sys
 from pathlib import Path
@@ -18,13 +17,17 @@ if hasattr(sys.stdout, 'reconfigure'):
 env_path = Path(__file__).resolve().parent / ".env"
 load_dotenv(dotenv_path=env_path, override=True)
 
-# Startup check to verify backend loading (without logging raw secret)
-raw_key = os.getenv("GROQ_API_KEY", "")
-groq_key = raw_key.strip().strip('"').strip("'")
+# Helper function to get clean API key
+def get_groq_api_key() -> str:
+    raw_key = os.getenv("GROQ_API_KEY", "")
+    return raw_key.strip().strip('"').strip("'")
+
+# Startup check to verify backend loading
+groq_key = get_groq_api_key()
 if groq_key:
     print(f"✅ [SUCCESS] Loaded GROQ_API_KEY: {groq_key[:7]}...{groq_key[-4:]}", flush=True)
 else:
-    print("❌ [ERROR] GROQ_API_KEY is NOT found or None!", flush=True)
+    print("❌ [ERROR] GROQ_API_KEY is NOT found or empty in .env!", flush=True)
 
 app = FastAPI(title="AI Resume Builder Backend")
 
@@ -73,7 +76,7 @@ def is_pure_greeting_or_chatter(text: str) -> bool:
     return False
 
 @app.post("/api/generate-summary")
-def generate_summary(req: SummaryRequest):
+async def generate_summary(req: SummaryRequest):
     user_val = req.user_input.strip() if req.user_input else ""
     if not user_val or is_pure_greeting_or_chatter(user_val):
         return {
@@ -81,7 +84,7 @@ def generate_summary(req: SummaryRequest):
             "summary": "Please enter your target role, skills, or professional experience to generate a resume summary."
         }
 
-    GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+    GROQ_API_KEY = get_groq_api_key()
     if not GROQ_API_KEY:
         raise HTTPException(status_code=500, detail="GROQ_API_KEY is not configured on backend.")
 
@@ -105,37 +108,37 @@ def generate_summary(req: SummaryRequest):
         "max_tokens": 250
     }
 
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "User-Agent": "Mozilla/5.0"
+    }
+
     try:
-        req_data = json.dumps(payload).encode("utf-8")
-        req_obj = urllib.request.Request(
-            endpoint,
-            data=req_data,
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {GROQ_API_KEY}",
-                "User-Agent": "Mozilla/5.0"
-            },
-            method="POST"
-        )
-        
-        with urllib.request.urlopen(req_obj) as response:
-            res_json = json.loads(response.read().decode("utf-8"))
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(endpoint, json=payload, headers=headers)
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Groq API HTTP error: {response.text}"
+                )
+            
+            res_json = response.json()
             raw_text = res_json["choices"][0]["message"]["content"]
             cleaned = re.sub(r'^(Here\'s|Here is|Output|Summary)[^:]*:\s*', '', raw_text, flags=re.IGNORECASE).strip('"\' \n')
             return {"status": "success", "summary": cleaned}
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Groq API call failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Groq API call failed: {str(e)}")
 
 @app.post("/api/generate-section")
-def generate_section(req: SectionRequest):
+async def generate_section(req: SectionRequest):
     user_val = req.user_input.strip() if req.user_input else ""
     section_type = req.section_type.lower().strip()
     job_title = req.job_title.strip() if req.job_title else "Professional"
 
-    GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+    GROQ_API_KEY = get_groq_api_key()
     if not GROQ_API_KEY:
         raise HTTPException(status_code=500, detail="GROQ_API_KEY is not configured on backend.")
 
@@ -162,17 +165,25 @@ def generate_section(req: SectionRequest):
         prompt_content = f"Enhance raw experience details: '{user_val}'"
         max_tokens = 300
         temp = 0.5
+
     elif section_type == "skills":
+        # Prioritize the skills input text box first, then fall back to job title
+        if user_val and not is_pure_greeting_or_chatter(user_val):
+            context_prompt = f"Existing User Skills / Field: '{user_val}'"
+        elif job_title and job_title.lower() != "professional":
+            context_prompt = f"Target Job Role: '{job_title}'"
+        else:
+            context_prompt = "Field: Software Engineering & Development"
+
         system_rules = (
             "You are an expert Tech & Industry Talent Recruiter.\n"
-            "Suggest exactly 7-10 high-impact technical or creative skills for a professional resume "
-            f"appropriate for the job title or context: '{user_val}'.\n"
+            "Suggest exactly 7-10 high-impact technical or relevant skills matching the user's field or provided skills.\n"
             "STRICT RULES:\n"
-            "1. Suggest high-impact skills based on the input.\n"
-            "2. Return ONLY a clean, comma-separated list of skills, with no numbering, introduction, quotes, explanations, or additional text.\n"
-            "Example: Project Management, Risk Assessment, Budgeting"
+            "1. Analyze the given context carefully. If the context contains programming/software skills (e.g. Java, Python, SQL), generate relevant software developer skills (e.g., Git, Docker, REST APIs, Microservices, System Design).\n"
+            "2. Return ONLY a clean, comma-separated list of skills.\n"
+            "3. Do NOT include bullet points, numbering, headers, quotes, explanations, or intro/outro chatter."
         )
-        prompt_content = f"Generate skills for job role: '{user_val}'"
+        prompt_content = f"Generate 8 matching skill chips for: {context_prompt}"
         max_tokens = 150
         temp = 0.5
     else:
@@ -190,21 +201,22 @@ def generate_section(req: SectionRequest):
         "max_tokens": max_tokens
     }
 
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "User-Agent": "Mozilla/5.0"
+    }
+
     try:
-        req_data = json.dumps(payload).encode("utf-8")
-        req_obj = urllib.request.Request(
-            endpoint,
-            data=req_data,
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {GROQ_API_KEY}",
-                "User-Agent": "Mozilla/5.0"
-            },
-            method="POST"
-        )
-        
-        with urllib.request.urlopen(req_obj) as response:
-            res_json = json.loads(response.read().decode("utf-8"))
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(endpoint, json=payload, headers=headers)
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Groq API HTTP error: {response.text}"
+                )
+            
+            res_json = response.json()
             raw_text = res_json["choices"][0]["message"]["content"]
             
             cleaned = re.sub(r'\(.*?\)', '', raw_text)
@@ -230,13 +242,12 @@ def generate_section(req: SectionRequest):
                 "skills": cleaned
             }
             
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Groq API call failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Groq API call failed: {str(e)}")
 
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Resume Workspace - Driver</title>
+
+    <!-- Theme Initializer -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+            const observer = new MutationObserver(() => {
+                if (document.body) {
+                    document.body.setAttribute("data-theme", savedTheme);
+                    observer.disconnect();
+                }
+            });
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+        })();
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        /* =========================================
+           VARIABLES & SYSTEM THEMING
+           ========================================= */
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --text-primary: #0f172a;
+            --text-muted: #64748b;
+            --text-input: #0f172a;
+            --bg-input: #ffffff;
+            --border-input: #d1d5db;
+            --accent-blue: #2563eb;
+            --theme-color: #111111;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-input: #f8fafc;
+            --bg-input: #1e293b;
+            --border-input: #475569;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-body);
+            padding: 25px;
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* =========================================
+           TOP FRAME NAVBAR STYLING
+           ========================================= */
+        .builder-header {
+            width: 100%;
+            height: 70px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            position: sticky;
+            top: 15px;
+            z-index: 999;
+            margin-bottom: 25px;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .logo-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--theme-color);
+            transition: background 0.3s ease;
+        }
+
+        .theme-toggle-btn {
+            background: transparent;
+            border: 1px solid var(--border-input);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        [data-theme="dark"] .theme-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        /* =========================================
+           MAIN CONTAINER GRID LAYOUT
+           ========================================= */
+        .builder-container {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* =========================================
+           LEFT SIDE FRAME FORM CONSOLE
+           ========================================= */
+        .form-panel {
+            width: 40%;
+            min-height: 650px;
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 100px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .form-panel input,
+        .form-panel textarea,
+        .form-panel select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-input);
+            background: var(--bg-input);
+            color: var(--text-input);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .form-panel textarea {
+            height: 90px;
+            resize: vertical;
+        }
+
+        .form-panel input:focus,
+        .form-panel textarea:focus {
+            border-color: var(--theme-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.15);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .input-group label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .step {
+            display: none !important;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .step.active {
+            display: flex !important;
+        }
+
+        .step-header {
+            margin-bottom: 10px;
+        }
+
+        .step-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .step-header p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* =========================================
+           INTERACTIVE STEPPER PROGRESS BAR
+           ========================================= */
+        .stepper-progress-container {
+            position: relative;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .stepper-track-bg {
+            position: absolute;
+            top: 14px;
+            left: 15px;
+            right: 15px;
+            height: 3px;
+            background: rgba(0, 0, 0, 0.08);
+            z-index: 1;
+            border-radius: 2px;
+        }
+
+        [data-theme="dark"] .stepper-track-bg {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .stepper-track-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--theme-color);
+            border-radius: 2px;
+            transition: width 0.35s ease;
+        }
+
+        .stepper-steps-wrapper {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .step-circle {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--border-input);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .step-node.active .step-circle {
+            border-color: var(--theme-color);
+            background: var(--theme-color);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+        }
+
+        /* =========================================
+           AI ACTION BUTTONS & CHIPS
+           ========================================= */
+        .textarea-ai-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-ai-action {
+            align-self: flex-end;
+            background: rgba(124, 58, 237, 0.08);
+            color: #7c3aed;
+            border: 1px solid rgba(124, 58, 237, 0.25);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-ai-action:hover {
+            background: #7c3aed;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+        }
+
+        [data-theme="dark"] .btn-ai-action {
+            background: rgba(168, 85, 247, 0.12);
+            color: #c084fc;
+            border-color: rgba(168, 85, 247, 0.3);
+        }
+
+        [data-theme="dark"] .btn-ai-action:hover {
+            background: #a855f7;
+            color: #ffffff;
+        }
+
+        /* Dynamic Input Cards */
+        .card-box {
+            border: 1px solid var(--border-input);
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            background: var(--bg-input);
+            position: relative;
+        }
+
+        .remove-card-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #fee2e2;
+            color: #ef4444;
+            border: 1px solid #fca5a5;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .remove-card-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .add-btn {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px dashed var(--border-input);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+            transition: background 0.2s ease;
+        }
+
+        .add-btn:hover {
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        /* BUTTON CONSOLE */
+        .step-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .next-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: var(--theme-color);
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .next-btn:hover {
+            opacity: 0.9;
+        }
+
+        .back-btn {
+            padding: 12px 20px;
+            border: 1px solid var(--border-input);
+            border-radius: 8px;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* =========================================
+           RIGHT SIDE PANEL & CUSTOMIZER TOOLBAR
+           ========================================= */
+        .preview-panel {
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .customizer-toolbar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+        }
+
+        .toolbar-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toolbar-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .color-swatches {
+            display: flex;
+            gap: 8px;
+        }
+
+        .color-swatch {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.15);
+        }
+
+        .color-swatch.active {
+            border-color: var(--text-primary);
+            transform: scale(1.15);
+        }
+
+        .toolbar-select {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-input);
+            font-size: 12px;
+            font-weight: 700;
+            background: var(--bg-input);
+            color: var(--text-input);
+            cursor: pointer;
+        }
+
+        .btn-pdf-download {
+            background: #ef4444;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .btn-pdf-download:hover {
+            background: #dc2626;
+        }
+
+        /* =========================================
+           DRIVER RESUME CANVAS (STRUCTURE PRESERVED)
+           ========================================= */
+        .resume-page {
+            width: 794px;
+            min-height: 1123px;
+            background: #ffffff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+            padding: 40px;
+            position: relative;
+            color: #222222;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header-section {
+            border-bottom: 2px solid #000000;
+            border-top: 2px solid #000000;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        #previewName {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #000000;
+        }
+
+        #previewRole {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333333;
+            letter-spacing: 1px;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+
+        .resume-body {
+            display: flex;
+            gap: 30px;
+            flex: 1;
+        }
+
+        .main-left {
+            width: 65%;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .sidebar-right {
+            width: 35%;
+            border-left: 1px solid #e2e8f0;
+            padding-left: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #000000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1.5px solid #000000;
+            padding-bottom: 4px;
+            margin-bottom: 15px;
+        }
+
+        .section-title i {
+            font-size: 13px;
+        }
+
+        .summary-text {
+            font-size: 11px;
+            line-height: 1.6;
+            color: #333333;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .timeline-date {
+            width: 120px;
+            font-size: 10.5px;
+            font-weight: 800;
+            color: #000000;
+            text-transform: uppercase;
+            position: relative;
+            padding-left: 18px;
+        }
+
+        .timeline-date::before {
+            content: "o";
+            position: absolute;
+            left: 0;
+            top: -2px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #000000;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .item-role {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #000000;
+        }
+
+        .item-company {
+            font-size: 11px;
+            font-weight: 700;
+            color: #222222;
+            margin-bottom: 8px;
+        }
+
+        .bullet-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .bullet-list li {
+            font-size: 10.5px;
+            line-height: 1.5;
+            color: #333333;
+            position: relative;
+            padding-left: 12px;
+            margin-bottom: 4px;
+        }
+
+        .bullet-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #000000;
+            font-weight: bold;
+        }
+
+        .contact-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 11px;
+            color: #333333;
+        }
+
+        .contact-item i {
+            font-size: 12px;
+            color: #000000;
+            margin-top: 2px;
+            width: 14px;
+            text-align: center;
+        }
+
+        .skills-pills {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .skill-pill {
+            border: 1px solid #777777;
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 10.5px;
+            font-weight: 600;
+            color: #222222;
+            background: #ffffff;
+            display: inline-block;
+        }
+
+        .footer-line {
+            border-bottom: 2px solid #000000;
+            margin-top: auto;
+            padding-top: 20px;
+        }
+
+        [contenteditable="true"]:hover {
+            outline: 1px dashed var(--theme-color) !important;
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        /* PRINT STYLES */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+
+            body {
+                padding: 0;
+                background: #ffffff;
+            }
+
+            .builder-header,
+            .form-panel,
+            .customizer-toolbar,
+            .no-print {
+                display: none !important;
+            }
+
+            .builder-container,
+            .preview-panel {
+                display: block !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .resume-page {
+                box-shadow: none !important;
+                width: 210mm !important;
+                min-height: 297mm !important;
+                margin: 0 auto !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TOP FRAME NAVBAR -->
+    <header class="builder-header no-print">
+        <div class="logo">
+            <span class="logo-dot"></span>
+            GPT HUB
+        </div>
+        <div>
+            <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()">☀️ Toggle Theme</button>
+        </div>
+    </header>
+
+    <div class="builder-container">
+
+        <!-- LEFT SIDE FRAME FORM CONSOLE -->
+        <div class="form-panel no-print">
+
+            <!-- Stepper Progress Bar -->
+            <div class="stepper-progress-container">
+                <div class="stepper-track-bg">
+                    <div class="stepper-track-fill" id="stepperProgressFill"></div>
+                </div>
+                <div class="stepper-steps-wrapper">
+                    <div class="step-node active" data-step="1">
+                        <div class="step-circle">1</div>
+                    </div>
+                    <div class="step-node" data-step="2">
+                        <div class="step-circle">2</div>
+                    </div>
+                    <div class="step-node" data-step="3">
+                        <div class="step-circle">3</div>
+                    </div>
+                    <div class="step-node" data-step="4">
+                        <div class="step-circle">4</div>
+                    </div>
+                    <div class="step-node" data-step="5">
+                        <div class="step-circle">5</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 1: Personal Information -->
+            <div id="step1" class="step active">
+                <div class="step-header">
+                    <h2>Personal Details</h2>
+                    <p>Enter basic personal contact details.</p>
+                </div>
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="nameInput" value="DARYL BANKS">
+                </div>
+                <div class="input-group">
+                    <label>Job Title</label>
+                    <input type="text" id="roleInput" value="DRIVER">
+                </div>
+                <div class="input-group">
+                    <label>Phone</label>
+                    <input type="text" id="phoneInput" value="(602) 319-1212">
+                </div>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="text" id="emailInput" value="banks.daryl@gmail.com">
+                </div>
+                <div class="input-group">
+                    <label>Address</label>
+                    <input type="text" id="addressInput" value="4200 W Latham Street, Phoenix, United States, AZ 85009">
+                </div>
+                <div class="step-buttons">
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 2: Professional Summary -->
+            <div id="step2" class="step">
+                <div class="step-header">
+                    <h2>Professional Summary</h2>
+                    <p>Provide a summary of your background.</p>
+                </div>
+                <div class="textarea-ai-wrapper">
+                    <textarea
+                        id="summaryInput">Experienced and reliable Driver with vast experience working in the transportation of goods and passengers. Adept in safe driving practices and traffic laws. Bringing forth a clean driving record as well as a career history full of satisfied customers and clients. Experienced in performing maintenance and minor repairs on vehicles. Committed to the safety and successful transportation of goods, passengers, and vehicles.</textarea>
+                    <button type="button" id="aiSummaryBtn" class="btn-ai-action" onclick="generateAiSummary()">✨ AI
+                        Generated Summary</button>
+                </div>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Experience -->
+            <div id="step3" class="step">
+                <div class="step-header">
+                    <h2>Experience</h2>
+                    <p>Specify work roles and achievements.</p>
+                </div>
+                <div id="expFormList"></div>
+                <button type="button" class="add-btn" onclick="addExpField()">＋ Add Experience</button>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 4: Education -->
+            <div id="step4" class="step">
+                <div class="step-header">
+                    <h2>Education</h2>
+                    <p>Highlight academic background or certifications.</p>
+                </div>
+                <div id="eduFormList"></div>
+                <button type="button" class="add-btn" onclick="addEduField()">＋ Add Education</button>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 5: Skills & Download -->
+            <!-- STEP 5: Skills & Download -->
+            <div id="step5" class="step">
+                <div class="step-header">
+                    <h2>Skills & Export</h2>
+                    <p>List your technical proficiencies and export document.</p>
+                </div>
+                <div class="input-group">
+                    <label>Skills List</label>
+                    <textarea id="skillsInput"></textarea>
+                </div>
+                <div class="ai-chips-wrapper" style="margin-bottom: 10px;">
+                    <span class="chip-title"
+                        style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">AI
+                        Suggested Skills (Click to Add):</span>
+                    <div class="skill-chips" id="suggestedSkillChips" style="margin-top: 6px; min-height: 35px;">
+                        <span class="chip-placeholder"
+                            style="font-size: 11px; color: var(--text-muted); font-style: italic;">Click the button
+                            below to generate customized skills for your profile.</span>
+                    </div>
+                </div>
+                <button type="button" id="aiSkillsBtn" class="btn-ai-action" onclick="generateAiSkills()">✨ AI Generate
+                    Suggested Skills</button>
+                <div class="step-buttons" style="margin-top: 15px;">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="downloadPDF()">Download / Print PDF <i
+                            class="fa-solid fa-print"></i></button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE PREVIEW & CUSTOMIZER TOOLBAR -->
+        <div class="preview-panel">
+
+            <!-- Live Customizer Toolbar -->
+            <div class="customizer-toolbar no-print">
+                <div class="toolbar-section">
+                    <span class="toolbar-label">Color Theme:</span>
+                    <div class="color-swatches">
+                        <span class="color-swatch active" style="background-color: #111111;"
+                            onclick="changeTheme('#111111')"></span>
+                        <span class="color-swatch" style="background-color: #1a365d;"
+                            onclick="changeTheme('#1a365d')"></span>
+                        <span class="color-swatch" style="background-color: #0f5132;"
+                            onclick="changeTheme('#0f5132')"></span>
+                        <span class="color-swatch" style="background-color: #581845;"
+                            onclick="changeTheme('#581845')"></span>
+                        <span class="color-swatch" style="background-color: #2d3748;"
+                            onclick="changeTheme('#2d3748')"></span>
+                    </div>
+                </div>
+                <div class="toolbar-section">
+                    <span class="toolbar-label">Style:</span>
+                    <select id="fontSelector" class="toolbar-select">
+                        <option value="Montserrat">Montserrat</option>
+                        <option value="Inter">Inter</option>
+                        <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                        <option value="Outfit">Outfit</option>
+                    </select>
+                </div>
+                <div class="toolbar-section">
+                    <button class="btn-pdf-download" onclick="downloadPDF()">Download / Print <i
+                            class="fa-solid fa-print"></i></button>
+                </div>
+            </div>
+
+            <!-- Live Resume Page Layout -->
+            <div class="resume-page" id="resume-pdf-target">
+
+                <div class="header-section">
+                    <div id="previewName" contenteditable="true">DARYL BANKS</div>
+                    <div id="previewRole" contenteditable="true">DRIVER</div>
+                </div>
+
+                <div class="resume-body">
+
+                    <div class="main-left">
+
+                        <div>
+                            <div class="section-title"><i class="fa-regular fa-file-lines"></i> Summary</div>
+                            <p id="previewSummary" class="summary-text" contenteditable="true">Experienced and reliable
+                                Driver with vast experience working in the transportation of goods and passengers. Adept
+                                in safe driving practices and traffic laws. Bringing forth a clean driving record as
+                                well as a career history full of satisfied customers and clients. Experienced in
+                                performing maintenance and minor repairs on vehicles. Committed to the safety and
+                                successful transportation of goods, passengers, and vehicles.</p>
+                        </div>
+
+                        <div>
+                            <div class="section-title"><i class="fa-solid fa-briefcase"></i> Experience</div>
+                            <div id="previewExperience"></div>
+                        </div>
+
+                        <div>
+                            <div class="section-title"><i class="fa-solid fa-book-open"></i> Education</div>
+                            <div id="previewEducation"></div>
+                        </div>
+
+                    </div>
+
+                    <div class="sidebar-right">
+
+                        <div class="contact-list">
+                            <div class="contact-item"><i class="fa-regular fa-envelope"></i> <span id="previewEmail"
+                                    contenteditable="true">banks.daryl@gmail.com</span></div>
+                            <div class="contact-item"><i class="fa-solid fa-mobile-screen-button"></i> <span
+                                    id="previewPhone" contenteditable="true">(602) 319-1212</span></div>
+                            <div class="contact-item"><i class="fa-solid fa-location-dot"></i> <span id="previewAddress"
+                                    contenteditable="true">4200 W Latham Street, Phoenix, United States, AZ 85009</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="section-title"><i class="fa-solid fa-trophy"></i> Skills</div>
+                            <div class="skills-pills" id="previewSkills"></div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="footer-line"></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        let currentStep = 1;
+        const totalSteps = 5;
+
+        const person = {
+            name: "DARYL BANKS",
+            role: "DRIVER",
+            email: "banks.daryl@gmail.com",
+            phone: "(602) 319-1212",
+            address: "4200 W Latham Street, Phoenix, United States, AZ 85009",
+            summary: "Experienced and reliable Driver with vast experience working in the transportation of goods and passengers. Adept in safe driving practices and traffic laws. Bringing forth a clean driving record as well as a career history full of satisfied customers and clients. Experienced in performing maintenance and minor repairs on vehicles. Committed to the safety and successful transportation of goods, passengers, and vehicles.",
+            skills: ["Hand-Eye Coordination", "Manual Dexterity", "References", "Ability to read maps", "Safe Driving Skills"],
+            experiences: [
+                {
+                    year: "APR 2013 — AUG 2019",
+                    role: "DRIVER",
+                    company: "Albert's Trucking Company, Phoenix",
+                    desc: "Performed vehicle inspections and maintenance prior to trips.\nRead maps and identified the fastest routes."
+                },
+                {
+                    year: "SEP 2009 — MAR 2013",
+                    role: "DRIVER",
+                    company: "Bears Transportation, Phoenix",
+                    desc: "Reached 700k accident free miles.\nWas awarded Best Driver in 2011.\nSafely and efficiently transported cargo to destinations."
+                }
+            ],
+            educations: [
+                {
+                    year: "SEP 2013 - MAY 2017",
+                    school: "PHOENIX DRIVING SCHOOL",
+                    degree: "Class B, Commercial Driver's License, Phoenix"
+                }
+            ]
+        };
+
+        function updateStepperUI() {
+            for (let i = 1; i <= totalSteps; i++) {
+                const stepEl = document.getElementById(`step${i}`);
+                if (stepEl) stepEl.classList.toggle("active", i === currentStep);
+            }
+            document.querySelectorAll(".step-node").forEach(node => {
+                const stepNum = parseInt(node.getAttribute("data-step"));
+                node.classList.toggle("active", stepNum <= currentStep);
+            });
+            const fill = document.getElementById("stepperProgressFill");
+            if (fill) fill.style.width = `${((currentStep - 1) / (totalSteps - 1)) * 100}%`;
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) { currentStep++; updateStepperUI(); }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) { currentStep--; updateStepperUI(); }
+        }
+
+        function changeTheme(color) {
+            document.documentElement.style.setProperty('--theme-color', color);
+            document.querySelectorAll('.color-swatch').forEach(s => {
+                s.classList.toggle('active', s.getAttribute('onclick').includes(color));
+            });
+        }
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
+            const newTheme = currentTheme === "light" ? "dark" : "light";
+
+            // HTML రూట్ ఎలిమెంట్‌కి మరియు బాడీకి థీమ్‌ను అప్లై చేయడం
+            document.documentElement.setAttribute("data-theme", newTheme);
+            if (document.body) {
+                document.body.setAttribute("data-theme", newTheme);
+            }
+
+            // బటన్ టెక్స్ట్ లేదా ఐకాన్‌ను మార్చడం కోసం
+            const toggleBtn = document.getElementById("themeToggle");
+            if (toggleBtn) {
+                toggleBtn.innerHTML = newTheme === "dark" ? "🌙 Light Mode" : "☀️ Toggle Theme";
+            }
+
+            // యూజర్ ఎంచుకున్న థీమ్‌ను లోకల్ స్టోరేజ్‌లో సేవ్ చేయడం
+            localStorage.setItem("theme", newTheme);
+        }
+
+        document.getElementById("fontSelector").addEventListener("change", function () {
+            document.getElementById("resume-pdf-target").style.fontFamily = `'${this.value}', sans-serif`;
+        });
+
+        function renderPreview() {
+            document.getElementById("previewName").innerText = person.name;
+            document.getElementById("previewRole").innerText = person.role;
+            document.getElementById("previewPhone").innerText = person.phone;
+            document.getElementById("previewEmail").innerText = person.email;
+            document.getElementById("previewAddress").innerText = person.address;
+            document.getElementById("previewSummary").innerText = person.summary;
+
+            const previewSkills = document.getElementById("previewSkills");
+            previewSkills.innerHTML = "";
+            person.skills.forEach(s => {
+                previewSkills.innerHTML += `<div class="skill-pill" contenteditable="true">${s}</div>`;
+            });
+
+            const expFormList = document.getElementById("expFormList");
+            const previewExp = document.getElementById("previewExperience");
+            expFormList.innerHTML = "";
+            previewExp.innerHTML = "";
+
+            person.experiences.forEach((exp, i) => {
+                const expCard = document.createElement("div");
+                expCard.className = "card-box exp-entry";
+                expCard.innerHTML = `
+                    <button type="button" class="remove-card-btn" onclick="removeExp(${i})"><i class="fa-solid fa-xmark"></i></button>
+                    <input type="text" class="exp-role-input" value="${exp.role}" placeholder="Job Title">
+                    <input type="text" class="exp-company-input" value="${exp.company}" placeholder="Company" style="margin-top:6px;">
+                    <input type="text" class="exp-year-input" value="${exp.year}" placeholder="Years" style="margin-top:6px;">
+                    <div class="textarea-ai-wrapper" style="margin-top: 6px;">
+                        <textarea class="exp-desc-input" placeholder="Description">${exp.desc}</textarea>
+                        <button type="button" class="btn-ai-action ai-exp-btn">✨ AI Generated Bullet Points</button>
+                    </div>`;
+
+                // Event listeners to update state safely without destroying focus
+                expCard.querySelector('.exp-role-input').addEventListener('input', e => { person.experiences[i].role = e.target.value; renderPreview(); });
+                expCard.querySelector('.exp-company-input').addEventListener('input', e => { person.experiences[i].company = e.target.value; renderPreview(); });
+                expCard.querySelector('.exp-year-input').addEventListener('input', e => { person.experiences[i].year = e.target.value; renderPreview(); });
+
+                const descTextarea = expCard.querySelector('.exp-desc-input');
+                descTextarea.addEventListener('input', e => {
+                    person.experiences[i].desc = e.target.value;
+                });
+
+                expCard.querySelector('.ai-exp-btn').addEventListener('click', function () {
+                    generateAiExperience(this, i, descTextarea);
+                });
+
+                expFormList.appendChild(expCard);
+
+                const bullets = exp.desc.split("\n").filter(l => l.trim() !== "");
+                let bulletsHTML = bullets.map(b => `<li contenteditable="true">${b}</li>`).join("");
+
+                previewExp.innerHTML += `
+                    <div class="timeline-item">
+                        <div class="timeline-date" contenteditable="true">${exp.year}</div>
+                        <div class="timeline-content">
+                            <div class="item-role" contenteditable="true">${exp.role}</div>
+                            <div class="item-company" contenteditable="true">${exp.company}</div>
+                            <ul class="bullet-list">${bulletsHTML}</ul>
+                        </div>
+                    </div>`;
+            });
+            const eduFormList = document.getElementById("eduFormList");
+            const previewEdu = document.getElementById("previewEducation");
+            eduFormList.innerHTML = "";
+            previewEdu.innerHTML = "";
+
+            person.educations.forEach((edu, i) => {
+                eduFormList.innerHTML += `
+                    <div class="card-box">
+                        <button type="button" class="remove-card-btn" onclick="removeEdu(${i})"><i class="fa-solid fa-xmark"></i></button>
+                        <input type="text" value="${edu.school}" placeholder="School / Organization" oninput="updateEdu(${i}, 'school', this.value)">
+                        <input type="text" value="${edu.degree}" placeholder="Degree / License" oninput="updateEdu(${i}, 'degree', this.value)" style="margin-top:6px;">
+                        <input type="text" value="${edu.year}" placeholder="Years" oninput="updateEdu(${i}, 'year', this.value)" style="margin-top:6px;">
+                    </div>`;
+
+                previewEdu.innerHTML += `
+                    <div class="timeline-item">
+                        <div class="timeline-date" contenteditable="true">${edu.year}</div>
+                        <div class="timeline-content">
+                            <div class="item-role" contenteditable="true">${edu.school}</div>
+                            <div class="item-company" style="font-weight: normal; font-size: 10.5px;" contenteditable="true">${edu.degree}</div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        document.getElementById("nameInput").addEventListener("input", e => { person.name = e.target.value; renderPreview(); });
+        document.getElementById("roleInput").addEventListener("input", e => { person.role = e.target.value; renderPreview(); });
+        document.getElementById("phoneInput").addEventListener("input", e => { person.phone = e.target.value; renderPreview(); });
+        document.getElementById("emailInput").addEventListener("input", e => { person.email = e.target.value; renderPreview(); });
+        document.getElementById("addressInput").addEventListener("input", e => { person.address = e.target.value; renderPreview(); });
+        document.getElementById("summaryInput").addEventListener("input", e => { person.summary = e.target.value; renderPreview(); });
+
+        document.getElementById("skillsInput").addEventListener("input", e => {
+            person.skills = e.target.value.split(",").map(s => s.trim()).filter(s => s.length > 0);
+            renderPreview();
+        });
+
+        function addExpField() { person.experiences.push({ role: "DRIVER", company: "Company Name", year: "2020 — PRESENT", desc: "Performed daily safety checks." }); renderPreview(); }
+        function removeExp(i) { person.experiences.splice(i, 1); renderPreview(); }
+        function updateExp(i, k, v) { person.experiences[i][k] = v; renderPreview(); }
+
+        function addEduField() { person.educations.push({ school: "DRIVING SCHOOL", degree: "Commercial Driver's License", year: "2020" }); renderPreview(); }
+        function removeEdu(i) { person.educations.splice(i, 1); renderPreview(); }
+        function updateEdu(i, k, v) { person.educations[i][k] = v; renderPreview(); }
+        async function generateAiSummary() {
+            const summaryInput = document.getElementById("summaryInput");
+            const btn = document.getElementById("aiSummaryBtn");
+            if (!summaryInput || !btn) return;
+            const orig = btn.innerHTML;
+
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`http://${window.location.hostname}:8000/api/generate-summary`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user_input: summaryInput.value, role: person.role || "Driver" })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    summaryInput.value = data.summary || data.text;
+                    person.summary = summaryInput.value;
+                    renderPreview();
+                }
+            } catch (err) {
+                console.error("AI Error:", err);
+            } finally {
+                btn.innerHTML = orig;
+                btn.disabled = false;
+            }
+        }
+
+        async function generateAiSkills() {
+            const skillsInput = document.getElementById("skillsInput");
+            const chipsContainer = document.getElementById("suggestedSkillChips");
+            const btn = document.getElementById("aiSkillsBtn");
+            if (!skillsInput || !btn) return;
+            const orig = btn.innerHTML;
+
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_input: skillsInput.value || person.role || "Driver",
+                        section_type: "skills",
+                        job_title: person.role || "Driver"
+                    })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    const cleanSkills = data.text || data.summary || data.skills || "";
+
+                    if (cleanSkills && chipsContainer) {
+                        const skillsArray = cleanSkills.split(",").map(s => s.trim()).filter(s => s !== "");
+                        chipsContainer.innerHTML = "";
+
+                        skillsArray.forEach(skillText => {
+                            const chip = document.createElement("span");
+                            chip.className = "skill-chip";
+                            chip.style.cssText = "display:inline-block; padding:5px 12px; margin:4px; background:rgba(124,58,237,0.08); border:1px solid rgba(124,58,237,0.25); border-radius:15px; font-size:11px; font-weight:600; cursor:pointer; color:var(--text-primary); transition:all 0.2s;";
+                            chip.innerText = skillText;
+
+                            // Add click handler to append to input and remove the chip from the list
+                            chip.addEventListener("click", function () {
+                                const currentVal = skillsInput.value.trim();
+                                const list = currentVal ? currentVal.split(",").map(s => s.trim()) : [];
+
+                                if (!list.map(s => s.toLowerCase()).includes(skillText.toLowerCase())) {
+                                    list.push(skillText);
+                                    skillsInput.value = list.join(", ");
+                                    person.skills = list;
+                                    renderPreview();
+                                }
+
+                                // Automatically remove this chip from the suggestion container
+                                chip.remove();
+                            });
+
+                            chipsContainer.appendChild(chip);
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error("AI Error:", err);
+            } finally {
+                btn.innerHTML = orig;
+                btn.disabled = false;
+            }
+        }
+        async function generateAiExperience(btn, index) {
+            // Find the correct textarea relative to the clicked button inside this experience block
+            const experienceItem = btn.closest('.experience-item') || btn.parentElement;
+            const textarea = experienceItem.querySelector('textarea');
+
+            if (!textarea) return;
+            const orig = btn.innerHTML;
+
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_input: textarea.value,
+                        section_type: "experience_bullets",
+                        job_title: person.role || "Driver"
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const fullText = data.text || data.summary || "";
+
+                    // Safely update the textarea value and keep focus/cursor intact
+                    textarea.value = fullText;
+                    if (person.experiences && person.experiences[index]) {
+                        person.experiences[index].desc = fullText;
+                    }
+                    renderPreview();
+                }
+            } catch (err) {
+                console.error("AI Error:", err);
+            } finally {
+                btn.innerHTML = orig;
+                btn.disabled = false;
+            }
+        }
+        function downloadPDF() {
+            window.print();
+        }
+
+        updateStepperUI();
+        renderPreview();
+    </script>
+
+</body>
+
+</html>

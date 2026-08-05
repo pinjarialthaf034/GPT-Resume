@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("linkedinInput").addEventListener("input", (e) => { resumeState.linkedin = e.target.value; renderPreview(); triggerAutosave(); });
     document.getElementById("addressInput").addEventListener("input", (e) => { resumeState.address = e.target.value; renderPreview(); triggerAutosave(); });
     document.getElementById("summaryInput").addEventListener("input", (e) => { resumeState.summary = e.target.value; renderPreview(); triggerAutosave(); });
-    
+
     document.getElementById("skillsInput").addEventListener("input", (e) => {
         resumeState.skills = e.target.value.split(",").map(s => s.trim()).filter(s => s !== "");
         renderPreview();
@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 6. AI Tools Bindings
     document.getElementById("aiGenerateSummaryBtn").addEventListener("click", generateSummaryWithAI);
-    
+
     // Clear hardcoded skill chips and set up dynamic AI suggest button
     try {
         const suggestedChipsContainer = document.getElementById("suggestedSkillChips");
@@ -170,23 +170,23 @@ function renderPreview() {
     document.getElementById("previewEmail").textContent = resumeState.email || "Email";
     document.getElementById("previewLinkedin").textContent = resumeState.linkedin || "LinkedIn";
     document.getElementById("previewAddress").textContent = resumeState.address || "Address";
-    
+
     // 2. Summary
     document.getElementById("previewSummary").textContent = resumeState.summary || "Summary";
-    
+
     // 3. Experience
     const expList = document.getElementById("previewExperienceList");
     expList.innerHTML = "";
     resumeState.experience.forEach(exp => {
         const div = document.createElement("div");
         div.className = "preview-item";
-        
+
         let bulletsHtml = "";
         if (exp.desc) {
             const lines = exp.desc.split("\n").filter(l => l.trim() !== "");
             bulletsHtml = "<ul>" + lines.map(line => `<li>${line.replace(/^[•\-\*]\s*/, '')}</li>`).join("") + "</ul>";
         }
-        
+
         div.innerHTML = `
             <div class="preview-item-header">
                 <span class="preview-item-title">${exp.title || "Job Title"}</span>
@@ -200,7 +200,7 @@ function renderPreview() {
         `;
         expList.appendChild(div);
     });
-    
+
     // 4. Education
     const eduList = document.getElementById("previewEducationList");
     eduList.innerHTML = "";
@@ -218,7 +218,7 @@ function renderPreview() {
         `;
         eduList.appendChild(div);
     });
-    
+
     // 5. Skills
     const skillsList = document.getElementById("previewSkills");
     skillsList.innerHTML = "";
@@ -314,7 +314,7 @@ function renderEducationCards() {
 // FORM STATE SYNCHRONIZERS
 // ==========================================
 
-window.updateExperience = function(id, field, value) {
+window.updateExperience = function (id, field, value) {
     const exp = resumeState.experience.find(e => e.id === id);
     if (exp) {
         exp[field] = value;
@@ -323,14 +323,14 @@ window.updateExperience = function(id, field, value) {
     }
 };
 
-window.deleteExperience = function(id) {
+window.deleteExperience = function (id) {
     resumeState.experience = resumeState.experience.filter(e => e.id !== id);
     renderExperienceCards();
     renderPreview();
     triggerAutosave();
 };
 
-window.updateEducation = function(id, field, value) {
+window.updateEducation = function (id, field, value) {
     const edu = resumeState.education.find(e => e.id === id);
     if (edu) {
         edu[field] = value;
@@ -339,7 +339,7 @@ window.updateEducation = function(id, field, value) {
     }
 };
 
-window.deleteEducation = function(id) {
+window.deleteEducation = function (id) {
     resumeState.education = resumeState.education.filter(e => e.id !== id);
     renderEducationCards();
     renderPreview();
@@ -411,10 +411,10 @@ async function generateSummaryWithAI() {
             if (cleanSummary) {
                 summaryInput.value = cleanSummary;
                 resumeState.summary = cleanSummary;
-                
+
                 // Trigger the input event for instant live preview updates
                 summaryInput.dispatchEvent(new Event("input", { bubbles: true }));
-                
+
                 showToast("Summary updated via Python Backend!", "success");
             } else {
                 showToast("No summary returned by backend.", "warning");
@@ -425,14 +425,21 @@ async function generateSummaryWithAI() {
         }
     });
 }
-
 async function generateAISkills() {
     const button = document.getElementById("aiSuggestSkillsBtn");
     const container = document.getElementById("suggestedSkillChips");
     if (!container) return;
 
     await executeWithLoadingState(button, async () => {
-        const roleVal = resumeState.role || "Facility Manager";
+        // 1. Read directly from the input box
+        const skillsInputElement = document.getElementById("skillsInput");
+        const userTypedSkills = skillsInputElement ? skillsInputElement.value.trim() : "";
+
+        // 2. If the user typed nothing, alert them instead of using a default role
+        if (!userTypedSkills) {
+            showToast("Please enter a few skills or topics in the box first!", "warning");
+            return;
+        }
 
         try {
             const response = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
@@ -441,7 +448,7 @@ async function generateAISkills() {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    user_input: roleVal,
+                    user_input: userTypedSkills, // Sends EXACTLY what the user typed
                     section_type: "skills"
                 })
             });
@@ -454,7 +461,11 @@ async function generateAISkills() {
             const data = await response.json();
             const rawSkills = data.text || data.summary || data.skills || "";
             if (rawSkills) {
-                const skills = rawSkills.split(",").map(s => s.replace(/^[-\d\.\s•\*]+/, "").trim()).filter(s => s !== "");
+                const skills = rawSkills
+                    .split(",")
+                    .map(s => s.replace(/^[-\d\.\s•\*]+/, "").trim())
+                    .filter(s => s !== "");
+
                 if (skills.length > 0) {
                     container.innerHTML = "";
                     skills.forEach(skillName => {
@@ -463,10 +474,15 @@ async function generateAISkills() {
                         chip.setAttribute("data-skill", skillName);
                         chip.textContent = skillName;
                         chip.addEventListener("click", () => {
-                            const normalizedSkills = resumeState.skills.map(s => s.trim().toLowerCase());
+                            const currentSkills = Array.isArray(resumeState.skills) ? resumeState.skills : [];
+                            const normalizedSkills = currentSkills.map(s => s.trim().toLowerCase());
+
                             if (!normalizedSkills.includes(skillName.toLowerCase())) {
-                                resumeState.skills.push(skillName);
-                                document.getElementById("skillsInput").value = resumeState.skills.join(", ");
+                                currentSkills.push(skillName);
+                                resumeState.skills = currentSkills;
+                                if (skillsInputElement) {
+                                    skillsInputElement.value = resumeState.skills.join(", ");
+                                }
                                 renderPreview();
                                 triggerAutosave();
                             }
@@ -486,8 +502,7 @@ async function generateAISkills() {
         }
     });
 }
-
-window.aiSuggestBullets = async function(id) {
+window.aiSuggestBullets = async function (id) {
     const button = document.getElementById(`ai-btn-${id}`);
     const input = document.getElementById(`exp-desc-${id}`);
     if (!button || !input) return;
@@ -522,10 +537,10 @@ window.aiSuggestBullets = async function(id) {
             if (cleanText) {
                 input.value = cleanText;
                 exp.desc = cleanText;
-                
+
                 // Trigger input event
                 input.dispatchEvent(new Event("input", { bubbles: true }));
-                
+
                 showToast("Suggested bullets added successfully!", "success");
             } else {
                 showToast("No bullets were returned by backend.", "warning");
@@ -536,7 +551,6 @@ window.aiSuggestBullets = async function(id) {
         }
     });
 };
-
 // ==========================================
 // LIVE CUSTOMIZER CONFIGURATION
 // ==========================================
@@ -559,7 +573,7 @@ function applyAccentTheme(color) {
 
     preview.style.setProperty('--theme-primary', primary);
     preview.style.setProperty('--theme-secondary', secondary);
-    
+
     // Update local state
     resumeState.accentTheme = color;
     triggerAutosave();
@@ -583,7 +597,7 @@ function applyFont(font) {
 
 let currentStep = 1;
 
-window.nextStep = function() {
+window.nextStep = function () {
     if (currentStep >= 5) return;
     document.getElementById("step" + currentStep).classList.remove("active");
     currentStep++;
@@ -592,7 +606,7 @@ window.nextStep = function() {
     triggerAutosave();
 };
 
-window.prevStep = function() {
+window.prevStep = function () {
     if (currentStep <= 1) return;
     document.getElementById("step" + currentStep).classList.remove("active");
     currentStep--;
@@ -604,7 +618,7 @@ function updateStepperUI() {
     const progressFill = document.getElementById("stepperProgressFill");
     const percent = ((currentStep - 1) / 4) * 100;
     progressFill.style.width = percent + "%";
-    
+
     const steps = document.querySelectorAll(".step-node");
     steps.forEach(node => {
         const stepNum = parseInt(node.getAttribute("data-step"));
@@ -621,7 +635,7 @@ function updateStepperUI() {
     });
 }
 
-window.finishBuild = function() {
+window.finishBuild = function () {
     // Perform one final sync save
     saveResumeToSupabase().then(() => {
         alert("🎉 Resume draft has been successfully saved to database! Returning to Templates.");
@@ -684,7 +698,7 @@ async function loadSavedResume() {
 
         if (data && data.resume_data) {
             resumeState = data.resume_data;
-            
+
             // Sync customizer UI controls
             if (resumeState.accentTheme) {
                 const swatch = document.querySelector(`.color-swatch[data-color="${resumeState.accentTheme}"]`);
@@ -745,7 +759,7 @@ function loadSampleData() {
     renderExperienceCards();
     renderEducationCards();
     renderPreview();
-    
+
     // Apply defaults to layout
     applyAccentTheme("orange");
     applyFont("Plus Jakarta Sans");

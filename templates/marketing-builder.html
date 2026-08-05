@@ -4,11 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marketing Manager Workspace - GPT Hub</title>
+    <title>Resume Workspace</title>
 
-    <!-- Theme Initializer -->
     <script>
-        (function() {
+        (function () {
             const savedTheme = localStorage.getItem("theme") || "light";
             document.documentElement.setAttribute("data-theme", savedTheme);
             const observer = new MutationObserver(() => {
@@ -21,10 +20,9 @@
         })();
     </script>
 
-    <!-- Supabase JS Library & Initialization -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        (function() {
+        (function () {
             try {
                 if (window.supabase && typeof window.supabase.createClient === 'function') {
                     const client = window.supabase.createClient('https://fwupeplirgbyujdpzsyk.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3dXBlcGxpcmdieXVqZHB6c3lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzNTI0MzMsImV4cCI6MjA5OTkyODQzM30.jpi6dvHuMPA4SAaadido8V51AiwfGbqvoGdshJvlpxY');
@@ -38,94 +36,94 @@
         })();
     </script>
 
-    <!-- Google Fonts & FontAwesome -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- html2pdf.js for exporting PDF -->
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    
-    <!-- Local Stylesheet -->
+
     <link rel="stylesheet" href="marketing-builder.css">
     <style>
-    @media print {
-        /* Force page dimensions to exact A4 Portrait with zero browser margins */
-        @page {
-            size: A4 portrait !important;
-            margin: 0 !important;
-        }
+        @media print {
 
-        /* Lock body & HTML to standard A4 size */
-        html, body {
-            width: 210mm !important;
-            height: 297mm !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            background: #ffffff !important;
-            overflow: hidden !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-        }
+            /* Force page dimensions to exact A4 Portrait with zero browser margins */
+            @page {
+                size: A4 portrait !important;
+                margin: 0 !important;
+            }
 
-        /* Hide form panels, color pickers, and UI elements */
-        .panel-wrapper,
-        .form-panel,
-        .color-panel,
-        .ai-panel,
-        .builder-header,
-        .customizer-toolbar,
-        .toast-container,
-        .no-print,
-        button,
-        input {
-            display: none !important;
-        }
+            /* Lock body & HTML to standard A4 size */
+            html,
+            body {
+                width: 210mm !important;
+                height: 297mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+                overflow: hidden !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
 
-        /* Reset main layout grid */
-        .builder-container {
-            display: block !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            width: 210mm !important;
-            height: 297mm !important;
-        }
+            /* Hide form panels, color pickers, and UI elements */
+            .panel-wrapper,
+            .form-panel,
+            .color-panel,
+            .ai-panel,
+            .builder-header,
+            .customizer-toolbar,
+            .toast-container,
+            .no-print,
+            button,
+            input {
+                display: none !important;
+            }
 
-        /* Lock the Resume preview element strictly to A4 size */
-        #resume-pdf-target,
-        .resume-page {
-            display: flex !important;
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 210mm !important;
-            height: 297mm !important;
-            min-height: 297mm !important;
-            max-height: 297mm !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            box-shadow: none !important;
-            border: none !important;
-            box-sizing: border-box !important;
-            overflow: hidden !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-        }
+            /* Reset main layout grid */
+            .builder-container {
+                display: block !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 210mm !important;
+                height: 297mm !important;
+            }
 
-        /* Ensure sidebar stretches to full 297mm height without bottom blank space */
-        .resume-sidebar, 
-        .resume-main {
-            height: 297mm !important;
-            min-height: 297mm !important;
+            /* Lock the Resume preview element strictly to A4 size */
+            #resume-pdf-target,
+            .resume-page {
+                display: flex !important;
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 210mm !important;
+                height: 297mm !important;
+                min-height: 297mm !important;
+                max-height: 297mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Ensure sidebar stretches to full 297mm height without bottom blank space */
+            .resume-sidebar,
+            .resume-main {
+                height: 297mm !important;
+                min-height: 297mm !important;
+            }
         }
-    }
     </style>
 </head>
 
 <body>
 
-    <!-- TOP NAVBAR -->
     <header class="builder-header no-print">
         <div class="logo">
             <span class="logo-dot"></span>
@@ -141,10 +139,8 @@
 
     <div class="builder-container">
 
-        <!-- LEFT SIDE FORM PANEL (Wizard) -->
         <div class="form-panel no-print">
 
-            <!-- Stepper Progress Bar -->
             <div class="stepper-progress-container">
                 <div class="stepper-track-bg">
                     <div class="stepper-track-fill" id="stepperProgressFill"></div>
@@ -173,7 +169,6 @@
                 </div>
             </div>
 
-            <!-- STEP 1: Contact Info -->
             <div id="step1" class="step active">
                 <div class="step-header">
                     <h2>Personal Information</h2>
@@ -220,7 +215,6 @@
                 </button>
             </div>
 
-            <!-- STEP 2: Summary -->
             <div id="step2" class="step">
                 <div class="step-header">
                     <h2>Executive Summary</h2>
@@ -228,8 +222,9 @@
                 </div>
 
                 <div class="textarea-ai-wrapper">
-                    <textarea id="summaryInput" placeholder="Write your professional bio here or use the AI generator..."></textarea>
-                    <button type="button" id="aiGenerateSummaryBtn" class="btn-ai-action">
+                    <textarea id="summaryInput" placeholder="Write your professional bio keywords here..."></textarea>
+                    <button type="button" id="aiGenerateSummaryBtn" class="btn-ai-action"
+                        onclick="enhanceSummaryAI(this)">
                         <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Generate with AI
                     </button>
                 </div>
@@ -240,7 +235,6 @@
                 </div>
             </div>
 
-            <!-- STEP 3: Experience -->
             <div id="step3" class="step">
                 <div class="step-header">
                     <h2>Work Experience</h2>
@@ -248,9 +242,8 @@
                 </div>
 
                 <div id="experienceContainer" class="dynamic-list-container">
-                    <!-- Dynamic Experience cards injected here -->
                 </div>
-                
+
                 <button type="button" id="addExperienceBtn" class="btn-add-item">+ Add Experience</button>
 
                 <div class="step-buttons">
@@ -259,7 +252,6 @@
                 </div>
             </div>
 
-            <!-- STEP 4: Education -->
             <div id="step4" class="step">
                 <div class="step-header">
                     <h2>Education History</h2>
@@ -267,9 +259,8 @@
                 </div>
 
                 <div id="educationContainer" class="dynamic-list-container">
-                    <!-- Dynamic Education cards injected here -->
                 </div>
-                
+
                 <button type="button" id="addEducationBtn" class="btn-add-item">+ Add Education</button>
 
                 <div class="step-buttons">
@@ -278,7 +269,6 @@
                 </div>
             </div>
 
-            <!-- STEP 5: Skills & References -->
             <div id="step5" class="step">
                 <div class="step-header">
                     <h2>Skills, Languages & References</h2>
@@ -286,22 +276,19 @@
                 </div>
 
                 <div class="input-group">
-                    <label>Skills (Comma Separated)</label>
-                    <textarea id="skillsInput" placeholder="SEO/SEM, Marketing Automation, Campaign Strategy"></textarea>
+                    <label>Skills Input Box</label>
+                    <div class="textarea-ai-wrapper">
+                        <textarea id="skillsInput" placeholder="Type keywords or requirements here..."></textarea>
+                        <button type="button" class="btn-ai-action" onclick="generateSkillsAI(this)">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ AI Generated Skills
+                        </button>
+                    </div>
                 </div>
 
-                <div class="ai-chips-wrapper">
-                    <span class="chip-title">AI Interactive Skill Chips:</span>
-                    <div class="skill-chips" id="suggestedSkillChips">
-                        <span class="skill-chip" data-skill="SEO/SEM">SEO/SEM</span>
-                        <span class="skill-chip" data-skill="Marketing Automation">Marketing Automation</span>
-                        <span class="skill-chip" data-skill="Campaign Strategy">Campaign Strategy</span>
-                        <span class="skill-chip" data-skill="Lead Generation">Lead Generation</span>
-                        <span class="skill-chip" data-skill="Brand Management">Brand Management</span>
-                        <span class="skill-chip" data-skill="Content Strategy">Content Strategy</span>
-                        <span class="skill-chip" data-skill="Google Analytics">Google Analytics</span>
-                        <span class="skill-chip" data-skill="PPC Advertising">PPC Advertising</span>
-                    </div>
+                <div id="aiSuggestionsWrapper" style="display: none; margin-bottom: 15px;">
+                    <label style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Suggested
+                        Skills (Click to add):</label>
+                    <div id="suggestedSkillChips" class="ai-chip-container"></div>
                 </div>
 
                 <div class="input-group">
@@ -321,7 +308,8 @@
                 </div>
                 <div class="input-group">
                     <label>Reference 1 - Contact Info</label>
-                    <input type="text" id="ref1Meta" placeholder="Phone: +123-456-7890 | Email: hello@reallygreatsite.com">
+                    <input type="text" id="ref1Meta"
+                        placeholder="Phone: +123-456-7890 | Email: hello@reallygreatsite.com">
                 </div>
 
                 <div class="input-group" style="margin-top: 10px;">
@@ -334,7 +322,8 @@
                 </div>
                 <div class="input-group">
                     <label>Reference 2 - Contact Info</label>
-                    <input type="text" id="ref2Meta" placeholder="Phone: +123-456-7890 | Email: hello@reallygreatsite.com">
+                    <input type="text" id="ref2Meta"
+                        placeholder="Phone: +123-456-7890 | Email: hello@reallygreatsite.com">
                 </div>
 
                 <div class="step-buttons">
@@ -347,18 +336,20 @@
 
         </div>
 
-        <!-- RIGHT SIDE PREVIEW AND CUSTOMIZER -->
         <div class="preview-panel">
 
-            <!-- Live Customizer Toolbar -->
             <div class="customizer-toolbar no-print">
                 <div class="toolbar-section">
                     <span class="toolbar-label">Accent Theme:</span>
                     <div class="color-swatches">
-                        <span class="color-swatch swatch-deepblue active" data-color="deepblue" style="background-color: #1e3a8a;"></span>
-                        <span class="color-swatch swatch-indigo" data-color="indigo" style="background-color: #4f46e5;"></span>
-                        <span class="color-swatch swatch-emerald" data-color="emerald" style="background-color: #059669;"></span>
-                        <span class="color-swatch swatch-slate" data-color="slate" style="background-color: #334155;"></span>
+                        <span class="color-swatch swatch-deepblue active" data-color="deepblue"
+                            style="background-color: #1e3a8a;"></span>
+                        <span class="color-swatch swatch-indigo" data-color="indigo"
+                            style="background-color: #4f46e5;"></span>
+                        <span class="color-swatch swatch-emerald" data-color="emerald"
+                            style="background-color: #059669;"></span>
+                        <span class="color-swatch swatch-slate" data-color="slate"
+                            style="background-color: #334155;"></span>
                     </div>
                 </div>
 
@@ -378,23 +369,22 @@
                 </div>
             </div>
 
-            <!-- Live A4 Resume page preview canvas (Directly editable inline) -->
             <div class="resume-page" id="resumePreviewContainer">
-                
-                <!-- LEFT SIDEBAR -->
+
                 <div class="resume-sidebar">
-                    
+
                     <div class="photo-wrapper">
                         <div class="sidebar-photo-container">
-                            <img id="previewPhoto" class="sidebar-photo" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400" alt="Olivia Wilson">
+                            <img id="previewPhoto" class="sidebar-photo"
+                                src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23cbd5e1'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>"
+                                alt="Olivia Wilson">
                         </div>
                     </div>
 
-                    <!-- CONTACT -->
                     <div class="sidebar-section">
                         <h3 class="sidebar-title" contenteditable="true">Contact</h3>
                         <div class="sidebar-divider"></div>
-                        
+
                         <div class="contact-item">
                             <i class="fa-regular fa-envelope"></i>
                             <span id="previewEmail" contenteditable="true">hello@reallygreatsite.com</span>
@@ -413,48 +403,39 @@
                         </div>
                     </div>
 
-                    <!-- EDUCATION -->
                     <div class="sidebar-section">
                         <h3 class="sidebar-title" contenteditable="true">Education</h3>
                         <div class="sidebar-divider"></div>
-                        
+
                         <div id="previewEducationList">
-                            <!-- Dynamic Education List In Preview -->
                         </div>
                     </div>
 
-                    <!-- SKILLS -->
                     <div class="sidebar-section">
                         <h3 class="sidebar-title" contenteditable="true">Skills</h3>
                         <div class="sidebar-divider"></div>
-                        
+
                         <ul id="previewSkills" class="sidebar-list">
-                            <!-- Dynamic Skills List In Preview -->
                         </ul>
                     </div>
 
-                    <!-- LANGUAGE -->
                     <div class="sidebar-section">
                         <h3 class="sidebar-title" contenteditable="true">Language</h3>
                         <div class="sidebar-divider"></div>
-                        
+
                         <div id="previewLanguages">
-                            <!-- Dynamic Languages List In Preview -->
                         </div>
                     </div>
 
                 </div>
 
-                <!-- RIGHT MAIN CONTENT -->
                 <div class="resume-main">
-                    
-                    <!-- HEADER -->
+
                     <div class="main-header">
                         <h1 id="previewName" contenteditable="true">Olivia Wilson</h1>
                         <div id="previewRole" contenteditable="true">Marketing Manager</div>
                     </div>
 
-                    <!-- ABOUT ME -->
                     <div class="main-section">
                         <h3 class="main-title" contenteditable="true">About Me</h3>
                         <div class="main-divider"></div>
@@ -463,25 +444,23 @@
                         </p>
                     </div>
 
-                    <!-- WORK EXPERIENCE -->
                     <div class="main-section">
                         <h3 class="main-title" contenteditable="true">Work Experience</h3>
                         <div class="main-divider"></div>
-                        
+
                         <div id="previewExperienceList">
-                            <!-- Dynamic Experience List In Preview -->
                         </div>
                     </div>
 
-                    <!-- REFERENCES -->
                     <div class="main-section" style="margin-bottom: 0;">
                         <h3 class="main-title" contenteditable="true">References</h3>
                         <div class="main-divider"></div>
-                        
+
                         <div class="references-grid">
                             <div class="ref-col">
                                 <div id="previewRef1Name" class="ref-name" contenteditable="true">Estelle Darcy</div>
-                                <div id="previewRef1Sub" class="ref-sub" contenteditable="true">Wardiere Inc. / CEO</div>
+                                <div id="previewRef1Sub" class="ref-sub" contenteditable="true">Wardiere Inc. / CEO
+                                </div>
                                 <div id="previewRef1Meta" class="ref-meta" contenteditable="true">
                                     Phone: +123-456-7890<br>
                                     Email: hello@reallygreatsite.com
@@ -490,7 +469,8 @@
 
                             <div class="ref-col">
                                 <div id="previewRef2Name" class="ref-name" contenteditable="true">Harper Russo</div>
-                                <div id="previewRef2Sub" class="ref-sub" contenteditable="true">Wardiere Inc. / CEO</div>
+                                <div id="previewRef2Sub" class="ref-sub" contenteditable="true">Wardiere Inc. / CEO
+                                </div>
                                 <div id="previewRef2Meta" class="ref-meta" contenteditable="true">
                                     Phone: +123-456-7890<br>
                                     Email: hello@reallygreatsite.com
@@ -507,11 +487,8 @@
 
     </div>
 
-    <!-- Theme toggler logic loading -->
     <script src="../theme-toggle.js"></script>
-    <!-- AI Integration Service -->
     <script src="../ai-service.js"></script>
-    <!-- Main Script file -->
     <script src="marketing-builder.js"></script>
 </body>
 

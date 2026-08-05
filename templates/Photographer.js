@@ -837,7 +837,15 @@ async function generateAISkills() {
     if (!container) return;
 
     await executeWithLoadingState(button, async () => {
-        const jobTitle = photographer_resume_data.role || "Photographer";
+        // 1. First, check if user typed anything in the Skills Input Box
+        const skillsInputElement = document.getElementById("skillsInput");
+        const userTypedSkills = skillsInputElement ? skillsInputElement.value.trim() : "";
+
+        // 2. Fallback to Role / Job Title if input box is empty
+        const jobTitle = photographer_resume_data.role || "Professional";
+
+        // Priority: Use typed skills first, otherwise fall back to job title
+        const payloadInput = userTypedSkills !== "" ? userTypedSkills : jobTitle;
 
         try {
             const response = await fetch(`http://${window.location.hostname}:8000/api/generate-section`, {
@@ -846,8 +854,9 @@ async function generateAISkills() {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    user_input: jobTitle,
-                    section_type: "skills"
+                    user_input: payloadInput, // Dynamic input sending!
+                    section_type: "skills",
+                    job_title: jobTitle
                 })
             });
 
@@ -869,7 +878,7 @@ async function generateAISkills() {
                         chip.setAttribute("data-skill", skillName);
                         chip.textContent = skillName;
                         chip.addEventListener("click", () => {
-                            const normalizedSkills = photographer_resume_data.skills.map(s => s.trim().toLowerCase());
+                            const normalizedSkills = (photographer_resume_data.skills || []).map(s => s.trim().toLowerCase());
                             if (!normalizedSkills.includes(skillName.toLowerCase())) {
                                 photographer_resume_data.skills.push(skillName);
                                 document.getElementById("skillsInput").value = photographer_resume_data.skills.join(", ");
@@ -893,7 +902,6 @@ async function generateAISkills() {
     });
 }
 window.generateAISkills = generateAISkills;
-
 
 
 // ==========================================
@@ -930,10 +938,10 @@ async function handleAISummary() {
                     previewSummary.textContent = cleanSummary;
                 }
                 photographer_resume_data.summary = cleanSummary;
-                
+
                 // Trigger the input event for instant live preview updates
                 summaryInput.dispatchEvent(new Event("input", { bubbles: true }));
-                
+
                 showToast("Summary generated successfully!", "success");
             } else {
                 showToast("No summary returned by Backend.", "warning");
@@ -975,10 +983,10 @@ async function handleAIAssistant() {
             if (cleanText) {
                 input.value = cleanText;
                 photographer_resume_data.assistant = cleanText;
-                
+
                 // Trigger input event
                 input.dispatchEvent(new Event("input", { bubbles: true }));
-                
+
                 showToast("Assistant bullets generated successfully!", "success");
             } else {
                 showToast("No bullets were returned by Backend.", "warning");
@@ -1024,10 +1032,10 @@ window.handleAIExperience = async function (id) {
                 if (cleanText) {
                     input.value = cleanText;
                     exp.desc = cleanText;
-                    
+
                     // Trigger input event
                     input.dispatchEvent(new Event("input", { bubbles: true }));
-                    
+
                     showToast("Experience bullets generated successfully!", "success");
                 } else {
                     showToast("No bullets were returned by Backend.", "warning");
@@ -1317,7 +1325,7 @@ function loadSampleData() {
 // ==========================================
 // HIGH-FIDELITY PDF RENDERING EXPORT
 // ==========================================
-window.downloadPDF = function() {
+window.downloadPDF = function () {
     if (document.activeElement) document.activeElement.blur();
     window.print();
 }

@@ -68,17 +68,17 @@ function escapeHTML(str) {
 let currentStep = 1;
 const totalSteps = 5;
 
-window.changeTheme = function(color) {
+window.changeTheme = function (color) {
     document.documentElement.style.setProperty('--theme-color', color);
     const previewRole = document.getElementById("previewRole");
     if (previewRole) previewRole.style.color = color;
-    
+
     document.querySelectorAll('.color-swatch').forEach(swatch => {
         swatch.classList.toggle('active', swatch.getAttribute('onclick')?.includes(color));
     });
 };
 
-window.updateStepperUI = function() {
+window.updateStepperUI = function () {
     // Toggle active step panel
     for (let i = 1; i <= totalSteps; i++) {
         const stepEl = document.getElementById(`step${i}`);
@@ -94,17 +94,17 @@ window.updateStepperUI = function() {
     if (fill) fill.style.width = `${((currentStep - 1) / (totalSteps - 1)) * 100}%`;
 };
 
-window.nextStep = function() {
-    if (currentStep < totalSteps) { 
-        currentStep++; 
-        window.updateStepperUI(); 
+window.nextStep = function () {
+    if (currentStep < totalSteps) {
+        currentStep++;
+        window.updateStepperUI();
     }
 };
 
-window.prevStep = function() {
-    if (currentStep > 1) { 
-        currentStep--; 
-        window.updateStepperUI(); 
+window.prevStep = function () {
+    if (currentStep > 1) {
+        currentStep--;
+        window.updateStepperUI();
     }
 };
 
@@ -128,7 +128,7 @@ function showToast(message, type = "info") {
     }
     const toast = document.createElement("div");
     toast.className = `toast ${type}`;
-    
+
     let icon = "fa-info-circle";
     if (type === "warning") icon = "fa-exclamation-triangle";
     else if (type === "error") icon = "fa-times-circle";
@@ -136,11 +136,11 @@ function showToast(message, type = "info") {
 
     toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
     container.appendChild(toast);
-    
+
     // Trigger transition
     toast.offsetHeight;
     toast.classList.add("show");
-    
+
     setTimeout(() => {
         toast.classList.remove("show");
         setTimeout(() => toast.remove(), 300);
@@ -170,10 +170,6 @@ async function executeWithLoadingState(buttonElement, actionCallback) {
         buttonElement.innerHTML = originalText;
     }
 }
-
-// =========================================
-// REAL AI CENTRALIZED BINDINGS
-// =========================================
 async function generateAiSummary() {
     const summaryInput = document.getElementById("summaryInput");
     if (!summaryInput) return;
@@ -203,9 +199,9 @@ async function generateAiSummary() {
         }
     });
 }
-
 async function generateAiSkills() {
     const skillsInput = document.getElementById("skillsInput");
+    const chipsContainer = document.getElementById("suggestedSkillChips");
     if (!skillsInput) return;
     const button = document.getElementById("aiSkillsBtn");
 
@@ -214,7 +210,7 @@ async function generateAiSkills() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                user_input: skillsInput.value,
+                user_input: skillsInput.value || "Project Manager",
                 section_type: "skills"
             })
         });
@@ -226,18 +222,43 @@ async function generateAiSkills() {
 
         const data = await response.json();
         const cleanSkills = data.text || data.summary || data.skills || "";
+
         if (cleanSkills) {
             skillsInput.value = cleanSkills;
             pm_resume_data.skills = cleanSkills.split(",").map(s => s.trim()).filter(s => s !== "");
             renderPreview();
-            showToast("Skills updated via Python Backend!", "success");
+
+            if (chipsContainer) {
+                chipsContainer.innerHTML = "";
+                pm_resume_data.skills.forEach(skillText => {
+                    const chip = document.createElement("span");
+                    chip.className = "skill-chip";
+                    chip.setAttribute("data-skill", skillText);
+                    chip.innerText = skillText;
+
+                    chip.addEventListener("click", function () {
+                        const currentVal = skillsInput.value.trim();
+                        const list = currentVal ? currentVal.split(",").map(s => s.trim()) : [];
+                        if (!list.map(s => s.toLowerCase()).includes(skillText.toLowerCase())) {
+                            list.push(skillText);
+                            skillsInput.value = list.join(", ");
+                            pm_resume_data.skills = list;
+                            renderPreview();
+                            showToast(`Added skill: ${skillText}`, "success");
+                        }
+                    });
+                    chipsContainer.appendChild(chip);
+                });
+            }
+
+            showToast("Skills generated successfully!", "success");
         } else {
             showToast("No skills returned by backend.", "warning");
         }
     });
 }
 
-window.generateAiExperienceForCard = async function(id) {
+window.generateAiExperienceForCard = async function (id) {
     const exp = pm_resume_data.experience.find(e => e.id === id);
     if (!exp) return;
     const textarea = document.getElementById(`exp-desc-${id}`);
@@ -346,7 +367,7 @@ function renderExperienceCards() {
                 <label>Experience Bullets (One per line)</label>
                 <div class="textarea-ai-wrapper">
                     <textarea id="exp-desc-${idVal}" placeholder="Describe your achievements..." oninput="updateExperience('${idVal}', 'bullets', this.value)">${bulletsVal}</textarea>
-                    <button type="button" id="ai-btn-${idVal}" class="btn-ai-action" onclick="generateAiExperienceForCard('${idVal}')">✨ Generate with AI</button>
+                    <button type="button" id="ai-btn-${idVal}" class="btn-ai-action" onclick="generateAiExperienceForCard('${idVal}')">✨ Ai generated Bullet Points</button>
                 </div>
             </div>
         `;
@@ -482,7 +503,7 @@ function renderPreview() {
         pm_resume_data.experience.forEach(exp => {
             const jobItem = document.createElement("div");
             jobItem.className = "job-item";
-            
+
             let bulletsHtml = "";
             if (exp.bullets) {
                 exp.bullets.split("\n").forEach(b => {
@@ -595,7 +616,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Dynamic Font Selector Handler
     const fontSelector = document.getElementById("fontSelector");
     if (fontSelector) {
-        fontSelector.addEventListener("change", function() {
+        fontSelector.addEventListener("change", function () {
             const font = this.value;
             const targetCanvas = document.getElementById("resume-pdf-target");
             if (targetCanvas) {
@@ -618,11 +639,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Skill chips triggers
     document.querySelectorAll(".skill-chip").forEach(chip => {
-        chip.addEventListener("click", function() {
+        chip.addEventListener("click", function () {
             const skillName = this.getAttribute("data-skill");
             const skillsVal = skillsInput.value.trim();
             const list = skillsVal ? skillsVal.split(",").map(s => s.trim()) : [];
-            
+
             if (!list.map(s => s.toLowerCase()).includes(skillName.toLowerCase())) {
                 list.push(skillName);
                 skillsInput.value = list.join(", ");
