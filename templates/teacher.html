@@ -1260,7 +1260,7 @@
 
             try {
                 // Calls backend endpoint specifically mapped for summaries
-                const res = await fetch(`https://gpt-resume-2smw.onrender.com/api/generate-summary`, {
+                const res = await fetch(`${(window.location.hostname && window.location.hostname.includes('onrender.com')) ? 'https://gpt-resume-2smw.onrender.com' : 'http://127.0.0.1:8000'}/api/generate-summary`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1298,7 +1298,7 @@
             btn.innerHTML = `<i class=\"fa-solid fa-spinner fa-spin\"></i> Generating...`;
             try {
                 const host = window.location.hostname || "127.0.0.1";
-                const res = await fetch(`https://gpt-resume-2smw.onrender.com/api/generate-section`, {
+                const res = await fetch(`${(window.location.hostname && window.location.hostname.includes('onrender.com')) ? 'https://gpt-resume-2smw.onrender.com' : 'http://127.0.0.1:8000'}/api/generate-section`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({

@@ -1146,7 +1146,7 @@
 
             const host = window.location.hostname || "127.0.0.1";
             try {
-                const res = await fetch(`https://gpt-resume-2smw.onrender.com/api/generate-summary`, {
+                const res = await fetch(`${(window.location.hostname && window.location.hostname.includes('onrender.com')) ? 'https://gpt-resume-2smw.onrender.com' : 'http://127.0.0.1:8000'}/api/generate-summary`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1168,7 +1168,7 @@
                     alert("Failed to generate summary from backend server.");
                 }
             } catch (err) {
-                alert("API Connection Error: Ensure FastAPI server is running on https://gpt-resume-2smw.onrender.com");
+                alert("API Connection Error: Ensure FastAPI server is running on ${(window.location.hostname && window.location.hostname.includes('onrender.com')) ? 'https://gpt-resume-2smw.onrender.com' : 'http://127.0.0.1:8000'}");
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = origText;
@@ -1188,7 +1188,7 @@
 
             const host = window.location.hostname || "127.0.0.1";
             try {
-                const res = await fetch(`https://gpt-resume-2smw.onrender.com/api/generate-section`, {
+                const res = await fetch(`${(window.location.hostname && window.location.hostname.includes('onrender.com')) ? 'https://gpt-resume-2smw.onrender.com' : 'http://127.0.0.1:8000'}/api/generate-section`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1233,7 +1233,7 @@
                     alert("Failed to generate skills from backend server.");
                 }
             } catch (err) {
-                alert("API Connection Error: Ensure FastAPI server is running on https://gpt-resume-2smw.onrender.com");
+                alert("API Connection Error: Ensure FastAPI server is running on ${(window.location.hostname && window.location.hostname.includes('onrender.com')) ? 'https://gpt-resume-2smw.onrender.com' : 'http://127.0.0.1:8000'}");
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = origText;

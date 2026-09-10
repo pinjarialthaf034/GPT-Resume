@@ -1,7 +1,12 @@
+import os
+import sys
 import httpx
 import json
 
-BASE_URL = "https://gpt-resume-2smw.onrender.com"
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+
+BASE_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
 
 def test_generate_summary():
     url = f"{BASE_URL}/api/generate-summary"

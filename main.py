@@ -22,12 +22,25 @@ def get_groq_api_key() -> str:
     raw_key = os.getenv("GROQ_API_KEY", "")
     return raw_key.strip().strip('"').strip("'")
 
+# Centralized AI Model Configuration
+DEFAULT_AI_MODEL = "qwen/qwen3.8-27b"
+
+def get_ai_model() -> str:
+    raw_model = os.getenv("GROQ_MODEL", DEFAULT_AI_MODEL)
+    clean_model = raw_model.strip().strip('"').strip("'")
+    return clean_model if clean_model else DEFAULT_AI_MODEL
+
+AI_MODEL = get_ai_model()
+GROQ_API_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions"
+
 # Startup check to verify backend loading
 groq_key = get_groq_api_key()
 if groq_key:
     print(f"✅ [SUCCESS] Loaded GROQ_API_KEY: {groq_key[:7]}...{groq_key[-4:]}", flush=True)
 else:
     print("❌ [ERROR] GROQ_API_KEY is NOT found or empty in .env!", flush=True)
+
+print(f"🤖 [CONFIG] Active AI Model: {AI_MODEL}", flush=True)
 
 app = FastAPI(title="AI Resume Builder Backend")
 
@@ -75,6 +88,114 @@ def is_pure_greeting_or_chatter(text: str) -> bool:
             
     return False
 
+# Centralized Groq API call helper
+async def call_groq_chat(messages: list, temperature: float = 0.5, max_tokens: int = 400) -> str:
+    api_key = get_groq_api_key()
+    if not api_key:
+        raise HTTPException(status_code=500, detail="GROQ_API_KEY is not configured on backend.")
+
+    current_model = get_ai_model()
+    payload = {
+        "model": current_model,
+        "messages": messages,
+        "temperature": temperature,
+        "max_tokens": max_tokens
+    }
+
+    # Configure reasoning_effort="none" for direct content generation when supported (e.g. qwen)
+    if "qwen" in current_model.lower():
+        payload["reasoning_effort"] = "none"
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}",
+        "User-Agent": "Mozilla/5.0"
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(GROQ_API_ENDPOINT, json=payload, headers=headers)
+            
+            # Fallback if a specific model variant rejects reasoning_effort
+            if response.status_code == 400 and "reasoning_effort" in response.text and "reasoning_effort" in payload:
+                del payload["reasoning_effort"]
+                response = await client.post(GROQ_API_ENDPOINT, json=payload, headers=headers)
+
+            if response.status_code != 200:
+                err_message = "AI service encountered an unexpected error."
+                status_to_return = response.status_code
+                try:
+                    err_json = response.json().get("error", {})
+                    err_code = err_json.get("code", "")
+                    raw_msg = str(err_json.get("message", ""))
+                    
+                    if (
+                        err_code in ["model_not_found", "model_decommissioned"]
+                        or response.status_code == 404
+                        or "does not exist" in raw_msg.lower()
+                        or "decommissioned" in raw_msg.lower()
+                    ):
+                        raise HTTPException(
+                            status_code=503,
+                            detail="AI model is currently unavailable. Please check the AI configuration."
+                        )
+                    elif err_code == "invalid_api_key" or response.status_code == 401:
+                        raise HTTPException(
+                            status_code=401,
+                            detail="Invalid Groq API key configured on backend."
+                        )
+                    elif response.status_code == 429 or err_code == "rate_limit_exceeded":
+                        raise HTTPException(
+                            status_code=429,
+                            detail="AI service rate limit reached. Please try again in a few moments."
+                        )
+                    elif response.status_code >= 500:
+                        raise HTTPException(
+                            status_code=502,
+                            detail="AI service is temporarily unavailable. Please try again in a few moments."
+                        )
+                    elif raw_msg:
+                        err_message = f"AI service error: {raw_msg}"
+                except HTTPException:
+                    raise
+                except Exception:
+                    if response.status_code >= 500:
+                        raise HTTPException(
+                            status_code=502,
+                            detail="AI service is temporarily unavailable. Please try again in a few moments."
+                        )
+
+                raise HTTPException(status_code=status_to_return, detail=err_message)
+
+            try:
+                res_json = response.json()
+            except Exception:
+                raise HTTPException(status_code=502, detail="AI service returned an unreadable response format.")
+
+            choices = res_json.get("choices", [])
+            if not choices or not isinstance(choices, list):
+                raise HTTPException(status_code=502, detail="AI service returned an unexpected response format.")
+            
+            message_obj = choices[0].get("message", {})
+            content = message_obj.get("content") or ""
+            
+            # Strip any internal thought or reasoning tags
+            cleaned_content = re.sub(r'<think>.*?</think>', '', content, flags=re.DOTALL).strip()
+            
+            if not cleaned_content:
+                raise HTTPException(status_code=502, detail="AI service returned an empty response. Please try again.")
+
+            return cleaned_content
+
+    except HTTPException:
+        raise
+    except httpx.TimeoutException:
+        raise HTTPException(status_code=504, detail="AI service request timed out. Please try again.")
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=503, detail="Unable to connect to the AI service. Please try again.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"AI service connection failed: {str(e)}")
+
 @app.post("/api/generate-summary")
 async def generate_summary(req: SummaryRequest):
     user_val = req.user_input.strip() if req.user_input else ""
@@ -84,11 +205,6 @@ async def generate_summary(req: SummaryRequest):
             "summary": "Please enter your target role, skills, or professional experience to generate a resume summary."
         }
 
-    GROQ_API_KEY = get_groq_api_key()
-    if not GROQ_API_KEY:
-        raise HTTPException(status_code=500, detail="GROQ_API_KEY is not configured on backend.")
-
-    endpoint = "https://api.groq.com/openai/v1/chat/completions"
     system_rules = (
         "You are a World-Class Executive Resume Writer.\n"
         "Transform the raw text notes provided into a compelling, 2-3 sentence executive resume summary.\n"
@@ -98,49 +214,20 @@ async def generate_summary(req: SummaryRequest):
         "3. Keep tone objective, metric-oriented, and professional."
     )
 
-    payload = {
-        "model": "llama-3.3-70b-versatile",
-        "messages": [
-            {"role": "system", "content": system_rules},
-            {"role": "user", "content": f"Candidate Notes: {user_val}"}
-        ],
-        "temperature": 0.5,
-        "max_tokens": 250
-    }
+    messages = [
+        {"role": "system", "content": system_rules},
+        {"role": "user", "content": f"Candidate Notes: {user_val}"}
+    ]
 
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {GROQ_API_KEY}",
-        "User-Agent": "Mozilla/5.0"
-    }
-
-    try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.post(endpoint, json=payload, headers=headers)
-            if response.status_code != 200:
-                raise HTTPException(
-                    status_code=response.status_code,
-                    detail=f"Groq API HTTP error: {response.text}"
-                )
-            
-            res_json = response.json()
-            raw_text = res_json["choices"][0]["message"]["content"]
-            cleaned = re.sub(r'^(Here\'s|Here is|Output|Summary)[^:]*:\s*', '', raw_text, flags=re.IGNORECASE).strip('"\' \n')
-            return {"status": "success", "summary": cleaned}
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Groq API call failed: {str(e)}")
+    raw_text = await call_groq_chat(messages, temperature=0.5, max_tokens=300)
+    cleaned = re.sub(r'^(Here\'s|Here is|Output|Summary)[^:]*:\s*', '', raw_text, flags=re.IGNORECASE).strip('"\' \n')
+    return {"status": "success", "summary": cleaned}
 
 @app.post("/api/generate-section")
 async def generate_section(req: SectionRequest):
     user_val = req.user_input.strip() if req.user_input else ""
     section_type = req.section_type.lower().strip()
     job_title = req.job_title.strip() if req.job_title else "Professional"
-
-    GROQ_API_KEY = get_groq_api_key()
-    if not GROQ_API_KEY:
-        raise HTTPException(status_code=500, detail="GROQ_API_KEY is not configured on backend.")
 
     if section_type == "experience_bullets":
         if not user_val or is_pure_greeting_or_chatter(user_val):
@@ -163,7 +250,7 @@ async def generate_section(req: SectionRequest):
             "5. Keep tone objective, metric-oriented, and professional."
         )
         prompt_content = f"Enhance raw experience details: '{user_val}'"
-        max_tokens = 300
+        max_tokens = 450
         temp = 0.5
 
     elif section_type == "skills":
@@ -184,68 +271,40 @@ async def generate_section(req: SectionRequest):
             "3. Do NOT include bullet points, numbering, headers, quotes, explanations, or intro/outro chatter."
         )
         prompt_content = f"Generate 8 matching skill chips for: {context_prompt}"
-        max_tokens = 150
+        max_tokens = 200
         temp = 0.5
     else:
         raise HTTPException(status_code=400, detail=f"Unsupported section_type: {section_type}")
 
-    endpoint = "https://api.groq.com/openai/v1/chat/completions"
+    messages = [
+        {"role": "system", "content": system_rules},
+        {"role": "user", "content": prompt_content}
+    ]
 
-    payload = {
-        "model": "llama-3.3-70b-versatile",
-        "messages": [
-            {"role": "system", "content": system_rules},
-            {"role": "user", "content": prompt_content}
-        ],
-        "temperature": temp,
-        "max_tokens": max_tokens
+    raw_text = await call_groq_chat(messages, temperature=temp, max_tokens=max_tokens)
+    
+    cleaned = re.sub(r'\(.*?\)', '', raw_text)
+    cleaned = re.sub(r'^(Here\'s|Here is|Output|Skills|Suggested|Sure|Summary)[^:]*:\s*', '', cleaned, flags=re.IGNORECASE)
+    cleaned = cleaned.strip('"\'').strip()
+    
+    if section_type == "experience_bullets":
+        lines = cleaned.split('\n')
+        cleaned_lines = []
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            line_cleaned = re.sub(r'^[-•\*#\d\.\s]+', '', line).strip()
+            if line_cleaned:
+                cleaned_lines.append(f"• {line_cleaned}")
+        cleaned = "\n".join(cleaned_lines)
+    
+    return {
+        "status": "success",
+        "text": cleaned,
+        "summary": cleaned,
+        "skills": cleaned
     }
-
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {GROQ_API_KEY}",
-        "User-Agent": "Mozilla/5.0"
-    }
-
-    try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.post(endpoint, json=payload, headers=headers)
-            if response.status_code != 200:
-                raise HTTPException(
-                    status_code=response.status_code,
-                    detail=f"Groq API HTTP error: {response.text}"
-                )
-            
-            res_json = response.json()
-            raw_text = res_json["choices"][0]["message"]["content"]
-            
-            cleaned = re.sub(r'\(.*?\)', '', raw_text)
-            cleaned = re.sub(r'^(Here\'s|Here is|Output|Skills|Suggested|Sure|Summary)[^:]*:\s*', '', cleaned, flags=re.IGNORECASE)
-            cleaned = cleaned.strip('"\'').strip()
-            
-            if section_type == "experience_bullets":
-                lines = cleaned.split('\n')
-                cleaned_lines = []
-                for line in lines:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    line_cleaned = re.sub(r'^[-•\*#\d\.\s]+', '', line).strip()
-                    if line_cleaned:
-                        cleaned_lines.append(f"• {line_cleaned}")
-                cleaned = "\n".join(cleaned_lines)
-            
-            return {
-                "status": "success",
-                "text": cleaned,
-                "summary": cleaned,
-                "skills": cleaned
-            }
-            
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Groq API call failed: {str(e)}")
 
 
 if __name__ == "__main__":

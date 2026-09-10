@@ -391,7 +391,7 @@ async function generateSummaryWithAI() {
 
     await executeWithLoadingState(button, async () => {
         try {
-            const response = await fetch(`https://gpt-resume-2smw.onrender.com/api/generate-summary`, {
+            const response = await fetch(`${(window.location.hostname && window.location.hostname.includes('onrender.com')) ? 'https://gpt-resume-2smw.onrender.com' : 'http://127.0.0.1:8000'}/api/generate-summary`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -442,7 +442,7 @@ async function generateAISkills() {
         }
 
         try {
-            const response = await fetch(`https://gpt-resume-2smw.onrender.com/api/generate-section`, {
+            const response = await fetch(`${(window.location.hostname && window.location.hostname.includes('onrender.com')) ? 'https://gpt-resume-2smw.onrender.com' : 'http://127.0.0.1:8000'}/api/generate-section`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -515,7 +515,7 @@ window.aiSuggestBullets = async function (id) {
 
     await executeWithLoadingState(button, async () => {
         try {
-            const response = await fetch(`https://gpt-resume-2smw.onrender.com/api/generate-section`, {
+            const response = await fetch(`${(window.location.hostname && window.location.hostname.includes('onrender.com')) ? 'https://gpt-resume-2smw.onrender.com' : 'http://127.0.0.1:8000'}/api/generate-section`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
