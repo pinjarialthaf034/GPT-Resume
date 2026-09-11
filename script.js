@@ -814,7 +814,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!isLoggedIn) {
                 showDeniedModal("Before Accessing the AI Career Builder and Guidance You need to signup/signin first");
             } else {
-                window.location.href = "https://gpt-career.netlify.app/profile";
+                window.location.href = "builder.html";
             }
         });
     }
