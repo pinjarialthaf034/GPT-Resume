@@ -1133,7 +1133,7 @@
             btn.disabled = true;
 
             try {
-                const res = await fetch(`${(window.location.hostname && window.location.hostname.includes('onrender.com')) ? 'https://gpt-resume-2smw.onrender.com' : 'http://127.0.0.1:8000'}/api/generate-summary`, {
+                const res = await fetch(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://127.0.0.1:8000' : 'https://gpt-resume-2smw.onrender.com'}/api/generate-summary`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1148,7 +1148,7 @@
                 }
             } catch (err) {
                 console.error("AI Error:", err);
-                alert("API Connection Error: Ensure FastAPI server is running on ${(window.location.hostname && window.location.hostname.includes('onrender.com')) ? 'https://gpt-resume-2smw.onrender.com' : 'http://127.0.0.1:8000'}");
+                alert("API Connection Error: Ensure FastAPI server is running on ${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://127.0.0.1:8000' : 'https://gpt-resume-2smw.onrender.com'}");
             } finally {
                 btn.innerHTML = orig;
                 btn.disabled = false;
@@ -1166,7 +1166,7 @@
             btn.disabled = true;
 
             try {
-                const res = await fetch(`${(window.location.hostname && window.location.hostname.includes('onrender.com')) ? 'https://gpt-resume-2smw.onrender.com' : 'http://127.0.0.1:8000'}/api/generate-section`, {
+                const res = await fetch(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://127.0.0.1:8000' : 'https://gpt-resume-2smw.onrender.com'}/api/generate-section`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1210,7 +1210,7 @@
                 }
             } catch (err) {
                 console.error("AI Error:", err);
-                alert("API Connection Error: Ensure FastAPI server is running on ${(window.location.hostname && window.location.hostname.includes('onrender.com')) ? 'https://gpt-resume-2smw.onrender.com' : 'http://127.0.0.1:8000'}");
+                alert("API Connection Error: Ensure FastAPI server is running on ${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://127.0.0.1:8000' : 'https://gpt-resume-2smw.onrender.com'}");
             } finally {
                 btn.innerHTML = orig;
                 btn.disabled = false;
@@ -1224,7 +1224,7 @@
             btn.disabled = true;
 
             try {
-                const res = await fetch(`${(window.location.hostname && window.location.hostname.includes('onrender.com')) ? 'https://gpt-resume-2smw.onrender.com' : 'http://127.0.0.1:8000'}/api/generate-section`, {
+                const res = await fetch(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://127.0.0.1:8000' : 'https://gpt-resume-2smw.onrender.com'}/api/generate-section`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1240,7 +1240,7 @@
                 }
             } catch (err) {
                 console.error("AI Error:", err);
-                alert("API Connection Error: Ensure FastAPI server is running on ${(window.location.hostname && window.location.hostname.includes('onrender.com')) ? 'https://gpt-resume-2smw.onrender.com' : 'http://127.0.0.1:8000'}");
+                alert("API Connection Error: Ensure FastAPI server is running on ${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://127.0.0.1:8000' : 'https://gpt-resume-2smw.onrender.com'}");
             } finally {
                 btn.innerHTML = orig;
                 btn.disabled = false;

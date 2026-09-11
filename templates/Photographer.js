@@ -848,7 +848,7 @@ async function generateAISkills() {
         const payloadInput = userTypedSkills !== "" ? userTypedSkills : jobTitle;
 
         try {
-            const response = await fetch(`${(window.location.hostname && window.location.hostname.includes('onrender.com')) ? 'https://gpt-resume-2smw.onrender.com' : 'http://127.0.0.1:8000'}/api/generate-section`, {
+            const response = await fetch(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://127.0.0.1:8000' : 'https://gpt-resume-2smw.onrender.com'}/api/generate-section`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -915,7 +915,7 @@ async function handleAISummary() {
 
     await executeWithLoadingState(button, async () => {
         try {
-            const response = await fetch(`${(window.location.hostname && window.location.hostname.includes('onrender.com')) ? 'https://gpt-resume-2smw.onrender.com' : 'http://127.0.0.1:8000'}/api/generate-summary`, {
+            const response = await fetch(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://127.0.0.1:8000' : 'https://gpt-resume-2smw.onrender.com'}/api/generate-summary`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -961,7 +961,7 @@ async function handleAIAssistant() {
 
     await executeWithLoadingState(button, async () => {
         try {
-            const response = await fetch(`${(window.location.hostname && window.location.hostname.includes('onrender.com')) ? 'https://gpt-resume-2smw.onrender.com' : 'http://127.0.0.1:8000'}/api/generate-section`, {
+            const response = await fetch(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://127.0.0.1:8000' : 'https://gpt-resume-2smw.onrender.com'}/api/generate-section`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -1010,7 +1010,7 @@ window.handleAIExperience = async function (id) {
             const jobTitle = exp.title || photographer_resume_data.role || "Photographer";
 
             try {
-                const response = await fetch(`${(window.location.hostname && window.location.hostname.includes('onrender.com')) ? 'https://gpt-resume-2smw.onrender.com' : 'http://127.0.0.1:8000'}/api/generate-section`, {
+                const response = await fetch(`${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://127.0.0.1:8000' : 'https://gpt-resume-2smw.onrender.com'}/api/generate-section`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
