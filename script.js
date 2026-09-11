@@ -808,12 +808,11 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-
     // Resume Builder Router Link
     if (goToBuilder) {
         goToBuilder.addEventListener("click", () => {
             if (!isLoggedIn) {
-                showDeniedModal("AI Resume Builder ni access cheyyalante First Login kani Signup kani avvali.");
+                showDeniedModal("Before Accessing the AI Career Builder and Guidance You need to signup/signin first");
             } else {
                 window.location.href = "builder.html";
             }
@@ -824,9 +823,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (goToGuidance) {
         goToGuidance.addEventListener("click", () => {
             if (!isLoggedIn) {
-                showDeniedModal("AI Career Guidance system ni access cheyyalante First Login kani Signup kani avvali.");
+                showDeniedModal("Before Accessing the AI Career Builder and Guidance You need to signup/signin first");
             } else {
-                window.location.href = "guidance.html";
+                window.location.href = "https://gpt-career.netlify.app/profile";
             }
         });
     }
