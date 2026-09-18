@@ -1,0 +1,41 @@
+# CareerCompass AI — Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# --- Web Framework ---
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+
+# --- Pydantic ---
+pydantic==2.8.2
+pydantic-settings==2.4.0
+email-validator>=2.0.0
+
+# --- Supabase ---
+supabase==2.7.2
+
+# --- Google Gemini ---
+google-genai>=1.0.0
+
+# --- File Parsing (Resume) ---
+pypdf==4.3.1
+python-docx==1.1.2
+python-multipart==0.0.9
+
+# --- Async & HTTP ---
+httpx==0.27.2
+anyio==4.4.0
+
+# --- Logging ---
+structlog==24.4.0
+
+
+# --- Rate Limiting ---
+slowapi==0.1.9
+
+# --- Utilities ---
+python-dotenv==1.0.1
+
+# --- Testing ---
+pytest==8.3.2
+pytest-asyncio==0.23.8
+httpx==0.27.2

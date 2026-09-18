@@ -1,0 +1,1296 @@
+// ==========================================
+// TEMPLATE METADATA REGISTRATION
+// ==========================================
+const templateMetadata = {
+    id: "photographer",
+    name: "Photo Grapher",
+    hasPhoto: true,
+    sections: ["contact", "summary", "education", "assistant", "skills", "experience"]
+};
+
+// ==========================================
+// RESUME STATE & DEFAULT DATA DEFINITION
+// ==========================================
+let photographer_resume_data = {
+    name: "",
+    role: "",
+    phone: "",
+    email: "",
+    linkedin: "",
+    address: "",
+    summary: "",
+    assistant: "",
+    experience: [],
+    education: [],
+    skills: [],
+    accentTheme: "deep-blue",
+    fontFace: "Segoe UI"
+};
+
+// ==========================================
+// CORE UI LOADING STATE HELPER
+// ==========================================
+async function executeWithLoadingState(buttonElement, actionCallback) {
+    if (!buttonElement) {
+        await actionCallback();
+        return;
+    }
+    const originalText = buttonElement.innerHTML;
+    try {
+        buttonElement.disabled = true;
+        buttonElement.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+        await actionCallback();
+    } catch (err) {
+        console.error("Error in executeWithLoadingState:", err);
+        showToast(`AI Generation failed: ${err.message}`, "error");
+    } finally {
+        buttonElement.disabled = false;
+        buttonElement.innerHTML = originalText;
+    }
+}
+
+// ==========================================
+// INITIAL EVENT HANDLERS BINDINGS
+// ==========================================
+// Safe placeholder initialization (does not pollute user state or dispatch events)
+function populateDefaultValuesIfEmpty() {
+    // Left benign to prevent demo data from contaminating user drafts
+}
+
+function prefillFormInputs() {
+    // Left benign: form fields use HTML placeholders for guidance without triggering autosave
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. Text Inputs Binding (Safe check + dual keyup/input listeners wrapped in try-catch)
+    const bindHelper = (id, prop) => {
+        try {
+            const el = document.getElementById(id);
+            if (el) {
+                const handler = (e) => {
+                    try {
+                        photographer_resume_data[prop] = e.target.value;
+                        debouncedRenderPreview();
+                        triggerAutosave();
+                    } catch (err) {
+                        console.error(`Error in event listener handler for ${id}:`, err);
+                    }
+                };
+                el.addEventListener("input", handler);
+                el.addEventListener("keyup", handler);
+            }
+        } catch (err) {
+            console.error(`Error setting up event listener for ${id}:`, err);
+        }
+    };
+
+    bindHelper("nameInput", "name");
+    bindHelper("roleInput", "role");
+    bindHelper("phoneInput", "phone");
+    bindHelper("emailInput", "email");
+    bindHelper("linkedinInput", "linkedin");
+    bindHelper("addressInput", "address");
+    bindHelper("summaryInput", "summary");
+    bindHelper("assistantInput", "assistant");
+
+    try {
+        const skillsInput = document.getElementById("skillsInput");
+        if (skillsInput) {
+            const handler = (e) => {
+                try {
+                    photographer_resume_data.skills = e.target.value.split(",").map(s => s.trim()).filter(s => s !== "");
+                    debouncedRenderPreview();
+                    triggerAutosave();
+                } catch (err) {
+                    console.error("Error in skillsInput handler:", err);
+                }
+            };
+            skillsInput.addEventListener("input", handler);
+            skillsInput.addEventListener("keyup", handler);
+        }
+    } catch (err) {
+        console.error("Error setting up skillsInput listener:", err);
+    }
+
+    // 2. Photo Upload Binding
+    try {
+        const photoInput = document.getElementById("photoInput");
+        if (photoInput) {
+            photoInput.addEventListener("change", (e) => {
+                try {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const imageURL = URL.createObjectURL(file);
+                        const previewPhoto = document.getElementById("previewPhoto");
+                        if (previewPhoto) {
+                            previewPhoto.onload = () => {
+                                URL.revokeObjectURL(imageURL);
+                            };
+                            previewPhoto.src = imageURL;
+                        }
+                    }
+                } catch (err) {
+                    console.error("Error in photoInput change handler:", err);
+                }
+            });
+        }
+    } catch (err) {
+        console.error("Error setting up photoInput listener:", err);
+    }
+
+    // 3. Repeatable Fields Buttons Bindings
+    try {
+        const addExperienceBtn = document.getElementById("addExperienceBtn");
+        if (addExperienceBtn) {
+            addExperienceBtn.addEventListener("click", () => {
+                try {
+                    photographer_resume_data.experience.push({
+                        id: generateSafeId("exp"),
+                        title: "",
+                        company: "",
+                        dates: "",
+                        desc: ""
+                    });
+                    renderExperienceCards();
+                    renderPreview();
+                    triggerAutosave();
+                } catch (err) {
+                    console.error("Error adding experience:", err);
+                }
+            });
+        }
+    } catch (err) {
+        console.error("Error setting up addExperienceBtn listener:", err);
+    }
+
+    try {
+        const addEducationBtn = document.getElementById("addEducationBtn");
+        if (addEducationBtn) {
+            addEducationBtn.addEventListener("click", () => {
+                try {
+                    photographer_resume_data.education.push({
+                        id: generateSafeId("edu"),
+                        degree: "",
+                        institution: "",
+                        dates: "",
+                        desc: ""
+                    });
+                    renderEducationCards();
+                    renderPreview();
+                    triggerAutosave();
+                } catch (err) {
+                    console.error("Error adding education:", err);
+                }
+            });
+        }
+    } catch (err) {
+        console.error("Error setting up addEducationBtn listener:", err);
+    }
+
+    // 4. Customizer Theme Swatches binding
+    try {
+        const swatches = document.querySelectorAll(".color-swatch");
+        swatches.forEach(swatch => {
+            swatch.addEventListener("click", () => {
+                try {
+                    swatches.forEach(s => s.classList.remove("active"));
+                    swatch.classList.add("active");
+                    const color = swatch.getAttribute("data-color");
+                    applyHeaderColor(color);
+                } catch (err) {
+                    console.error("Error in color swatch click handler:", err);
+                }
+            });
+        });
+    } catch (err) {
+        console.error("Error setting up swatches listeners:", err);
+    }
+
+    // 5. Customizer Font Switcher binding
+    try {
+        const fontSelector = document.getElementById("fontSelector");
+        if (fontSelector) {
+            fontSelector.addEventListener("change", (e) => {
+                try {
+                    const font = e.target.value;
+                    applyFont(font);
+                } catch (err) {
+                    console.error("Error in fontSelector change handler:", err);
+                }
+            });
+        }
+    } catch (err) {
+        console.error("Error setting up fontSelector listener:", err);
+    }
+
+    // 6. Stepper Circle Clicks for Direct Navigation
+    try {
+        const stepNodes = document.querySelectorAll(".step-node");
+        stepNodes.forEach(node => {
+            node.addEventListener("click", () => {
+                try {
+                    const stepNum = parseInt(node.getAttribute("data-step"));
+                    jumpToStep(stepNum);
+                } catch (err) {
+                    console.error("Error in stepNode click handler:", err);
+                }
+            });
+        });
+    } catch (err) {
+        console.error("Error setting up stepNodes listeners:", err);
+    }
+
+    // 7. AI Tools Bindings
+    try {
+        const aiGenerateSummaryBtn = document.getElementById("aiGenerateSummaryBtn");
+        if (aiGenerateSummaryBtn) {
+            aiGenerateSummaryBtn.addEventListener("click", handleAISummary);
+        }
+    } catch (err) {
+        console.error("Error setting up aiGenerateSummaryBtn listener:", err);
+    }
+
+    try {
+        const aiSuggestAssistantBulletsBtn = document.getElementById("aiSuggestAssistantBulletsBtn");
+        if (aiSuggestAssistantBulletsBtn) {
+            aiSuggestAssistantBulletsBtn.addEventListener("click", handleAIAssistant);
+        }
+    } catch (err) {
+        console.error("Error setting up aiSuggestAssistantBulletsBtn listener:", err);
+    }
+
+    // Clear hardcoded skill chips and set up dynamic AI suggest button
+    try {
+        const suggestedChipsContainer = document.getElementById("suggestedSkillChips");
+        if (suggestedChipsContainer) {
+            suggestedChipsContainer.innerHTML = `<p style="font-size: 0.85rem; opacity: 0.7; font-style: italic; margin: 5px 0;">Click the button below to generate customized skills for your profile.</p>`;
+        }
+    } catch (err) {
+        console.error("Error setting up suggested chips container:", err);
+    }
+
+    try {
+        const chipsWrapper = document.querySelector(".ai-chips-wrapper");
+        if (chipsWrapper) {
+            const suggestBtn = document.createElement("button");
+            suggestBtn.type = "button";
+            suggestBtn.id = "aiSuggestSkillsBtn";
+            suggestBtn.className = "btn-ai-action";
+            suggestBtn.style.marginTop = "10px";
+            suggestBtn.innerHTML = "✨ AI Generate Suggested Skills";
+            suggestBtn.addEventListener("click", window.generateAISkills);
+            chipsWrapper.appendChild(suggestBtn);
+        }
+    } catch (err) {
+        console.error("Error setting up suggestBtn wrapper:", err);
+    }
+
+    // Load drafts or clean initial state
+    loadSavedResume().then(() => {
+        try {
+            syncStateToForm();
+            renderExperienceCards();
+            renderEducationCards();
+            renderPreview();
+        } catch (err) {
+            console.error("Error during loadSavedResume follow-up sequence:", err);
+        }
+    }).catch(err => {
+        console.error("Error in loadSavedResume promise rejection:", err);
+    });
+
+    try {
+        updateStepperUI();
+    } catch (err) {
+        console.error("Error running updateStepperUI during load:", err);
+    }
+
+    // Force attach click event listener to EVERY button containing 'Continue', 'Next', or having navigation classes
+    try {
+        document.querySelectorAll('button').forEach(btn => {
+            const btnText = btn.textContent.trim().toLowerCase();
+            const hasNextClass = btn.classList.contains('next-btn') || btn.classList.contains('continue-btn') || btn.classList.contains('btn-next');
+            if (btnText.includes('continue') || btnText.includes('next') || hasNextClass) {
+                btn.type = 'button';
+                btn.removeAttribute('onclick');
+                btn.addEventListener('click', (e) => {
+                    try {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.nextStep();
+                    } catch (err) {
+                        console.error("Error in brute force next step click listener:", err);
+                    }
+                });
+            }
+
+            const hasBackClass = btn.classList.contains('back-btn') || btn.classList.contains('btn-back');
+            if (btnText.includes('back') || hasBackClass) {
+                btn.type = 'button';
+                btn.removeAttribute('onclick');
+                btn.addEventListener('click', (e) => {
+                    try {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.prevStep();
+                    } catch (err) {
+                        console.error("Error in brute force back click listener:", err);
+                    }
+                });
+            }
+        });
+    } catch (e) {
+        console.error("Error binding brute force button listeners:", e);
+    }
+});
+
+// ==========================================
+// SECURITY & DATA INTEGRITY HELPERS
+// ==========================================
+function escapeHTML(str) {
+    if (typeof str !== 'string') return str || '';
+    return str.replace(/[&<>'"]/g,
+        tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag] || tag)
+    );
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+    };
+}
+
+const debouncedRenderPreview = debounce(renderPreview, 150);
+
+function isValidEmail(email) {
+    if (!email) return true;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isValidPhone(phone) {
+    if (!phone) return true;
+    return /^\+?[0-9\s\-()]{7,20}$/.test(phone);
+}
+
+function isValidURL(url) {
+    if (!url) return true;
+    try {
+        const formatted = url.match(/^https?:\/\//) ? url : 'http://' + url;
+        new URL(formatted);
+        return true;
+    } catch (_) {
+        return false;
+    }
+}
+
+function generateSafeId(prefix) {
+    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+        return prefix + "-" + crypto.randomUUID();
+    }
+    return prefix + "-" + Math.random().toString(36).substr(2, 9);
+}
+
+// ==========================================
+// TOAST NOTIFICATIONS UTILITY
+// ==========================================
+function showToast(message, type = "info") {
+    const container = document.getElementById("toastContainer");
+    if (!container) return;
+
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+
+    let icon = "fa-info-circle";
+    if (type === "warning") icon = "fa-exclamation-triangle";
+    else if (type === "error") icon = "fa-times-circle";
+    else if (type === "success") icon = "fa-check-circle";
+
+    toast.innerHTML = `<i class="fa-solid ${escapeHTML(icon)}"></i> <span>${escapeHTML(message)}</span>`;
+    container.appendChild(toast);
+
+    // Trigger transition
+    toast.offsetHeight;
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => toast.remove(), 300);
+    }, 4500);
+}
+
+// ==========================================
+// DYNAMIC COMPONENT RENDER ENGINE
+// ==========================================
+function renderPreview() {
+    try {
+        // 1. Contact info with safe check
+        const previewName = document.getElementById("previewName");
+        if (previewName) previewName.textContent = photographer_resume_data.name || "Full Name";
+
+        const previewRole = document.getElementById("previewRole");
+        if (previewRole) previewRole.textContent = photographer_resume_data.role || "Job Role";
+
+        const previewPhone = document.getElementById("previewPhone");
+        if (previewPhone) previewPhone.textContent = photographer_resume_data.phone || "Phone";
+
+        const previewEmail = document.getElementById("previewEmail");
+        if (previewEmail) previewEmail.textContent = photographer_resume_data.email || "Email";
+
+        const previewLinkedin = document.getElementById("previewLinkedin");
+        if (previewLinkedin) previewLinkedin.textContent = photographer_resume_data.linkedin || "LinkedIn";
+
+        const previewAddress = document.getElementById("previewAddress");
+        if (previewAddress) previewAddress.textContent = photographer_resume_data.address || "Address";
+
+        // 2. Summary
+        const previewSummary = document.getElementById("previewSummary");
+        if (previewSummary) previewSummary.textContent = photographer_resume_data.summary || "Summary";
+
+        // 3. Assistant Highlights (Using DOM elements to prevent XSS)
+        const previewAssistant = document.getElementById("previewAssistant");
+        if (previewAssistant) {
+            previewAssistant.innerHTML = "";
+            if (photographer_resume_data.assistant) {
+                const lines = photographer_resume_data.assistant.split("\n").filter(l => l.trim() !== "");
+                const ul = document.createElement("ul");
+                lines.forEach(line => {
+                    const li = document.createElement("li");
+                    li.textContent = line.replace(/^[•\-\*]\s*/, '').trim();
+                    ul.appendChild(li);
+                });
+                previewAssistant.appendChild(ul);
+            } else {
+                previewAssistant.textContent = "Assistant details.";
+            }
+        }
+
+        // 4. Education (Dynamic list using textContent for security)
+        const eduPreview = document.getElementById("previewEducation");
+        if (eduPreview) {
+            eduPreview.innerHTML = "";
+            if (photographer_resume_data.education && photographer_resume_data.education.length > 0) {
+                photographer_resume_data.education.forEach(edu => {
+                    const item = document.createElement("div");
+                    item.className = "preview-item";
+
+                    const header = document.createElement("div");
+                    header.className = "preview-item-header";
+
+                    const titleSpan = document.createElement("span");
+                    titleSpan.className = "preview-item-title";
+                    titleSpan.textContent = edu.degree || "Degree / Certificate";
+
+                    const metaSpan = document.createElement("span");
+                    metaSpan.className = "preview-item-meta";
+                    metaSpan.textContent = edu.dates || "Dates";
+
+                    header.appendChild(titleSpan);
+                    header.appendChild(metaSpan);
+                    item.appendChild(header);
+
+                    const orgRow = document.createElement("div");
+                    orgRow.className = "preview-item-org-row";
+
+                    const orgSpan = document.createElement("span");
+                    orgSpan.className = "preview-item-org";
+                    orgSpan.textContent = edu.institution || "Institution / School";
+
+                    orgRow.appendChild(orgSpan);
+                    item.appendChild(orgRow);
+
+                    if (edu.desc) {
+                        const descDiv = document.createElement("div");
+                        descDiv.className = "preview-item-desc";
+                        descDiv.textContent = edu.desc;
+                        item.appendChild(descDiv);
+                    }
+
+                    eduPreview.appendChild(item);
+                });
+            } else {
+                eduPreview.textContent = "Education details.";
+            }
+        }
+
+        // 5. Skills
+        const skillsList = document.getElementById("previewSkills");
+        if (skillsList) {
+            skillsList.innerHTML = "";
+            if (photographer_resume_data.skills && photographer_resume_data.skills.length > 0) {
+                photographer_resume_data.skills.forEach(skill => {
+                    if (skill.trim() !== "") {
+                        const li = document.createElement("li");
+                        li.textContent = "• " + skill.trim();
+                        skillsList.appendChild(li);
+                    }
+                });
+            }
+        }
+
+        // 6. Experience (Dynamic list using DOM elements for safety)
+        const expPreview = document.getElementById("previewExperience");
+        if (expPreview) {
+            expPreview.innerHTML = "";
+            if (photographer_resume_data.experience && photographer_resume_data.experience.length > 0) {
+                photographer_resume_data.experience.forEach(exp => {
+                    const item = document.createElement("div");
+                    item.className = "preview-item";
+
+                    const header = document.createElement("div");
+                    header.className = "preview-item-header";
+
+                    const titleSpan = document.createElement("span");
+                    titleSpan.className = "preview-item-title";
+                    titleSpan.textContent = exp.title || "Job Title";
+
+                    const metaSpan = document.createElement("span");
+                    metaSpan.className = "preview-item-meta";
+                    metaSpan.textContent = exp.dates || "Dates";
+
+                    header.appendChild(titleSpan);
+                    header.appendChild(metaSpan);
+                    item.appendChild(header);
+
+                    const orgRow = document.createElement("div");
+                    orgRow.className = "preview-item-org-row";
+
+                    const orgSpan = document.createElement("span");
+                    orgSpan.className = "preview-item-org";
+                    orgSpan.textContent = exp.company || "Company / Organization";
+
+                    orgRow.appendChild(orgSpan);
+                    item.appendChild(orgRow);
+
+                    if (exp.desc) {
+                        const descDiv = document.createElement("div");
+                        descDiv.className = "preview-item-desc";
+
+                        const lines = exp.desc.split("\n").filter(l => l.trim() !== "");
+                        const ul = document.createElement("ul");
+                        lines.forEach(line => {
+                            const li = document.createElement("li");
+                            li.textContent = line.replace(/^[•\-\*]\s*/, '').trim();
+                            ul.appendChild(li);
+                        });
+                        descDiv.appendChild(ul);
+                        item.appendChild(descDiv);
+                    }
+
+                    expPreview.appendChild(item);
+                });
+            } else {
+                expPreview.textContent = "Experience details.";
+            }
+        }
+    } catch (err) {
+        console.error("Error in renderPreview:", err);
+    }
+}
+
+function renderExperienceCards() {
+    const container = document.getElementById("experienceContainer");
+    if (!container) return;
+    container.innerHTML = "";
+    photographer_resume_data.experience.forEach((exp, index) => {
+        const card = document.createElement("div");
+        card.className = "repeatable-card";
+
+        const titleVal = escapeHTML(exp.title);
+        const companyVal = escapeHTML(exp.company);
+        const datesVal = escapeHTML(exp.dates);
+        const descVal = escapeHTML(exp.desc);
+        const idVal = escapeHTML(exp.id);
+
+        card.innerHTML = `
+            <div class="repeatable-card-header">
+                <span class="repeatable-card-title">Experience #${index + 1}</span>
+                <button type="button" class="card-delete-btn" onclick="deleteExperience('${idVal}')">Delete</button>
+            </div>
+            <div class="row-2">
+                <div class="input-group">
+                    <label>Job Title</label>
+                    <input type="text" id="exp-title-${idVal}" value="${titleVal}" placeholder="e.g. Lead Photographer" oninput="updateExperience('${idVal}', 'title', this.value)">
+                </div>
+                <div class="input-group">
+                    <label>Company / Organization</label>
+                    <input type="text" id="exp-company-${idVal}" value="${companyVal}" placeholder="e.g. Studio Vista" oninput="updateExperience('${idVal}', 'company', this.value)">
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Start & End Dates / Year</label>
+                <input type="text" value="${datesVal}" placeholder="e.g. 2018 - Present" oninput="updateExperience('${idVal}', 'dates', this.value)">
+            </div>
+            <div class="input-group">
+                <label>Description / Bullet Points</label>
+                <div class="textarea-ai-wrapper">
+                    <textarea id="exp-desc-${idVal}" placeholder="• Accomplishment 1&#10;• Accomplishment 2" style="height: 80px;" oninput="updateExperience('${idVal}', 'desc', this.value)">${descVal}</textarea>
+                    <button type="button" id="ai-btn-${idVal}" class="btn-ai-action" onclick="handleAIExperience('${idVal}')">✨ AI Suggest Action Bullets</button>
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+function renderEducationCards() {
+    const container = document.getElementById("educationContainer");
+    if (!container) return;
+    container.innerHTML = "";
+    photographer_resume_data.education.forEach((edu, index) => {
+        const card = document.createElement("div");
+        card.className = "repeatable-card";
+
+        const degreeVal = escapeHTML(edu.degree);
+        const institutionVal = escapeHTML(edu.institution);
+        const datesVal = escapeHTML(edu.dates);
+        const descVal = escapeHTML(edu.desc);
+        const idVal = escapeHTML(edu.id);
+
+        card.innerHTML = `
+            <div class="repeatable-card-header">
+                <span class="repeatable-card-title">Education #${index + 1}</span>
+                <button type="button" class="card-delete-btn" onclick="deleteEducation('${idVal}')">Delete</button>
+            </div>
+            <div class="row-2">
+                <div class="input-group">
+                    <label>Title / Degree</label>
+                    <input type="text" value="${degreeVal}" placeholder="e.g. Bachelor of Fine Arts" oninput="updateEducation('${idVal}', 'degree', this.value)">
+                </div>
+                <div class="input-group">
+                    <label>Company / Institution</label>
+                    <input type="text" value="${institutionVal}" placeholder="e.g. Academy of Art" oninput="updateEducation('${idVal}', 'institution', this.value)">
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Dates / Year</label>
+                <input type="text" value="${datesVal}" placeholder="e.g. 2012 - 2016" oninput="updateEducation('${idVal}', 'dates', this.value)">
+            </div>
+            <div class="input-group">
+                <label>Description / Details</label>
+                <textarea placeholder="Specialized in portrait and lighting styles..." style="height: 60px;" oninput="updateEducation('${idVal}', 'desc', this.value)">${descVal}</textarea>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// ==========================================
+// FORM STATE UPDATERS & SYNC
+// ==========================================
+window.updateExperience = function (id, field, value) {
+    const exp = photographer_resume_data.experience.find(e => e.id === id);
+    if (exp) {
+        exp[field] = value;
+        renderPreview();
+        triggerAutosave();
+    }
+};
+
+window.deleteExperience = function (id) {
+    photographer_resume_data.experience = photographer_resume_data.experience.filter(e => e.id !== id);
+    renderExperienceCards();
+    renderPreview();
+    triggerAutosave();
+};
+
+window.updateEducation = function (id, field, value) {
+    const edu = photographer_resume_data.education.find(e => e.id === id);
+    if (edu) {
+        edu[field] = value;
+        renderPreview();
+        triggerAutosave();
+    }
+};
+
+window.deleteEducation = function (id) {
+    photographer_resume_data.education = photographer_resume_data.education.filter(e => e.id !== id);
+    renderEducationCards();
+    renderPreview();
+    triggerAutosave();
+};
+
+function syncStateToForm() {
+    document.getElementById("nameInput").value = photographer_resume_data.name || "";
+    document.getElementById("roleInput").value = photographer_resume_data.role || "";
+    document.getElementById("phoneInput").value = photographer_resume_data.phone || "";
+    document.getElementById("emailInput").value = photographer_resume_data.email || "";
+    document.getElementById("linkedinInput").value = photographer_resume_data.linkedin || "";
+    document.getElementById("addressInput").value = photographer_resume_data.address || "";
+    document.getElementById("summaryInput").value = photographer_resume_data.summary || "";
+    document.getElementById("assistantInput").value = photographer_resume_data.assistant || "";
+    document.getElementById("skillsInput").value = photographer_resume_data.skills.join(", ");
+}
+
+// ==========================================
+// PYTHONIC TEXT SANITIZER
+// ==========================================
+function cleanTextResponse(rawText) {
+    if (!rawText) return "";
+    return rawText
+        .replace(/\(.*?\)/g, "")
+        .replace(/^(Here's|Here is|Sure|Certainly|Summary|Output|Based on)[^:]*:\s*/i, "")
+        .replace(/^["']|["']$/g, "")
+        .trim();
+}
+
+
+
+// ==========================================
+// DYNAMIC AI SKILLS SUGGESTION GENERATOR
+// ==========================================
+async function generateAISkills() {
+    const button = document.getElementById("aiSuggestSkillsBtn");
+    const container = document.getElementById("suggestedSkillChips");
+    if (!container) return;
+
+    await executeWithLoadingState(button, async () => {
+        // 1. First, check if user typed anything in the Skills Input Box
+        const skillsInputElement = document.getElementById("skillsInput");
+        const userTypedSkills = skillsInputElement ? skillsInputElement.value.trim() : "";
+
+        // 2. Fallback to Role / Job Title if input box is empty
+        const jobTitle = photographer_resume_data.role || "Professional";
+
+        // Priority: Use typed skills first, otherwise fall back to job title
+        const payloadInput = userTypedSkills !== "" ? userTypedSkills : jobTitle;
+
+        try {
+            const response = await fetch(getResumeApiUrl('generate-section'), {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    user_input: payloadInput, // Dynamic input sending!
+                    section_type: "skills",
+                    job_title: jobTitle
+                })
+            });
+
+            if (!response.ok) {
+                const errDetail = await response.json().catch(() => ({}));
+                throw new Error(errDetail.detail || response.statusText || "Backend failure");
+            }
+
+            const data = await response.json();
+            const rawSkills = data.text || data.summary || data.skills || "";
+            if (rawSkills) {
+                const skills = rawSkills.split(",").map(s => s.replace(/^[-\d\.\s•\*]+/, "").trim()).filter(s => s !== "");
+
+                if (skills.length > 0) {
+                    container.innerHTML = "";
+                    skills.forEach(skillName => {
+                        const chip = document.createElement("span");
+                        chip.className = "skill-chip";
+                        chip.setAttribute("data-skill", skillName);
+                        chip.textContent = skillName;
+                        chip.addEventListener("click", () => {
+                            const normalizedSkills = (photographer_resume_data.skills || []).map(s => s.trim().toLowerCase());
+                            if (!normalizedSkills.includes(skillName.toLowerCase())) {
+                                photographer_resume_data.skills.push(skillName);
+                                document.getElementById("skillsInput").value = photographer_resume_data.skills.join(", ");
+                                renderPreview();
+                                triggerAutosave();
+                            }
+                        });
+                        container.appendChild(chip);
+                    });
+                    showToast("Skills suggestions updated!", "success");
+                } else {
+                    showToast("No skills were returned by the Backend.", "warning");
+                }
+            } else {
+                throw new Error("Unexpected backend response format");
+            }
+        } catch (error) {
+            console.error("AI Skills Suggestion Failure:", error);
+            showToast(`API Failed: ${error.message}`, "error");
+        }
+    });
+}
+window.generateAISkills = generateAISkills;
+
+
+// ==========================================
+// SMART CONTEXT-AWARE AI CHATGPT TRIGGERS
+// ==========================================
+async function handleAISummary() {
+    const button = document.getElementById("aiGenerateSummaryBtn");
+    const summaryInput = document.getElementById("summaryInput");
+    const previewSummary = document.getElementById("previewSummary");
+    if (!summaryInput) return;
+
+    await executeWithLoadingState(button, async () => {
+        try {
+            const response = await fetch(getResumeApiUrl('generate-summary'), {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    user_input: summaryInput.value
+                })
+            });
+
+            if (!response.ok) {
+                const errDetail = await response.json().catch(() => ({}));
+                throw new Error(errDetail.detail || response.statusText || "Backend failure");
+            }
+
+            const data = await response.json();
+            const cleanSummary = data.summary || data.text || "";
+            if (cleanSummary) {
+                summaryInput.value = cleanSummary;
+                if (previewSummary) {
+                    previewSummary.textContent = cleanSummary;
+                }
+                photographer_resume_data.summary = cleanSummary;
+
+                // Trigger the input event for instant live preview updates
+                summaryInput.dispatchEvent(new Event("input", { bubbles: true }));
+
+                showToast("Summary generated successfully!", "success");
+            } else {
+                showToast("No summary returned by Backend.", "warning");
+            }
+        } catch (error) {
+            console.error("Summary AI Generation failed:", error);
+            showToast(`AI Generation failed: ${error.message}`, "error");
+        }
+    });
+}
+
+async function handleAIAssistant() {
+    const button = document.getElementById("aiSuggestAssistantBulletsBtn");
+    const input = document.getElementById("assistantInput");
+    if (!button || !input) return;
+    const userText = input.value.trim();
+
+    await executeWithLoadingState(button, async () => {
+        try {
+            const response = await fetch(getResumeApiUrl('generate-section'), {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    user_input: userText,
+                    section_type: "experience_bullets",
+                    job_title: "Event Photography Assistant"
+                })
+            });
+
+            if (!response.ok) {
+                const errDetail = await response.json().catch(() => ({}));
+                throw new Error(errDetail.detail || response.statusText || "Backend failure");
+            }
+
+            const data = await response.json();
+            const cleanText = data.text || data.summary || "";
+            if (cleanText) {
+                input.value = cleanText;
+                photographer_resume_data.assistant = cleanText;
+
+                // Trigger input event
+                input.dispatchEvent(new Event("input", { bubbles: true }));
+
+                showToast("Assistant bullets generated successfully!", "success");
+            } else {
+                showToast("No bullets were returned by Backend.", "warning");
+            }
+        } catch (error) {
+            console.error("Assistant Bullet AI Generation failed:", error);
+            showToast(`AI Generation failed: ${error.message}`, "error");
+        }
+    });
+}
+
+window.handleAIExperience = async function (id) {
+    const button = document.getElementById(`ai-btn-${id}`);
+    const input = document.getElementById(`exp-desc-${id}`);
+    if (!button || !input) return;
+    const userText = input.value.trim();
+
+    await executeWithLoadingState(button, async () => {
+        const exp = photographer_resume_data.experience.find(e => e.id === id);
+        if (exp) {
+            const jobTitle = exp.title || photographer_resume_data.role || "Photographer";
+
+            try {
+                const response = await fetch(getResumeApiUrl('generate-section'), {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        user_input: userText,
+                        section_type: "experience_bullets",
+                        job_title: jobTitle
+                    })
+                });
+
+                if (!response.ok) {
+                    const errDetail = await response.json().catch(() => ({}));
+                    throw new Error(errDetail.detail || response.statusText || "Backend failure");
+                }
+
+                const data = await response.json();
+                const cleanText = data.text || data.summary || "";
+                if (cleanText) {
+                    input.value = cleanText;
+                    exp.desc = cleanText;
+
+                    // Trigger input event
+                    input.dispatchEvent(new Event("input", { bubbles: true }));
+
+                    showToast("Experience bullets generated successfully!", "success");
+                } else {
+                    showToast("No bullets were returned by Backend.", "warning");
+                }
+            } catch (error) {
+                console.error("Experience Bullet AI Generation failed:", error);
+                showToast(`AI Generation failed: ${error.message}`, "error");
+            }
+        }
+    });
+};
+
+// ==========================================
+// LIVE CUSTOMIZER TOOLBAR OPTIONS
+// ==========================================
+function applyHeaderColor(colorName) {
+    let hex = "#243447"; // deep blue (default)
+    if (colorName === "charcoal") hex = "#1f2937";
+    else if (colorName === "royal-navy") hex = "#1e3a8a";
+    else if (colorName === "emerald") hex = "#0f766e";
+    else if (colorName === "wine-red") hex = "#881337";
+
+    const header = document.getElementById("resumeHeader");
+    if (header) {
+        header.style.setProperty('--header-bg', hex);
+    }
+
+    photographer_resume_data.accentTheme = colorName;
+    triggerAutosave();
+}
+
+function applyFont(fontName) {
+    const preview = document.getElementById("resume-pdf-target");
+    if (preview) {
+        preview.style.fontFamily = fontName;
+        preview.querySelectorAll("*").forEach(el => {
+            el.style.fontFamily = fontName;
+        });
+    }
+    photographer_resume_data.fontFace = fontName;
+    triggerAutosave();
+}
+
+// ==========================================
+// INTERACTIVE STEP ROUTING & PROGRESS BAR
+// ==========================================
+let currentStep = 1;
+const totalSteps = 6;
+
+function toggleStepVisibility() {
+    try {
+        for (let i = 1; i <= totalSteps; i++) {
+            const stepEl = document.getElementById("step" + i);
+            if (stepEl) {
+                if (i === currentStep) {
+                    stepEl.classList.add("active");
+                    stepEl.style.display = "block";
+                } else {
+                    stepEl.classList.remove("active");
+                    stepEl.style.display = "none";
+                }
+            }
+        }
+    } catch (e) {
+        console.error("Error toggling step visibility:", e);
+    }
+}
+
+window.nextStep = function () {
+    try {
+        if (currentStep >= totalSteps) return;
+        currentStep++;
+        toggleStepVisibility();
+        updateStepperUI();
+        triggerAutosave();
+        console.log("Navigating to step:", currentStep);
+    } catch (err) {
+        console.error("Navigation error in nextStep:", err);
+    }
+};
+
+window.prevStep = function () {
+    try {
+        if (currentStep <= 1) return;
+        currentStep--;
+        toggleStepVisibility();
+        updateStepperUI();
+        console.log("Navigating to step:", currentStep);
+    } catch (err) {
+        console.error("Navigation error in prevStep:", err);
+    }
+};
+
+window.jumpToStep = function (stepNum) {
+    try {
+        if (stepNum < 1 || stepNum > totalSteps) return;
+        currentStep = stepNum;
+        toggleStepVisibility();
+        updateStepperUI();
+        console.log("Navigating to step:", currentStep);
+    } catch (err) {
+        console.error("Navigation error in jumpToStep:", err);
+    }
+};
+
+function updateStepperUI() {
+    const progressFill = document.getElementById("stepperProgressFill");
+    const percent = ((currentStep - 1) / 5) * 100;
+    progressFill.style.width = percent + "%";
+
+    const steps = document.querySelectorAll(".step-node");
+    steps.forEach(node => {
+        const stepNum = parseInt(node.getAttribute("data-step"));
+        if (stepNum === currentStep) {
+            node.classList.add("active");
+            node.classList.remove("completed");
+        } else if (stepNum < currentStep) {
+            node.classList.remove("active");
+            node.classList.add("completed");
+        } else {
+            node.classList.remove("active");
+            node.classList.remove("completed");
+        }
+    });
+}
+
+window.finishBuild = function () {
+    saveResumeToSupabase().then(() => {
+        alert("🎉 Resume draft has been successfully saved to database! Returning to Templates.");
+        window.location.href = "/resume/builder.html";
+    });
+};
+
+// ==========================================
+// DEBOUNCED AUTOMATED SUPABASE PERSISTENCE
+// ==========================================
+let autosaveTimeout = null;
+
+function triggerAutosave() {
+    if (autosaveTimeout) clearTimeout(autosaveTimeout);
+    autosaveTimeout = setTimeout(saveResumeToSupabase, 1000);
+}
+
+async function saveResumeToSupabase() {
+    let currentUser = null;
+    if (window.ResumeAuth) {
+        currentUser = await window.ResumeAuth.getCurrentUser();
+    }
+    
+    // If not authenticated, do not persist to database
+    if (!currentUser || !currentUser.id) return;
+
+    const supabase = window.supabase;
+    if (!supabase || typeof supabase.from === 'undefined') {
+        console.warn("Supabase client is not initialized.");
+        return;
+    }
+
+    // Input Format Validation Checks
+    if (photographer_resume_data.email && !isValidEmail(photographer_resume_data.email)) {
+        showToast("Invalid email format. Please check the email field.", "warning");
+        return;
+    }
+    if (photographer_resume_data.phone && !isValidPhone(photographer_resume_data.phone)) {
+        showToast("Invalid phone format. Please check the phone field.", "warning");
+        return;
+    }
+    if (photographer_resume_data.linkedin && !isValidURL(photographer_resume_data.linkedin)) {
+        showToast("Invalid LinkedIn URL format. Please check the LinkedIn URL field.", "warning");
+        return;
+    }
+
+    try {
+        // Attempt canonical upsert using user_id UUID
+        const payload = {
+            user_id: currentUser.id,
+            email: currentUser.email || photographer_resume_data.email || "",
+            template_id: "photographer",
+            resume_data: photographer_resume_data,
+            updated_at: new Date()
+        };
+
+        const { error } = await supabase
+            .from("resumes")
+            .upsert(payload, { onConflict: ["user_id", "template_id"] });
+
+        if (error) {
+            // Fallback for pre-migration schema: attempt upsert on (email, template_id)
+            if (currentUser.email) {
+                const fallbackPayload = {
+                    email: currentUser.email,
+                    template_id: "photographer",
+                    resume_data: photographer_resume_data,
+                    updated_at: new Date()
+                };
+                const { error: fallbackError } = await supabase
+                    .from("resumes")
+                    .upsert(fallbackPayload, { onConflict: ["email", "template_id"] });
+
+                if (fallbackError) {
+                    console.warn("Supabase autosave check failed. Please ensure the migration script is run in Supabase SQL editor.", fallbackError);
+                } else {
+                    console.log("Supabase synced (legacy fallback): Photographer resume draft saved.");
+                }
+            } else {
+                console.warn("Supabase autosave failed:", error);
+            }
+        } else {
+            console.log("Supabase synced securely with canonical user_id: Photographer resume draft saved.");
+        }
+    } catch (err) {
+        console.error("Autosave database error:", err);
+    }
+}
+
+async function loadSavedResume() {
+    let currentUser = null;
+    if (window.ResumeAuth) {
+        currentUser = await window.ResumeAuth.getCurrentUser();
+    }
+    if (!currentUser || !currentUser.id) return;
+
+    const supabase = window.supabase;
+    if (!supabase || typeof supabase.from === 'undefined') return;
+
+    try {
+        // 1. First attempt to load by canonical user_id UUID
+        let { data, error } = await supabase
+            .from("resumes")
+            .select("resume_data, user_id")
+            .eq("user_id", currentUser.id)
+            .eq("template_id", "photographer")
+            .maybeSingle();
+
+        // 2. If no record found by user_id, check by email (backwards compatibility during migration)
+        if (!data && currentUser.email) {
+            const emailQuery = await supabase
+                .from("resumes")
+                .select("resume_data, user_id")
+                .eq("email", currentUser.email)
+                .eq("template_id", "photographer")
+                .maybeSingle();
+
+            if (emailQuery.data) {
+                data = emailQuery.data;
+            }
+        }
+
+        if (data && data.resume_data) {
+            photographer_resume_data = data.resume_data;
+
+            // Sync customizer UI controls
+            if (photographer_resume_data.accentTheme) {
+                const swatch = document.querySelector(`.color-swatch[data-color="${photographer_resume_data.accentTheme}"]`);
+                if (swatch) {
+                    document.querySelectorAll(".color-swatch").forEach(s => s.classList.remove("active"));
+                    swatch.classList.add("active");
+                    applyHeaderColor(photographer_resume_data.accentTheme);
+                }
+            }
+            if (photographer_resume_data.fontFace) {
+                const fontSelector = document.getElementById("fontSelector");
+                if (fontSelector) {
+                    fontSelector.value = photographer_resume_data.fontFace;
+                    applyFont(photographer_resume_data.fontFace);
+                }
+            }
+
+            console.log("Loaded existing photographer draft from Supabase database.");
+        }
+    } catch (err) {
+        console.error("Supabase load error:", err);
+    }
+}
+
+// ==========================================
+// PRE-POPULATE DEMO DATA ENGINE
+// ==========================================
+function loadSampleData() {
+    photographer_resume_data = {
+        name: "Rufus Stewart",
+        role: "Photographer",
+        phone: "123-456-7890",
+        email: "hello@reallygreatsite.com",
+        linkedin: "www.reallygreatsite.com",
+        address: "123 Anywhere Street, St., Any City",
+        summary: "My name is Rufus Stewart. I am born in California on 10 oct 1991, I am a professional photographer who have been working in several different companies. I love to travel and capture stories.",
+        assistant: "• Assisted photographers to capture numerous live events, including sports games, concerts, expos, and stand-up comedy\n• Monitored setup and teardown of studio equipment\n• Implemented a new system to schedule meetings with clients, which led to a 10% increase in monthly bookings",
+        education: [
+            {
+                id: "edu-1",
+                degree: "Bachelor of Art and Design",
+                institution: "Borcelle University",
+                dates: "2005 - 2009",
+                desc: "Specialized in Creative Media and Digital Photography."
+            },
+            {
+                id: "edu-2",
+                degree: "Master of Art and Design",
+                institution: "Rimberio Co",
+                dates: "2012 - 2015",
+                desc: "Focus on photojournalism and advanced lighting."
+            }
+        ],
+        experience: [
+            {
+                id: "exp-1",
+                title: "Senior Photographer",
+                company: "Thynk Unlimited",
+                dates: "2009 - 2014",
+                desc: "• Managed photography schedules matching corporate requests."
+            },
+            {
+                id: "exp-2",
+                title: "Senior Photographer",
+                company: "Fauget & Co.",
+                dates: "2014 - 2016",
+                desc: "• Delivered high-quality prints and handled post-production."
+            }
+        ],
+        skills: ["Studio Lighting", "Adobe Lightroom", "Image Editing", "Font Design", "Marketing & Brand Strategy"],
+        accentTheme: "deep-blue",
+        fontFace: "Segoe UI"
+    };
+
+    syncStateToForm();
+    renderExperienceCards();
+    renderEducationCards();
+    renderPreview();
+
+    // Apply defaults to layout
+    applyHeaderColor("deep-blue");
+    applyFont("Segoe UI");
+}
+
+// ==========================================
+// HIGH-FIDELITY PDF RENDERING EXPORT
+// ==========================================
+window.downloadPDF = function () {
+    if (document.activeElement) document.activeElement.blur();
+    window.print();
+}

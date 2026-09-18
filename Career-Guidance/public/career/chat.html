@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerCompass AI — AI Career Counselor</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .chat-layout {
+            display: flex;
+            height: calc(100vh - 4rem);
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .chat-sidebar {
+            width: 280px;
+            background: var(--bg-subtle);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 1.25rem;
+        }
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-card);
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+        .message-bubble {
+            max-width: 80%;
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-lg);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            position: relative;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .message-user {
+            align-self: flex-end;
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .message-assistant {
+            align-self: flex-start;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 4px;
+        }
+        .chat-input-area {
+            padding: 1.25rem 1.5rem;
+            border-top: 1px solid var(--border);
+            background: var(--bg-card);
+        }
+        .chat-input-form {
+            display: flex;
+            gap: 0.75rem;
+        }
+        .prompt-pill {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border);
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .prompt-pill:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+        .session-item {
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+        }
+        .session-item:hover, .session-item.active {
+            background: var(--bg-card);
+            color: var(--primary);
+            font-weight: 600;
+            box-shadow: var(--shadow-sm);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo"><i class="fas fa-compass"></i></div>
+                <div class="sidebar-title">CareerCompass</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="profile.html" class="nav-item">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="results.html" class="nav-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Career Analysis</span>
+                </a>
+                <a href="roadmap.html" class="nav-item">
+                    <i class="fas fa-map"></i>
+                    <span>My Roadmap</span>
+                </a>
+                <a href="explorer.html" class="nav-item">
+                    <i class="fas fa-search"></i>
+                    <span>Career Explorer</span>
+                </a>
+                <a href="chat.html" class="nav-item active">
+                    <i class="fas fa-comments"></i>
+                    <span>AI Counselor</span>
+                </a>
+                <a href="resume.html" class="nav-item">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Resume Review</span>
+                </a>
+                <a href="admin.html" class="nav-item" id="admin-nav-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Admin Panel</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" style="padding: 1.5rem; max-width: 1400px;">
+            <div class="chat-layout">
+                <!-- Chat Sessions Sidebar -->
+                <div class="chat-sidebar">
+                    <button class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;" onclick="startNewSession()">
+                        <i class="fas fa-plus"></i> New Conversation
+                    </button>
+                    
+                    <h4 style="font-size: 0.8rem; color: var(--text-tertiary); text-transform: uppercase; margin-bottom: 0.75rem; letter-spacing: 0.05em;">
+                        Your Conversations
+                    </h4>
+                    
+                    <div id="sessions-list" style="overflow-y: auto; flex: 1;">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <div style="padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-tertiary);">
+                        <i class="fas fa-shield-alt"></i> Private conversation isolated to your student account.
+                    </div>
+                </div>
+
+                <!-- Chat Area -->
+                <div class="chat-main">
+                    <div style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-card);">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; color: white;">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div>
+                                <h3 style="font-size: 1.05rem; margin: 0;">AI Career Counselor</h3>
+                                <p style="font-size: 0.75rem; color: var(--success); margin: 0;">
+                                    <i class="fas fa-circle" style="font-size: 0.5rem;"></i> Real-Time Gemini Intelligence
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Messages Box -->
+                    <div id="chat-messages" class="chat-messages">
+                        <!-- Welcome message -->
+                        <div class="message-bubble message-assistant">
+                            <strong>Hello! I am your CareerCompass AI Advisor.</strong>
+                            <p style="margin-top: 0.5rem; margin-bottom: 0;">
+                                I am calibrated with your diploma branch, target careers, and skill gaps. Ask me anything about engineering certifications, higher education (Lateral B.Tech), project ideas, or industry prep!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Prompt suggestions -->
+                    <div style="padding: 0.5rem 1.5rem 0; background: var(--bg-card);">
+                        <div style="display: flex; flex-wrap: wrap;">
+                            <span class="prompt-pill" onclick="sendQuickPrompt('What certifications should I pursue for my branch?')">
+                                🎓 Top Certifications
+                            </span>
+                            <span class="prompt-pill" onclick="sendQuickPrompt('Should I do lateral entry B.Tech or start working after diploma?')">
+                                💼 B.Tech vs Job
+                            </span>
+                            <span class="prompt-pill" onclick="sendQuickPrompt('How can I prepare for junior software or engineering campus interviews?')">
+                                📋 Interview Prep
+                            </span>
+                            <span class="prompt-pill" onclick="sendQuickPrompt('Recommend a strong diploma final year project to impress recruiters.')">
+                                🛠️ Capstone Ideas
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Input Form -->
+                    <div class="chat-input-area">
+                        <form id="chat-form" class="chat-input-form" onsubmit="handleSend(event)">
+                            <input type="text" id="message-input" class="form-control" placeholder="Ask career counselor a question..." autocomplete="off" required>
+                            <button type="submit" id="send-btn" class="btn btn-primary" style="padding: 0 1.5rem;">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let currentSessionId = null;
+
+        async function initChat() {
+            try {
+                const user = await requireAuth();
+                if (!user) return;
+
+                await syncAdminNav();
+                const res = await api.getChatSessions();
+                const sessions = res.data || [];
+                renderSessions(sessions);
+
+                if (sessions.length > 0) {
+                    selectSession(sessions[0].id);
+                }
+            } catch (err) {
+                console.warn('Failed to load chat sessions:', err);
+            }
+        }
+
+        function renderSessions(sessions) {
+            const list = document.getElementById('sessions-list');
+            if (sessions.length === 0) {
+                list.innerHTML = '<p style="color: var(--text-tertiary); font-size: 0.8rem;">No previous chats</p>';
+                return;
+            }
+
+            list.innerHTML = sessions.map(s => `
+                <div class="session-item ${s.id === currentSessionId ? 'active' : ''}" onclick="selectSession('${escapeHtml(s.id)}')">
+                    <i class="fas fa-comment-dots"></i>
+                    <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        ${new Date(s.created_at).toLocaleDateString()} Chat
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        async function selectSession(sessionId) {
+            currentSessionId = sessionId;
+            renderSessionsHighlight();
+
+            try {
+                const res = await api.getChatHistory(sessionId);
+                const messages = (res.data && res.data.messages) || [];
+
+                const container = document.getElementById('chat-messages');
+                container.innerHTML = messages.map(m => `
+                    <div class="message-bubble ${m.role === 'user' ? 'message-user' : 'message-assistant'}">
+                        ${escapeHtml(m.content)}
+                    </div>
+                `).join('');
+
+                scrollToBottom();
+            } catch (err) {
+                console.error('Error loading history:', err);
+            }
+        }
+
+        function renderSessionsHighlight() {
+            document.querySelectorAll('.session-item').forEach(el => {
+                el.classList.toggle('active', el.getAttribute('onclick').includes(currentSessionId));
+            });
+        }
+
+        function startNewSession() {
+            currentSessionId = null;
+            document.getElementById('chat-messages').innerHTML = `
+                <div class="message-bubble message-assistant">
+                    <strong>New conversation started.</strong>
+                    <p style="margin-top: 0.5rem; margin-bottom: 0;">How can I guide your career development today?</p>
+                </div>
+            `;
+            renderSessionsHighlight();
+        }
+
+        async function handleSend(e) {
+            e.preventDefault();
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            input.value = '';
+            appendMessage('user', message);
+            scrollToBottom();
+
+            const sendBtn = document.getElementById('send-btn');
+            sendBtn.disabled = true;
+
+            // Typing indicator
+            const typingId = 'typing-' + Date.now();
+            const container = document.getElementById('chat-messages');
+            const typingBubble = document.createElement('div');
+            typingBubble.id = typingId;
+            typingBubble.className = 'message-bubble message-assistant';
+            typingBubble.innerHTML = '<span class="loader" style="width: 14px; height: 14px;"></span> Thinking...';
+            container.appendChild(typingBubble);
+            scrollToBottom();
+
+            try {
+                const res = await api.sendChatMessage(message, currentSessionId);
+                const el = document.getElementById(typingId);
+                if (el) el.remove();
+
+                if (res.data) {
+                    currentSessionId = res.data.session_id;
+                    appendMessage('assistant', res.data.content, res.data.is_fallback);
+                }
+            } catch (err) {
+                const el = document.getElementById(typingId);
+                if (el) el.remove();
+                appendMessage('assistant', 'Sorry, I encountered an issue connecting to the AI service. Please try again.');
+            } finally {
+                sendBtn.disabled = false;
+                scrollToBottom();
+            }
+        }
+
+        function sendQuickPrompt(promptText) {
+            document.getElementById('message-input').value = promptText;
+            document.getElementById('chat-form').dispatchEvent(new Event('submit'));
+        }
+
+        function appendMessage(role, content, isFallback = false) {
+            const container = document.getElementById('chat-messages');
+            const bubble = document.createElement('div');
+            bubble.className = `message-bubble ${role === 'user' ? 'message-user' : 'message-assistant'}`;
+            bubble.innerText = content;
+            if (isFallback) {
+                const badge = document.createElement('div');
+                badge.style.fontSize = '0.75rem';
+                badge.style.color = 'var(--text-tertiary)';
+                badge.style.marginTop = '0.5rem';
+                badge.innerHTML = '<i class="fas fa-shield-alt"></i> CareerCompass Placement Engine (Offline Fallback)';
+                bubble.appendChild(badge);
+            }
+            container.appendChild(bubble);
+        }
+
+        function scrollToBottom() {
+            const container = document.getElementById('chat-messages');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.innerText = text;
+            return div.innerHTML;
+        }
+
+        document.addEventListener('DOMContentLoaded', initChat);
+    </script>
+</body>
+</html>

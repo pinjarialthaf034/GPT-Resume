@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Resume Workspace - Flight Attendant</title>
+
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+            const observer = new MutationObserver(() => {
+                if (document.body) {
+                    document.body.setAttribute("data-theme", savedTheme);
+                    observer.disconnect();
+                }
+            });
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+
+            // Restore saved color theme immediately on load
+            const savedColor = localStorage.getItem("selectedColorTheme");
+            if (savedColor) {
+                document.documentElement.style.setProperty('--theme-color', savedColor);
+            }
+        })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        /* =========================================
+           VARIABLES & SYSTEM THEMING
+           ========================================= */
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --text-primary: #0f172a;
+            --text-muted: #64748b;
+            --text-input: #0f172a;
+            --bg-input: #ffffff;
+            --border-input: #d1d5db;
+            --accent-blue: #2563eb;
+            --theme-color: #2b6cb0;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-input: #f8fafc;
+            --bg-input: #1e293b;
+            --border-input: #475569;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-body);
+            padding: 25px;
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* =========================================
+           TOP FRAME NAVBAR STYLING
+           ========================================= */
+        .builder-header {
+            width: 100%;
+            height: 70px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            position: sticky;
+            top: 15px;
+            z-index: 999;
+            margin-bottom: 25px;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .logo-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--theme-color);
+            transition: background 0.3s ease;
+        }
+
+        .theme-toggle-btn {
+            background: transparent;
+            border: 1px solid var(--border-input);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        [data-theme="dark"] .theme-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        /* =========================================
+           MAIN CONTAINER GRID LAYOUT
+           ========================================= */
+        .builder-container {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* =========================================
+           LEFT SIDE FRAME FORM CONSOLE
+           ========================================= */
+        .form-panel {
+            width: 40%;
+            min-height: 650px;
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 100px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .form-panel input,
+        .form-panel textarea,
+        .form-panel select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-input);
+            background: var(--bg-input);
+            color: var(--text-input);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .form-panel textarea {
+            height: 90px;
+            resize: vertical;
+        }
+
+        .form-panel input:focus,
+        .form-panel textarea:focus {
+            border-color: var(--theme-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.15);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .input-group label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .step {
+            display: none !important;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .step.active {
+            display: flex !important;
+        }
+
+        .step-header {
+            margin-bottom: 10px;
+        }
+
+        .step-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .step-header p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* =========================================
+           INTERACTIVE STEPPER PROGRESS BAR
+           ========================================= */
+        .stepper-progress-container {
+            position: relative;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .stepper-track-bg {
+            position: absolute;
+            top: 14px;
+            left: 15px;
+            right: 15px;
+            height: 3px;
+            background: rgba(0, 0, 0, 0.08);
+            z-index: 1;
+            border-radius: 2px;
+        }
+
+        [data-theme="dark"] .stepper-track-bg {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .stepper-track-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--theme-color);
+            border-radius: 2px;
+            transition: width 0.35s ease;
+        }
+
+        .stepper-steps-wrapper {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .step-circle {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--border-input);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .step-node.active .step-circle {
+            border-color: var(--theme-color);
+            background: var(--theme-color);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+        }
+
+        /* =========================================
+           AI ACTION BUTTONS & CHIPS
+           ========================================= */
+        .textarea-ai-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-ai-action {
+            align-self: flex-end;
+            background: rgba(124, 58, 237, 0.08);
+            color: #7c3aed;
+            border: 1px solid rgba(124, 58, 237, 0.25);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-ai-action:hover {
+            background: #7c3aed;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+        }
+
+        /* AI Suggested Chips Container */
+        .ai-chips-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .ai-chip {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--theme-color);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .ai-chip:hover {
+            background: var(--theme-color);
+            color: #ffffff;
+        }
+
+        [data-theme="dark"] .ai-chip {
+            background: rgba(96, 165, 250, 0.15);
+            color: #93c5fd;
+            border-color: rgba(96, 165, 250, 0.3);
+        }
+
+        [data-theme="dark"] .ai-chip:hover {
+            background: #60a5fa;
+            color: #0f172a;
+        }
+
+        /* Dynamic Input Cards */
+        .card-box {
+            border: 1px solid var(--border-input);
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            background: var(--bg-input);
+            position: relative;
+        }
+
+        .remove-card-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #fee2e2;
+            color: #ef4444;
+            border: 1px solid #fca5a5;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .remove-card-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .add-btn {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px dashed var(--border-input);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+            transition: background 0.2s ease;
+        }
+
+        .add-btn:hover {
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        /* BUTTON CONSOLE */
+        .step-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .next-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: var(--theme-color);
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .next-btn:hover {
+            opacity: 0.9;
+        }
+
+        .back-btn {
+            padding: 12px 20px;
+            border: 1px solid var(--border-input);
+            border-radius: 8px;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* =========================================
+           RIGHT SIDE PANEL & CUSTOMIZER TOOLBAR
+           ========================================= */
+        .preview-panel {
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .customizer-toolbar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+        }
+
+        .toolbar-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toolbar-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .color-swatches {
+            display: flex;
+            gap: 8px;
+        }
+
+        .color-swatch {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.15);
+        }
+
+        .color-swatch.active {
+            border-color: var(--text-primary);
+            transform: scale(1.15);
+        }
+
+        .toolbar-select {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-input);
+            font-size: 12px;
+            font-weight: 700;
+            background: var(--bg-input);
+            color: var(--text-input);
+            cursor: pointer;
+        }
+
+        .btn-pdf-download {
+            background: #ef4444;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .btn-pdf-download:hover {
+            background: #dc2626;
+        }
+
+        /* =========================================
+           FLIGHT ATTENDANT RESUME CANVAS (SPLIT THEME)
+           ========================================= */
+        .resume-page {
+            width: 794px;
+            min-height: 1123px;
+            background: #ffffff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+            position: relative;
+            color: #222222;
+            margin: 0 auto;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* LEFT COLUMN (BLUE BG) */
+        .resume-left-col {
+            width: 38%;
+            background-color: var(--theme-color);
+            color: #ffffff;
+            padding: 40px 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            transition: background-color 0.3s ease;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .profile-img-container {
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 0 auto;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            background: #e2e8f0;
+        }
+
+        .profile-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-name-title {
+            text-align: center;
+        }
+
+        .name-title {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #ffffff;
+            text-transform: uppercase;
+            line-height: 1.2;
+        }
+
+        .sub-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 6px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .contact-sidebar-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 12px;
+        }
+
+        .contact-sidebar-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            color: #ffffff;
+            word-break: break-all;
+        }
+
+        .contact-sidebar-item i {
+            font-size: 13px;
+            margin-top: 2px;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        .sidebar-section-title {
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #ffffff;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 4px;
+        }
+
+        .sidebar-skills-list {
+            list-style-type: disc;
+            padding-left: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sidebar-skills-list li {
+            font-size: 12px;
+            line-height: 1.4;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        /* RIGHT COLUMN (WHITE BG) */
+        .resume-right-col {
+            width: 62%;
+            background-color: #ffffff;
+            color: #222222;
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .right-section-block {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .section-header-banner {
+            background-color: #edf2f7;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #1a202c;
+            text-transform: uppercase;
+            border-radius: 4px;
+        }
+
+        .exp-entry-block {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .exp-header-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .exp-header-row i {
+            font-size: 20px;
+            color: var(--theme-color);
+            margin-top: 2px;
+            transition: color 0.3s ease;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .exp-titles h4 {
+            font-size: 14px;
+            font-weight: 800;
+            color: #000000;
+        }
+
+        .exp-titles .company-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: #4a5568;
+        }
+
+        .exp-titles .exp-date {
+            font-size: 11px;
+            font-weight: 600;
+            font-style: italic;
+            color: #718096;
+            margin-top: 2px;
+        }
+
+        .bullet-list {
+            list-style-type: disc;
+            padding-left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .bullet-list li {
+            font-size: 11.5px;
+            color: #2d3748;
+            line-height: 1.5;
+        }
+
+        .edu-cert-block {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .edu-item,
+        .cert-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .edu-item i,
+        .cert-item i {
+            font-size: 18px;
+            color: var(--theme-color);
+            margin-top: 2px;
+            transition: color 0.3s ease;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .edu-details h4,
+        .cert-details h4 {
+            font-size: 13px;
+            font-weight: 800;
+            color: #000000;
+        }
+
+        .edu-details p,
+        .cert-details p {
+            font-size: 11px;
+            color: #4a5568;
+            line-height: 1.4;
+        }
+
+        [contenteditable="true"]:hover {
+            outline: 1px dashed var(--theme-color) !important;
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        /* PRINT STYLES */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+
+            body {
+                padding: 0;
+                background: #ffffff;
+            }
+
+            .builder-header,
+            .form-panel,
+            .customizer-toolbar,
+            .no-print {
+                display: none !important;
+            }
+
+            .builder-container,
+            .preview-panel {
+                display: block !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .resume-page {
+                box-shadow: none !important;
+                width: 210mm !important;
+                min-height: 297mm !important;
+                margin: 0 auto !important;
+            }
+
+            .resume-left-col {
+                background-color: var(--theme-color) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+    <!-- Supabase CDN & Shared Auth/API Modules -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/shared/auth.js"></script>
+    <script src="/shared/api-config.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            if (window.ResumeAuth && typeof window.ResumeAuth.requireAuth === 'function') {
+                window.ResumeAuth.requireAuth("/index.html?showLogin=true").catch(() => {});
+            }
+        });
+    </script>
+</head>
+
+<body>
+
+    <header class="builder-header no-print">
+        <div class="logo">
+            <span class="logo-dot"></span>
+            GPT HUB
+        </div>
+        <div>
+            <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()">☀️ Toggle Theme</button>
+        </div>
+    </header>
+
+    <div class="builder-container">
+
+        <div class="form-panel no-print">
+
+            <div class="stepper-progress-container">
+                <div class="stepper-track-bg">
+                    <div class="stepper-track-fill" id="stepperProgressFill"></div>
+                </div>
+                <div class="stepper-steps-wrapper">
+                    <div class="step-node active" data-step="1">
+                        <div class="step-circle">1</div>
+                    </div>
+                    <div class="step-node" data-step="2">
+                        <div class="step-circle">2</div>
+                    </div>
+                    <div class="step-node" data-step="3">
+                        <div class="step-circle">3</div>
+                    </div>
+                    <div class="step-node" data-step="4">
+                        <div class="step-circle">4</div>
+                    </div>
+                    <div class="step-node" data-step="5">
+                        <div class="step-circle">5</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="step1" class="step active">
+                <div class="step-header">
+                    <h2>Personal Information</h2>
+                    <p>Enter basic personal contact details and upload profile photo.</p>
+                </div>
+                <div class="input-group">
+                    <label>Profile Photo</label>
+                    <input type="file" id="imageFileInput" accept="image/*" style="padding: 6px;">
+                </div>
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="nameInput" value="KIAN GRAHAM">
+                </div>
+                <div class="input-group">
+                    <label>Title / Role</label>
+                    <input type="text" id="titleInput" value="FLIGHT ATTENDANT">
+                </div>
+                <div class="input-group">
+                    <label>LinkedIn URL</label>
+                    <input type="text" id="linkedinInput" value="linkedin.com/in/name">
+                </div>
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="emailInput" value="hello@reallygreatsite.com">
+                </div>
+                <div class="input-group">
+                    <label>Phone Number</label>
+                    <input type="text" id="phoneInput" value="+123-456-7890">
+                </div>
+                <div class="input-group">
+                    <label>Website / Portfolio</label>
+                    <input type="text" id="webInput" value="www.reallygreatsite.com">
+                </div>
+                <div class="input-group">
+                    <label>Portfolio Callout Text</label>
+                    <input type="text" id="portfolioText" value="Click here for my portfolio">
+                </div>
+                <div class="step-buttons">
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <div id="step2" class="step">
+                <div class="step-header">
+                    <h2>Relevant Skills</h2>
+                    <p>Enter skills separated by commas or select from suggested chips.</p>
+                </div>
+                <div class="input-group">
+                    <label>Skills List (Comma Separated)</label>
+                    <input type="text" id="skillsInput"
+                        value="First Aid & Emergency Care, Fluency in French, Quality Customer Service">
+                </div>
+                <div class="input-group" style="margin-top: 5px;">
+                    <label>AI Suggested Skills (Click to add):</label>
+                    <div id="aiChipsWrapper" class="ai-chips-container">
+                        <span style="font-size: 11px; color: var(--text-muted); font-style: italic;">Click the button
+                            below to generate customized skills for your profile.</span>
+                    </div>
+                </div>
+                <div class="textarea-ai-wrapper" style="margin-top: 10px;">
+                    <button type="button" id="aiSkillsBtn" class="btn-ai-action" onclick="generateAiSkills()">✨ AI
+                        Generate Suggested Skills</button>
+                </div>
+                <div class="step-buttons" style="margin-top: 15px;">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <div id="step3" class="step">
+                <div class="step-header">
+                    <h2>Work Experience</h2>
+                    <p>Specify work roles and achievements.</p>
+                </div>
+                <div id="expFormContainer">
+                    <div class="card-box exp-entry">
+                        <button type="button" class="remove-card-btn" onclick="removeCard(this, renderExperiences)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="job-role-input" placeholder="Role Title" value="Flight Attendant">
+                        <input type="text" class="job-sub-input" placeholder="Company Name" value="Willifred Airlines"
+                            style="margin-top:6px;">
+                        <input type="text" class="job-date-input" placeholder="Dates"
+                            value="March 2022 to August 2025 (3 years, 5 months)" style="margin-top:6px;">
+                        <div class="textarea-ai-wrapper" style="margin-top: 6px;">
+                            <textarea class="job-bullets-input"
+                                placeholder="Responsibilities (One per line)">Boosted overall service quality by 30% by mentoring more than 40 junior flight attendants and training them in high-quality health and safety standards&#10;Maintained 100% positive feedback rating from passengers by providing them exceptional client-centered service and ensuring their comfort and safety&#10;Completed more than 2,000 hours of international and domestic flights</textarea>
+                            <button type="button" class="btn-ai-action" onclick="generateAiExperience(this)">✨ AI
+                                Generated Bullet Points</button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addExperienceInput()">＋ Add Experience</button>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <div id="step4" class="step">
+                <div class="step-header">
+                    <h2>Education History</h2>
+                    <p>Highlight your degree and academic achievements.</p>
+                </div>
+                <div class="input-group">
+                    <label>Degree Title</label>
+                    <input type="text" id="eduDegree" value="Bachelor of Science in Tourism">
+                </div>
+                <div class="input-group">
+                    <label>Institution</label>
+                    <input type="text" id="eduInst" value="De Loureigh University">
+                </div>
+                <div class="input-group">
+                    <label>Year of Graduation</label>
+                    <input type="text" id="eduYear" value="2020">
+                </div>
+                <div class="input-group">
+                    <label>Achievements / Details (One per line)</label>
+                    <textarea
+                        id="eduDetails">Cum Laude&#10;Best Thesis&#10;President, De Loureigh Debate Club</textarea>
+                </div>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <div id="step5" class="step">
+                <div class="step-header">
+                    <h2>Certifications & Export</h2>
+                    <p>Add certifications and download document.</p>
+                </div>
+                <div id="certFormContainer">
+                    <div class="card-box cert-entry">
+                        <button type="button" class="remove-card-btn"
+                            onclick="removeCard(this, renderCertifications)"><i class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="cert-title-input" placeholder="Certification Name"
+                            value="Flight Safety Training">
+                        <input type="text" class="cert-inst-input" placeholder="Institution"
+                            value="National Aviation Association" style="margin-top:6px;">
+                        <input type="text" class="cert-year-input" placeholder="Year" value="2020"
+                            style="margin-top:6px;">
+                    </div>
+                    <div class="card-box cert-entry">
+                        <button type="button" class="remove-card-btn"
+                            onclick="removeCard(this, renderCertifications)"><i class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="cert-title-input" placeholder="Certification Name"
+                            value="First Aid Certification">
+                        <input type="text" class="cert-inst-input" placeholder="Institution"
+                            value="International Medical Agency" style="margin-top:6px;">
+                        <input type="text" class="cert-year-input" placeholder="Year" value="2020"
+                            style="margin-top:6px;">
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addCertificationInput()">＋ Add Certification</button>
+                <div class="step-buttons" style="margin-top: 15px;">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="downloadPDF()">Download / Print PDF <i
+                            class="fa-solid fa-print"></i></button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="preview-panel">
+
+            <div class="customizer-toolbar no-print">
+                <div class="toolbar-section">
+                    <span class="toolbar-label">Color Theme:</span>
+                    <div class="color-swatches">
+                        <span class="color-swatch active" style="background-color: #2b6cb0;"
+                            onclick="changeTheme('#2b6cb0')"></span>
+                        <span class="color-swatch" style="background-color: #1a365d;"
+                            onclick="changeTheme('#1a365d')"></span>
+                        <span class="color-swatch" style="background-color: #0f5132;"
+                            onclick="changeTheme('#0f5132')"></span>
+                        <span class="color-swatch" style="background-color: #581845;"
+                            onclick="changeTheme('#581845')"></span>
+                        <span class="color-swatch" style="background-color: #2d3748;"
+                            onclick="changeTheme('#2d3748')"></span>
+                    </div>
+                </div>
+                <div class="toolbar-section">
+                    <span class="toolbar-label">Style:</span>
+                    <select id="fontSelector" class="toolbar-select">
+                        <option value="Montserrat">Montserrat</option>
+                        <option value="Inter">Inter</option>
+                        <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                        <option value="Outfit">Outfit</option>
+                    </select>
+                </div>
+                <div class="toolbar-section">
+                    <button class="btn-pdf-download" onclick="downloadPDF()">Download / Print <i
+                            class="fa-solid fa-print"></i></button>
+                </div>
+            </div>
+
+            <div class="resume-page" id="resume-pdf-target">
+
+                <div class="resume-left-col">
+                    <div class="profile-img-container">
+                        <img id="previewImage"
+                            src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2364748b'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>"
+                            alt="Profile Photo">
+                    </div>
+
+                    <div class="profile-name-title">
+                        <div class="name-title" id="previewName" contenteditable="true">KIAN GRAHAM</div>
+                        <div class="sub-title" id="previewTitle" contenteditable="true">FLIGHT ATTENDANT</div>
+                    </div>
+
+                    <div class="contact-sidebar-list">
+                        <div class="contact-sidebar-item">
+                            <i class="fa-brands fa-linkedin"></i>
+                            <span id="previewLinkedin" contenteditable="true">linkedin.com/in/name</span>
+                        </div>
+                        <div class="contact-sidebar-item">
+                            <i class="fa-solid fa-envelope"></i>
+                            <span id="previewEmail" contenteditable="true">hello@reallygreatsite.com</span>
+                        </div>
+                        <div class="contact-sidebar-item">
+                            <i class="fa-solid fa-phone"></i>
+                            <span id="previewPhone" contenteditable="true">+123-456-7890</span>
+                        </div>
+                        <div class="contact-sidebar-item">
+                            <i class="fa-solid fa-globe"></i>
+                            <span id="previewWeb" contenteditable="true">www.reallygreatsite.com</span>
+                        </div>
+                        <div class="contact-sidebar-item">
+                            <i class="fa-solid fa-eye"></i>
+                            <span id="previewPortfolio" contenteditable="true">Click here for my portfolio</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="sidebar-section-title">RELEVANT SKILLS</div>
+                        <ul class="sidebar-skills-list" id="previewSkills">
+                            <li contenteditable="true">First Aid & Emergency Care</li>
+                            <li contenteditable="true">Fluency in French</li>
+                            <li contenteditable="true">Quality Customer Service</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="resume-right-col">
+
+                    <div class="right-section-block">
+                        <div class="section-header-banner">WORK EXPERIENCE</div>
+                        <div id="previewExperience">
+                        </div>
+                    </div>
+
+                    <div class="right-section-block">
+                        <div class="section-header-banner">EDUCATION HISTORY</div>
+                        <div class="edu-item">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                            <div class="edu-details">
+                                <h4 id="previewEduDegree" contenteditable="true">Bachelor of Science in Tourism</h4>
+                                <p><span id="previewEduInst" contenteditable="true">Institution: De Loureigh
+                                        University</span><br>
+                                    <span id="previewEduYear" contenteditable="true">Year of Graduation: 2020</span>
+                                </p>
+                                <ul class="bullet-list" id="previewEduDetails">
+                                    <li contenteditable="true">Cum Laude</li>
+                                    <li contenteditable="true">Best Thesis</li>
+                                    <li contenteditable="true">President, De Loureigh Debate Club</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right-section-block">
+                        <div class="section-header-banner">CERTIFICATIONS</div>
+                        <div class="edu-cert-block" id="previewCertifications">
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // STEPPER CONTROL
+        let currentStep = 1;
+        const totalSteps = 5;
+
+        function updateStepperUI() {
+            for (let i = 1; i <= totalSteps; i++) {
+                const stepEl = document.getElementById(`step${i}`);
+                if (stepEl) stepEl.classList.toggle("active", i === currentStep);
+            }
+            document.querySelectorAll(".step-node").forEach(node => {
+                const stepNum = parseInt(node.getAttribute("data-step"));
+                node.classList.toggle("active", stepNum <= currentStep);
+            });
+            const fill = document.getElementById("stepperProgressFill");
+            if (fill) fill.style.width = `${((currentStep - 1) / (totalSteps - 1)) * 100}%`;
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) { currentStep++; updateStepperUI(); }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) { currentStep--; updateStepperUI(); }
+        }
+
+        // COLOR THEME & THEME SWITCHING (Saved to localStorage & active state maintained)
+        function changeTheme(color) {
+            document.documentElement.style.setProperty('--theme-color', color);
+            localStorage.setItem("selectedColorTheme", color);
+            document.querySelectorAll('.color-swatch').forEach(s => {
+                const onclickAttr = s.getAttribute('onclick') || '';
+                s.classList.toggle('active', onclickAttr.includes(color));
+            });
+        }
+
+        // Restore active swatch on load
+        window.addEventListener("DOMContentLoaded", () => {
+            const savedColor = localStorage.getItem("selectedColorTheme");
+            if (savedColor) {
+                changeTheme(savedColor);
+            }
+        });
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
+            const newTheme = currentTheme === "light" ? "dark" : "light";
+
+            // HTML రూట్ ఎలిమెంట్‌కి మరియు బాడీకి థీమ్‌ను అప్లై చేయడం
+            document.documentElement.setAttribute("data-theme", newTheme);
+            if (document.body) {
+                document.body.setAttribute("data-theme", newTheme);
+            }
+
+            // బటన్ టెక్స్ట్ లేదా ఐకాన్‌ను మార్చడం కోసం
+            const toggleBtn = document.getElementById("themeToggle");
+            if (toggleBtn) {
+                toggleBtn.innerHTML = newTheme === "dark" ? "🌙 Light Mode" : "☀️ Toggle Theme";
+            }
+
+            // యూజర్ ఎంచుకున్న థీమ్‌ను లోకల్ స్టోరేజ్‌లో సేవ్ చేయడం
+            localStorage.setItem("theme", newTheme);
+        }
+        // STYLE / FONT CONTROL
+        document.getElementById("fontSelector").addEventListener("change", function () {
+            document.getElementById("resume-pdf-target").style.fontFamily = `'${this.value}', sans-serif`;
+        });
+
+        // DYNAMIC BINDING
+        function bindInput(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            if (input && preview) {
+                input.addEventListener("input", () => { preview.innerText = input.value; });
+            }
+        }
+
+        bindInput("nameInput", "previewName");
+        bindInput("titleInput", "previewTitle");
+
+        // Handle file upload for profile image
+        document.getElementById("imageFileInput").addEventListener("change", function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById("previewImage").src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        bindInput("linkedinInput", "previewLinkedin");
+        bindInput("emailInput", "previewEmail");
+        bindInput("phoneInput", "previewPhone");
+        bindInput("webInput", "previewWeb");
+        bindInput("portfolioText", "previewPortfolio");
+
+        bindInput("eduDegree", "previewEduDegree");
+        bindInput("eduInst", "previewEduInst");
+        bindInput("eduYear", "previewEduYear");
+
+        // Skills Dynamic List
+        // Skills Dynamic List (Comma Separated Support)
+        const skillsInput = document.getElementById("skillsInput");
+        function updateSkillsPreview() {
+            const val = skillsInput.value;
+            const items = val.split(",");
+            const list = document.getElementById("previewSkills");
+            list.innerHTML = "";
+            items.forEach(item => {
+                const trimmed = item.trim();
+                if (trimmed !== "") {
+                    const li = document.createElement("li");
+                    li.textContent = trimmed;
+                    li.setAttribute("contenteditable", "true");
+                    list.appendChild(li);
+                }
+            });
+        }
+        skillsInput.addEventListener("input", updateSkillsPreview);
+        // Edu Details Dynamic List
+        const eduDetailsInput = document.getElementById("eduDetails");
+        eduDetailsInput.addEventListener("input", function () {
+            const lines = this.value.split("\n");
+            const list = document.getElementById("previewEduDetails");
+            list.innerHTML = "";
+            lines.forEach(line => {
+                if (line.trim() !== "") {
+                    const li = document.createElement("li");
+                    li.textContent = line.trim();
+                    li.setAttribute("contenteditable", "true");
+                    list.appendChild(li);
+                }
+            });
+        });
+
+        // Dynamic Experience Inputs
+        function addExperienceInput() {
+            const container = document.getElementById("expFormContainer");
+            const div = document.createElement("div");
+            div.className = "card-box exp-entry";
+            div.innerHTML = `
+                <button type="button" class="remove-card-btn" onclick="removeCard(this, renderExperiences)"><i class="fa-solid fa-xmark"></i></button>
+                <input type="text" class="job-role-input" placeholder="Role Title">
+                <input type="text" class="job-sub-input" placeholder="Company Name" style="margin-top:6px;">
+                <input type="text" class="job-date-input" placeholder="Dates" style="margin-top:6px;">
+                <div class="textarea-ai-wrapper" style="margin-top: 6px;">
+                    <textarea class="job-bullets-input" placeholder="Responsibilities (One per line)"></textarea>
+                    <button type="button" class="btn-ai-action" onclick="generateAiExperience(this)">✨ AI Generated Bullet Points</button>
+                </div>
+            `;
+            container.appendChild(div);
+            bindExpEvents();
+        }
+
+        function bindExpEvents() {
+            document.querySelectorAll(".exp-entry").forEach(entry => {
+                entry.querySelectorAll("input, textarea").forEach(input => {
+                    input.removeEventListener("input", renderExperiences);
+                    input.addEventListener("input", renderExperiences);
+                });
+            });
+            renderExperiences();
+        }
+
+        function renderExperiences() {
+            const container = document.getElementById("previewExperience");
+            container.innerHTML = "";
+            document.querySelectorAll(".exp-entry").forEach(entry => {
+                const role = entry.querySelector(".job-role-input").value.trim();
+                const sub = entry.querySelector(".job-sub-input").value.trim();
+                const date = entry.querySelector(".job-date-input").value.trim();
+                const bulletsText = entry.querySelector(".job-bullets-input").value;
+
+                if (role || sub || date) {
+                    const item = document.createElement("div");
+                    item.className = "exp-entry-block";
+                    item.style.marginBottom = "15px";
+
+                    let bulletsHtml = "";
+                    if (bulletsText) {
+                        bulletsText.split("\n").forEach(line => {
+                            if (line.trim() !== "") bulletsHtml += `<li contenteditable="true">${line.trim()}</li>`;
+                        });
+                    }
+
+                    item.innerHTML = `
+                        <div class="exp-header-row">
+                            <i class="fa-solid fa-plane"></i>
+                            <div class="exp-titles">
+                                <h4 contenteditable="true">${role || 'ROLE TITLE'}</h4>
+                                <div class="company-name" contenteditable="true">${sub || ''}</div>
+                                <div class="exp-date" contenteditable="true">${date || ''}</div>
+                            </div>
+                        </div>
+                        <ul class="bullet-list">${bulletsHtml}</ul>
+                    `;
+                    container.appendChild(item);
+                }
+            });
+        }
+
+        // Dynamic Certifications Inputs
+        function addCertificationInput() {
+            const container = document.getElementById("certFormContainer");
+            const div = document.createElement("div");
+            div.className = "card-box cert-entry";
+            div.innerHTML = `
+                <button type="button" class="remove-card-btn" onclick="removeCard(this, renderCertifications)"><i class="fa-solid fa-xmark"></i></button>
+                <input type="text" class="cert-title-input" placeholder="Certification Name">
+                <input type="text" class="cert-inst-input" placeholder="Institution" style="margin-top:6px;">
+                <input type="text" class="cert-year-input" placeholder="Year" style="margin-top:6px;">
+            `;
+            container.appendChild(div);
+            bindCertEvents();
+        }
+
+        function bindCertEvents() {
+            document.querySelectorAll(".cert-entry").forEach(entry => {
+                entry.querySelectorAll("input").forEach(input => {
+                    input.removeEventListener("input", renderCertifications);
+                    input.addEventListener("input", renderCertifications);
+                });
+            });
+            renderCertifications();
+        }
+
+        function renderCertifications() {
+            const container = document.getElementById("previewCertifications");
+            container.innerHTML = "";
+            document.querySelectorAll(".cert-entry").forEach(entry => {
+                const title = entry.querySelector(".cert-title-input").value.trim();
+                const inst = entry.querySelector(".cert-inst-input").value.trim();
+                const year = entry.querySelector(".cert-year-input").value.trim();
+
+                if (title || inst || year) {
+                    const item = document.createElement("div");
+                    item.className = "cert-item";
+                    item.innerHTML = `
+                        <i class="fa-solid fa-certificate"></i>
+                        <div class="cert-details">
+                            <h4 contenteditable="true">${title || 'Certification Name'}</h4>
+                            <p><span contenteditable="true">Institution: ${inst || ''}</span><br>
+                            <span contenteditable="true">${year || ''}</span></p>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                }
+            });
+        }
+
+        function removeCard(btn, renderCallback) {
+            btn.parentElement.remove();
+            if (renderCallback) renderCallback();
+        }
+
+        // AI FEATURE ACTIONS (BACKEND CONNECTORS)
+        // AI FEATURE ACTIONS (BACKEND CONNECTORS)
+        async function generateAiSkills() {
+            const skillsInput = document.getElementById("skillsInput");
+            const chipsWrapper = document.getElementById("aiChipsWrapper");
+            const btn = document.getElementById("aiSkillsBtn");
+            const orig = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+
+            try {
+                const res = await fetch(getResumeApiUrl('generate-section'), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user_input: skillsInput.value, section_type: "skills", job_title: "Flight Attendant" })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    const aiText = data.text || data.summary || "";
+
+                    // Populate input box with comma-separated text if empty or append
+                    skillsInput.value = aiText;
+                    updateSkillsPreview();
+
+                    // Generate clickable suggestion chips
+                    // Generate clickable suggestion chips
+                    chipsWrapper.innerHTML = "";
+                    const skillsArray = aiText.split(",");
+                    skillsArray.forEach(skill => {
+                        const cleanSkill = skill.trim();
+                        if (cleanSkill) {
+                            const chip = document.createElement("span");
+                            chip.className = "ai-chip";
+                            chip.textContent = cleanSkill;
+
+                            // Click event to add skill and remove the chip automatically
+                            chip.onclick = function () {
+                                const currentVal = skillsInput.value.trim();
+                                if (currentVal === "") {
+                                    skillsInput.value = cleanSkill;
+                                } else {
+                                    // Append with a comma and space neatly
+                                    skillsInput.value = currentVal.endsWith(",") ? `${currentVal} ${cleanSkill}` : `${currentVal}, ${cleanSkill}`;
+                                }
+
+                                // Refresh the resume preview list
+                                updateSkillsPreview();
+
+                                // Automatically delete this chip from the suggestion list
+                                chip.remove();
+                            };
+
+                            chipsWrapper.appendChild(chip);
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error("AI Error:", err);
+            } finally {
+                btn.innerHTML = orig;
+            }
+        }
+
+        async function generateAiExperience(btn) {
+            const textarea = btn.previousElementSibling;
+            const orig = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+            try {
+                const res = await fetch(getResumeApiUrl('generate-section'), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user_input: textarea.value, section_type: "experience_bullets", job_title: "Flight Attendant" })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    textarea.value = data.text || data.summary;
+                    renderExperiences();
+                }
+            } catch (err) {
+                console.error("AI Error:", err);
+            } finally {
+                btn.innerHTML = orig;
+            }
+        }
+        // PRINT PREVIEW & PDF EXPORT FUNCTION (Fixed to persist selected color)
+        function downloadPDF() {
+            window.print();
+        }
+
+        // Initialize Initial States
+        bindExpEvents();
+        bindCertEvents();
+        updateStepperUI();
+        renderExperiences();
+        renderCertifications();
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Resume Workspace - GPT Hub</title>
+
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+            const observer = new MutationObserver(() => {
+                if (document.body) {
+                    document.body.setAttribute("data-theme", savedTheme);
+                    observer.disconnect();
+                }
+            });
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+        })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        /* =========================================
+           VARIABLES & SYSTEM THEMING
+           ========================================= */
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --text-primary: #0f172a;
+            --text-muted: #64748b;
+            --text-input: #0f172a;
+            --bg-input: #ffffff;
+            --border-input: #d1d5db;
+            --accent-blue: #2563eb;
+            --theme-color: #2563eb;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-input: #f8fafc;
+            --bg-input: #0f172a;
+            --border-input: #475569;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-body);
+            padding: 25px;
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* =========================================
+           TOP FRAME NAVBAR STYLING
+           ========================================= */
+        .builder-header {
+            width: 100%;
+            height: 70px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            position: sticky;
+            top: 15px;
+            z-index: 999;
+            margin-bottom: 25px;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .logo-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--theme-color);
+            transition: background 0.3s ease;
+        }
+
+        .theme-toggle-btn {
+            background: transparent;
+            border: 1px solid var(--border-input);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        [data-theme="dark"] .theme-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        /* =========================================
+           MAIN CONTAINER GRID LAYOUT
+           ========================================= */
+        .builder-container {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* =========================================
+           LEFT SIDE FRAME FORM CONSOLE
+           ========================================= */
+        .form-panel {
+            width: 40%;
+            min-height: 650px;
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 100px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .form-panel input,
+        .form-panel textarea,
+        .form-panel select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-input);
+            background: var(--bg-input);
+            color: var(--text-input);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .form-panel textarea {
+            height: 90px;
+            resize: vertical;
+        }
+
+        .form-panel input:focus,
+        .form-panel textarea:focus {
+            border-color: var(--theme-color);
+            outline: none;
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-color) 20%, transparent);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .input-group label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .step {
+            display: none !important;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .step.active {
+            display: flex !important;
+        }
+
+        .step-header {
+            margin-bottom: 10px;
+        }
+
+        .step-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .step-header p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* =========================================
+           INTERACTIVE STEPPER PROGRESS BAR
+           ========================================= */
+        .stepper-progress-container {
+            position: relative;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .stepper-track-bg {
+            position: absolute;
+            top: 14px;
+            left: 15px;
+            right: 15px;
+            height: 3px;
+            background: rgba(0, 0, 0, 0.08);
+            z-index: 1;
+            border-radius: 2px;
+        }
+
+        [data-theme="dark"] .stepper-track-bg {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .stepper-track-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--theme-color);
+            border-radius: 2px;
+            transition: width 0.35s ease;
+        }
+
+        .stepper-steps-wrapper {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .step-circle {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--border-input);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .step-node.active .step-circle {
+            border-color: var(--theme-color);
+            background: var(--theme-color);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+        }
+
+        /* =========================================
+           AI ACTION BUTTONS & CHIPS
+           ========================================= */
+        .ai-chip-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+            margin-bottom: 12px;
+        }
+
+        .ai-suggestion-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            background-color: rgba(124, 58, 237, 0.08);
+            color: #7c3aed;
+            border: 1px solid rgba(124, 58, 237, 0.25);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .ai-suggestion-chip:hover {
+            background-color: #7c3aed;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        /* Dynamic Input Cards */
+        .card-box {
+            border: 1px solid var(--border-input);
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            background: var(--bg-input);
+            position: relative;
+        }
+
+        .remove-card-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #fee2e2;
+            color: #ef4444;
+            border: 1px solid #fca5a5;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .remove-card-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .add-btn {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px dashed var(--border-input);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+            transition: background 0.2s ease;
+        }
+
+        .add-btn:hover {
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        /* BUTTON CONSOLE */
+        .step-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .next-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: var(--theme-color);
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s ease, background 0.3s ease;
+        }
+
+        .next-btn:hover {
+            opacity: 0.9;
+        }
+
+        .back-btn {
+            padding: 12px 20px;
+            border: 1px solid var(--border-input);
+            border-radius: 8px;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* =========================================
+           RIGHT SIDE PANEL & CUSTOMIZER TOOLBAR
+           ========================================= */
+        .preview-panel {
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .customizer-toolbar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+        }
+
+        .toolbar-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toolbar-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .color-swatches {
+            display: flex;
+            gap: 8px;
+        }
+
+        .color-swatch {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.15);
+        }
+
+        .color-swatch.active {
+            border-color: var(--text-primary);
+            transform: scale(1.15);
+        }
+
+        .toolbar-select {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-input);
+            font-size: 12px;
+            font-weight: 700;
+            background: var(--bg-input);
+            color: var(--text-input);
+            cursor: pointer;
+        }
+
+        .btn-pdf-download {
+            background: #ef4444;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .btn-pdf-download:hover {
+            background: #dc2626;
+        }
+
+        /* =========================================
+           RESUME CANVAS (TWO-COLUMN LAYOUT)
+           ========================================= */
+        .resume-page {
+            width: 794px;
+            min-height: 1123px;
+            background: #ffffff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+            padding: 45px 50px;
+            position: relative;
+            color: #222222;
+            margin: 0 auto;
+        }
+
+        .resume-header-top {
+            text-align: center;
+            border-bottom: 2px solid var(--theme-color);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            transition: border-color 0.3s ease;
+        }
+
+        .name-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #000000;
+            text-transform: uppercase;
+        }
+
+        .sub-title {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: var(--theme-color);
+            margin-top: 6px;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+        }
+
+        .resume-body-grid {
+            display: flex;
+            gap: 40px;
+        }
+
+        .resume-sidebar {
+            width: 210px;
+            flex-shrink: 0;
+        }
+
+        .resume-main-content {
+            flex: 1;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--theme-color);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            transition: color 0.3s ease;
+        }
+
+        .sidebar-section {
+            margin-bottom: 25px;
+        }
+
+        .sidebar-text {
+            font-size: 12px;
+            line-height: 1.5;
+            color: #333333;
+            margin-bottom: 6px;
+        }
+
+        /* Skills single line flow styles */
+        .sidebar-skills-list {
+            list-style: none;
+            padding: 0;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #333333;
+            word-break: break-word;
+        }
+
+        .summary-text {
+            font-size: 12px;
+            line-height: 1.6;
+            color: #222222;
+            margin-bottom: 25px;
+        }
+
+        .experience-block {
+            margin-bottom: 20px;
+        }
+
+        .item-heading {
+            font-size: 13px;
+            font-weight: 700;
+            color: #000000;
+        }
+
+        .item-date {
+            font-size: 12px;
+            color: #555555;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .bullet-list {
+            list-style-type: disc;
+            padding-left: 18px;
+            margin-bottom: 10px;
+        }
+
+        .bullet-list li {
+            font-size: 12px;
+            color: #222222;
+            line-height: 1.5;
+            margin-bottom: 4px;
+        }
+
+        .education-item {
+            margin-bottom: 12px;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #222222;
+        }
+
+        .education-item strong {
+            font-weight: 700;
+            color: #000000;
+        }
+
+        [contenteditable="true"]:hover {
+            outline: 1px dashed var(--theme-color) !important;
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        /* PRINT STYLES */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+
+            body {
+                padding: 0;
+                background: #ffffff;
+            }
+
+            .builder-header,
+            .form-panel,
+            .customizer-toolbar,
+            .no-print {
+                display: none !important;
+            }
+
+            .builder-container,
+            .preview-panel {
+                display: block !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .resume-page {
+                box-shadow: none !important;
+                width: 210mm !important;
+                min-height: 297mm !important;
+                margin: 0 auto !important;
+            }
+        }
+    </style>
+    <!-- Supabase CDN & Shared Auth/API Modules -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/shared/auth.js"></script>
+    <script src="/shared/api-config.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            if (window.ResumeAuth && typeof window.ResumeAuth.requireAuth === 'function') {
+                window.ResumeAuth.requireAuth("/index.html?showLogin=true").catch(() => {});
+            }
+        });
+    </script>
+</head>
+
+<body>
+
+    <header class="builder-header no-print">
+        <div class="logo">
+            <span class="logo-dot"></span>
+            GPT HUB
+        </div>
+        <div>
+            <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()">☀️ Toggle Theme</button>
+        </div>
+    </header>
+
+    <div class="builder-container">
+
+        <div class="form-panel no-print">
+
+            <div class="stepper-progress-container">
+                <div class="stepper-track-bg">
+                    <div class="stepper-track-fill" id="stepperProgressFill"></div>
+                </div>
+                <div class="stepper-steps-wrapper">
+                    <div class="step-node active" data-step="1">
+                        <div class="step-circle">1</div>
+                    </div>
+                    <div class="step-node" data-step="2">
+                        <div class="step-circle">2</div>
+                    </div>
+                    <div class="step-node" data-step="3">
+                        <div class="step-circle">3</div>
+                    </div>
+                    <div class="step-node" data-step="4">
+                        <div class="step-circle">4</div>
+                    </div>
+                    <div class="step-node" data-step="5">
+                        <div class="step-circle">5</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="step1" class="step active">
+                <div class="step-header">
+                    <h2>Personal & Contact Details</h2>
+                    <p>Enter contact details displayed on the sidebar.</p>
+                </div>
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="nameInput" value="MIRA KARLSSON">
+                </div>
+                <div class="input-group">
+                    <label>Professional Title</label>
+                    <input type="text" id="titleInput" value="SOCIAL MEDIA MARKETING SPECIALIST">
+                </div>
+                <div class="input-group">
+                    <label>Phone Number</label>
+                    <input type="text" id="phoneInput" value="(816) 555-0146">
+                </div>
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="emailInput" value="mira@example.com">
+                </div>
+                <div class="input-group">
+                    <label>Address Line 1</label>
+                    <input type="text" id="address1Input" value="United States, 1600">
+                </div>
+                <div class="input-group">
+                    <label>Address Line 2</label>
+                    <input type="text" id="address2Input" value="Amityville Road, Palo Alto, CA 94304">
+                </div>
+                <div class="step-buttons">
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <div id="step2" class="step">
+                <div class="step-header">
+                    <h2>Professional Summary</h2>
+                    <p>Provide a summary of your professional background.</p>
+                </div>
+                <div class="textarea-ai-wrapper">
+                    <textarea
+                        id="summaryInput">Results-driven Digital Marketing Project Manager with over 9 years of experience leading end-to-end marketing and PR campaigns, optimizing budgets, and managing cross-functional teams of up to 70 people. Proven ability to drive project efficiency by reducing costs while maintaining high-quality outcomes.</textarea>
+                    <button type="button" id="aiSummaryBtn" class="btn-ai-action" onclick="generateAiSummary(this)">✨
+                        Generate with AI</button>
+                </div>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <div id="step3" class="step">
+                <div class="step-header">
+                    <h2>Skills</h2>
+                    <p>List your key areas of expertise (Comma separated).</p>
+                </div>
+                <div class="textarea-ai-wrapper">
+                    <textarea
+                        id="skillsInput">Social Media Strategy, Content Creation, Instagram & TikTok Growth, Paid Meta Ads, Analytics & Reporting</textarea>
+                    <button type="button" id="aiSkillsBtn" class="btn-ai-action" onclick="generateAiSkills(this)">✨ Ai
+                        generated
+                        suggested skills</button>
+                </div>
+
+                <div id="aiSuggestionsWrapper" style="display: none;">
+                    <label style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Suggested
+                        Skills (Click to add):</label>
+                    <div id="suggestedSkillChips" class="ai-chip-container"></div>
+                </div>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <div id="step4" class="step">
+                <div class="step-header">
+                    <h2>Professional Experience</h2>
+                    <p>Specify work roles, companies, and achievements.</p>
+                </div>
+                <div id="expFormContainer">
+                    <div class="card-box exp-entry">
+                        <button type="button" class="remove-card-btn" onclick="removeCard(this, renderExperiences)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="job-role-input" placeholder="Role & Company"
+                            value="Content marketing specialist, Phoenix Int., New York">
+                        <input type="text" class="job-date-input" placeholder="Dates" value="Oct 2015 – Jul 2019"
+                            style="margin-top:6px;">
+                        <div class="textarea-ai-wrapper" style="margin-top: 6px;">
+                            <textarea class="job-bullets-input"
+                                placeholder="Responsibilities (One per line)">Developed and executed content marketing strategies that leveraged social media to drive traffic, engagement, and conversions.&#10;Produced high-quality, engaging content for social media, email marketing, and the company's blog.&#10;Collaborated with cross-functional teams to align content with overall marketing goals and brand voice.&#10;Managed editorial calendars and ensured timely delivery of high-quality content across various channels.</textarea>
+                            <button type="button" class="btn-ai-action" onclick="generateAiExperience(this)">✨ Ai
+                                Generated Bullet Points</button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addExperienceInput()">＋ Add Experience</button>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <div id="step5" class="step">
+                <div class="step-header">
+                    <h2>Education & Export</h2>
+                    <p>Enter your educational background and export PDF.</p>
+                </div>
+                <div class="input-group">
+                    <label>Education Entries (One per line: Institution, Degree, Location | Dates)</label>
+                    <textarea
+                        id="educationInput">Bellows College, BA, Communications, Phoenix | Aug 2014 – Jun 2019&#10;East Beringer Community College, AA, Communications, Beringer | Aug 2010 – Jun 2014</textarea>
+                </div>
+                <div class="step-buttons" style="margin-top: 15px;">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="downloadPDF()">Download / Print PDF <i
+                            class="fa-solid fa-print"></i></button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="preview-panel">
+
+            <div class="customizer-toolbar no-print">
+                <div class="toolbar-section">
+                    <span class="toolbar-label">Color Theme:</span>
+                    <div class="color-swatches">
+                        <span class="color-swatch active" style="background-color: #2563eb;"
+                            onclick="changeTheme('#2563eb')"></span>
+                        <span class="color-swatch" style="background-color: #1a365d;"
+                            onclick="changeTheme('#1a365d')"></span>
+                        <span class="color-swatch" style="background-color: #0f5132;"
+                            onclick="changeTheme('#0f5132')"></span>
+                        <span class="color-swatch" style="background-color: #581845;"
+                            onclick="changeTheme('#581845')"></span>
+                        <span class="color-swatch" style="background-color: #2d3748;"
+                            onclick="changeTheme('#2d3748')"></span>
+                    </div>
+                </div>
+                <div class="toolbar-section">
+                    <span class="toolbar-label">Style:</span>
+                    <select id="fontSelector" class="toolbar-select">
+                        <option value="Montserrat">Montserrat</option>
+                        <option value="Inter">Inter</option>
+                        <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                        <option value="Outfit">Outfit</option>
+                    </select>
+                </div>
+                <div class="toolbar-section">
+                    <button class="btn-pdf-download" onclick="downloadPDF()">Download / Print <i
+                            class="fa-solid fa-print"></i></button>
+                </div>
+            </div>
+
+            <div class="resume-page" id="resume-pdf-target">
+
+                <div class="resume-header-top">
+                    <div class="name-title" id="previewName" contenteditable="true">MIRA KARLSSON</div>
+                    <div class="sub-title" id="previewTitle" contenteditable="true">SOCIAL MEDIA MARKETING SPECIALIST
+                    </div>
+                </div>
+
+                <div class="resume-body-grid">
+                    <div class="resume-sidebar">
+                        <div class="sidebar-section">
+                            <div class="section-title">DETAILS</div>
+                            <div class="sidebar-text" id="previewPhone" contenteditable="true">(816) 555-0146</div>
+                            <div class="sidebar-text" id="previewEmail" contenteditable="true">mira@example.com</div>
+                            <div class="sidebar-text" id="previewAddress1" contenteditable="true">United States, 1600
+                            </div>
+                            <div class="sidebar-text" id="previewAddress2" contenteditable="true">Amityville Road, Palo
+                                Alto, CA 94304</div>
+                        </div>
+
+                        <div class="sidebar-section">
+                            <div class="section-title">SKILLS</div>
+                            <div id="previewSkills" class="sidebar-skills-list" contenteditable="true">
+                                Social Media Strategy, Content Creation, Instagram & TikTok Growth, Paid Meta Ads,
+                                Analytics & Reporting
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="resume-main-content">
+                        <div class="sidebar-section">
+                            <div class="section-title">SUMMARY</div>
+                            <div class="summary-text" id="previewSummary" contenteditable="true">
+                                Results-driven Digital Marketing Project Manager with over 9 years of experience leading
+                                end-to-end marketing and PR campaigns, optimizing budgets, and managing cross-functional
+                                teams of up to 70 people. Proven ability to drive project efficiency by reducing costs
+                                while maintaining high-quality outcomes.
+                            </div>
+                        </div>
+
+                        <div class="sidebar-section">
+                            <div class="section-title">EXPERIENCE</div>
+                            <div id="previewExperience">
+                            </div>
+                        </div>
+
+                        <div class="sidebar-section">
+                            <div class="section-title">EDUCATION</div>
+                            <div id="previewEducation">
+                                <div class="education-item">
+                                    <strong contenteditable="true">Bellows College, BA, Communications,
+                                        Phoenix</strong><br>
+                                    <span contenteditable="true">Aug 2014 – Jun 2019</span>
+                                </div>
+                                <div class="education-item" style="margin-top: 10px;">
+                                    <strong contenteditable="true">East Beringer Community College, AA, Communications,
+                                        Beringer</strong><br>
+                                    <span contenteditable="true">Aug 2010 – Jun 2014</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 5;
+
+        function updateStepperUI() {
+            for (let i = 1; i <= totalSteps; i++) {
+                const stepEl = document.getElementById(`step${i}`);
+                if (stepEl) stepEl.classList.toggle("active", i === currentStep);
+            }
+            document.querySelectorAll(".step-node").forEach(node => {
+                const stepNum = parseInt(node.getAttribute("data-step"));
+                node.classList.toggle("active", stepNum <= currentStep);
+            });
+            const fill = document.getElementById("stepperProgressFill");
+            if (fill) fill.style.width = `${((currentStep - 1) / (totalSteps - 1)) * 100}%`;
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) { currentStep++; updateStepperUI(); }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) { currentStep--; updateStepperUI(); }
+        }
+
+        function changeTheme(color) {
+            document.documentElement.style.setProperty('--theme-color', color);
+            document.querySelectorAll('.color-swatch').forEach(s => {
+                s.classList.toggle('active', s.getAttribute('onclick').includes(color));
+            });
+        }
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
+            const newTheme = currentTheme === "light" ? "dark" : "light";
+
+            // HTML రూట్ ఎలిమెంట్‌కి మరియు బాడీకి థీమ్‌ను అప్లై చేయడం
+            document.documentElement.setAttribute("data-theme", newTheme);
+            if (document.body) {
+                document.body.setAttribute("data-theme", newTheme);
+            }
+
+            // బటన్ టెక్స్ట్ లేదా ఐకాన్‌ను మార్చడం కోసం
+            const toggleBtn = document.getElementById("themeToggle");
+            if (toggleBtn) {
+                toggleBtn.innerHTML = newTheme === "dark" ? "🌙 Light Mode" : "☀️ Toggle Theme";
+            }
+
+            // యూజర్ ఎంచుకున్న థీమ్‌ను లోకల్ స్టోరేజ్‌లో సేవ్ చేయడం
+            localStorage.setItem("theme", newTheme);
+        }
+
+        document.getElementById("fontSelector").addEventListener("change", function () {
+            document.getElementById("resume-pdf-target").style.fontFamily = `'${this.value}', sans-serif`;
+        });
+
+        function bindInput(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            if (input && preview) {
+                input.addEventListener("input", () => { preview.innerText = input.value; });
+            }
+        }
+
+        bindInput("nameInput", "previewName");
+        bindInput("titleInput", "previewTitle");
+        bindInput("phoneInput", "previewPhone");
+        bindInput("emailInput", "previewEmail");
+        bindInput("address1Input", "previewAddress1");
+        bindInput("address2Input", "previewAddress2");
+        bindInput("summaryInput", "previewSummary");
+
+        // Skills Input Binding - Single line text with comma separation
+        const skillsInput = document.getElementById("skillsInput");
+        skillsInput.addEventListener("input", function () {
+            const previewSkills = document.getElementById("previewSkills");
+            if (previewSkills) {
+                previewSkills.innerText = this.value;
+            }
+        });
+
+        const educationInput = document.getElementById("educationInput");
+        educationInput.addEventListener("input", function () {
+            const lines = this.value.split("\n");
+            const container = document.getElementById("previewEducation");
+            container.innerHTML = "";
+            lines.forEach(line => {
+                if (line.trim() !== "") {
+                    const parts = line.split("|");
+                    const schoolDeg = parts[0] ? parts[0].trim() : "";
+                    const dates = parts[1] ? parts[1].trim() : "";
+                    const div = document.createElement("div");
+                    div.className = "education-item";
+                    div.style.marginBottom = "10px";
+                    div.innerHTML = `
+                        <strong contenteditable="true">${schoolDeg}</strong><br>
+                        <span contenteditable="true">${dates}</span>
+                    `;
+                    container.appendChild(div);
+                }
+            });
+        });
+
+        function addExperienceInput() {
+            const container = document.getElementById("expFormContainer");
+            const div = document.createElement("div");
+            div.className = "card-box exp-entry";
+            div.innerHTML = `
+                <button type="button" class="remove-card-btn" onclick="removeCard(this, renderExperiences)"><i class="fa-solid fa-xmark"></i></button>
+                <input type="text" class="job-role-input" placeholder="Role & Company">
+                <input type="text" class="job-date-input" placeholder="Dates" style="margin-top:6px;">
+                <div class="textarea-ai-wrapper" style="margin-top:6px;">
+                    <textarea class="job-bullets-input" placeholder="Responsibilities (One per line)"></textarea>
+                    <button type="button" class="btn-ai-action" onclick="generateAiExperience(this)">✨ Ai Generated Bullet Points</button>
+                </div>
+            `;
+            container.appendChild(div);
+            bindExpEvents();
+        }
+
+        function bindExpEvents() {
+            document.querySelectorAll(".exp-entry").forEach(entry => {
+                entry.querySelectorAll("input, textarea").forEach(input => {
+                    input.removeEventListener("input", renderExperiences);
+                    input.addEventListener("input", renderExperiences);
+                });
+            });
+            renderExperiences();
+        }
+
+        function renderExperiences() {
+            const container = document.getElementById("previewExperience");
+            container.innerHTML = "";
+            document.querySelectorAll(".exp-entry").forEach(entry => {
+                const role = entry.querySelector(".job-role-input").value.trim();
+                const date = entry.querySelector(".job-date-input").value.trim();
+                const bulletsText = entry.querySelector(".job-bullets-input").value;
+
+                if (role || date) {
+                    const item = document.createElement("div");
+                    item.className = "experience-block";
+
+                    let bulletsHtml = "";
+                    if (bulletsText) {
+                        bulletsText.split("\n").forEach(line => {
+                            if (line.trim() !== "") bulletsHtml += `<li contenteditable="true">${line.trim()}</li>`;
+                        });
+                    }
+
+                    item.innerHTML = `
+                        <div class="item-heading" contenteditable="true">${role || 'ROLE TITLE, COMPANY'}</div>
+                        <div class="item-date" contenteditable="true">${date || ''}</div>
+                        <ul class="bullet-list">${bulletsHtml}</ul>
+                    `;
+                    container.appendChild(item);
+                }
+            });
+        }
+
+        function removeCard(btn, renderCallback) {
+            btn.parentElement.remove();
+            if (renderCallback) renderCallback();
+        }
+
+        async function generateAiSummary(btn) {
+            const summaryInput = document.getElementById("summaryInput");
+            if (!btn) btn = document.getElementById("aiSummaryBtn");
+            const orig = btn ? btn.innerHTML : "✨ Generate with AI";
+
+            if (btn) {
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+                btn.disabled = true;
+            }
+
+            try {
+                const res = await fetch(getResumeApiUrl('generate-summary'), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user_input: summaryInput.value, role: "Social Media Marketing Specialist" })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    summaryInput.value = data.summary || data.text;
+
+                    const previewSummary = document.getElementById("previewSummary");
+                    if (previewSummary) previewSummary.innerText = summaryInput.value;
+                } else {
+                    alert("Failed to generate summary from server.");
+                }
+            } catch (err) {
+                console.error("AI Error:", err);
+                alert("API Connection Error: Ensure FastAPI server is running on ${getResumeApiUrl('')}");
+            } finally {
+                if (btn) {
+                    btn.innerHTML = orig;
+                    btn.disabled = false;
+                }
+            }
+        }
+
+        async function generateAiSkills(btn) {
+            const textarea = document.getElementById("skillsInput");
+            if (!btn) btn = document.getElementById("aiSkillsBtn");
+            const wrap = document.getElementById("aiSuggestionsWrapper");
+            const chipsContainer = document.getElementById("suggestedSkillChips");
+
+            const userVal = textarea.value.trim();
+            const orig = btn ? btn.innerHTML : "✨ Ai generated suggested skills";
+
+            if (btn) {
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+                btn.disabled = true;
+            }
+
+            try {
+                const res = await fetch(getResumeApiUrl('generate-section'), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_input: userVal || "Core social media marketing skills and tools",
+                        section_type: "skills",
+                        job_title: "Social Media Marketing Specialist"
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    let rawSkills = data.skills || data.text || "";
+                    let skillList = Array.isArray(rawSkills)
+                        ? rawSkills
+                        : rawSkills.split(",").map(s => s.replace(/^[-•*#\d.\s]+/, "").trim()).filter(Boolean);
+
+                    if (chipsContainer) {
+                        chipsContainer.innerHTML = "";
+                        skillList.forEach(skill => {
+                            const chip = document.createElement("button");
+                            chip.type = "button";
+                            chip.className = "ai-suggestion-chip";
+                            chip.innerHTML = `<i class="fa-solid fa-plus" style="font-size: 9px;"></i> ${skill}`;
+
+                            // Clicking chip appends it to textarea and updates preview instantly
+                            chip.onclick = () => {
+                                let current = textarea.value.trim();
+                                textarea.value = current ? `${current}, ${skill}` : skill;
+
+                                const previewSkills = document.getElementById("previewSkills");
+                                if (previewSkills) previewSkills.innerText = textarea.value;
+
+                                chip.remove();
+                                if (chipsContainer.children.length === 0 && wrap) {
+                                    wrap.style.display = "none";
+                                }
+                            };
+                            chipsContainer.appendChild(chip);
+                        });
+
+                        if (wrap) wrap.style.display = "block";
+                    } else {
+                        textarea.value = skillList.join(", ");
+                        const previewSkills = document.getElementById("previewSkills");
+                        if (previewSkills) previewSkills.innerText = textarea.value;
+                    }
+                } else {
+                    alert("Failed to fetch skills from backend server.");
+                }
+            } catch (err) {
+                console.error("AI Error:", err);
+                alert("API Connection Error: Ensure FastAPI server is running on ${getResumeApiUrl('')}");
+            } finally {
+                if (btn) {
+                    btn.innerHTML = orig;
+                    btn.disabled = false;
+                }
+            }
+        }
+
+        async function generateAiExperience(btn) {
+            const textarea = btn.previousElementSibling;
+            const orig = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(getResumeApiUrl('generate-section'), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user_input: textarea.value, section_type: "experience_bullets", job_title: "Social Media Marketing Specialist" })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    textarea.value = data.text || data.summary;
+                    renderExperiences();
+                } else {
+                    alert("Failed to generate experience bullet points.");
+                }
+            } catch (err) {
+                console.error("AI Error:", err);
+                alert("API Connection Error: Ensure FastAPI server is running on ${getResumeApiUrl('')}");
+            } finally {
+                btn.innerHTML = orig;
+                btn.disabled = false;
+            }
+        }
+
+        function downloadPDF() {
+            window.print();
+        }
+
+        bindExpEvents();
+        updateStepperUI();
+    </script>
+
+</body>
+
+</html>

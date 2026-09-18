@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerCompass AI — Career Discovery Assessment</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .assessment-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border);
+            padding: 2.5rem;
+            max-width: 820px;
+            margin: 0 auto;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+        }
+        .phase-indicator-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+        .guidance-box {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(79, 70, 229, 0.05));
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            border-radius: var(--radius-lg);
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+        .guidance-icon {
+            font-size: 1.25rem;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 9999px;
+            margin: 1.25rem 0 2rem;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.4s ease;
+        }
+        .option-card {
+            display: flex;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            margin-bottom: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: var(--bg-main);
+            position: relative;
+        }
+        .option-card:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            transform: translateX(4px);
+        }
+        .option-card.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+        .option-card.unsure-option {
+            border-style: dashed;
+            opacity: 0.9;
+            background: rgba(0, 0, 0, 0.01);
+        }
+        .option-card.unsure-option:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+        }
+        .option-card.unsure-option.selected {
+            border-color: #64748b;
+            box-shadow: 0 0 0 2px #64748b;
+            background: #f1f5f9;
+        }
+        .option-radio {
+            width: 20px;
+            height: 20px;
+            margin-right: 1.25rem;
+            accent-color: var(--primary);
+            flex-shrink: 0;
+        }
+        .option-text {
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            flex: 1;
+            line-height: 1.4;
+        }
+        /* Transition Screen Styles */
+        .discovery-reveal-card {
+            text-align: center;
+            padding: 1rem 0;
+        }
+        .reveal-icon-circle {
+            width: 72px;
+            height: 72px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.25rem;
+        }
+        .domain-badge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+        .domain-signal-card {
+            background: var(--bg-main);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.2s ease;
+        }
+        .domain-signal-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+        .signal-rank-badge {
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+        .signal-info h4 {
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+        .signal-info p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo"><i class="fas fa-compass"></i></div>
+                <div class="sidebar-title">CareerCompass</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="profile.html" class="nav-item">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="results.html" class="nav-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Career Analysis</span>
+                </a>
+                <a href="roadmap.html" class="nav-item">
+                    <i class="fas fa-map"></i>
+                    <span>My Roadmap</span>
+                </a>
+                <a href="explorer.html" class="nav-item">
+                    <i class="fas fa-search"></i>
+                    <span>Career Explorer</span>
+                </a>
+                <a href="chat.html" class="nav-item">
+                    <i class="fas fa-comments"></i>
+                    <span>AI Counselor</span>
+                </a>
+                <a href="resume.html" class="nav-item">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Resume Review</span>
+                </a>
+                <a href="admin.html" class="nav-item" id="admin-nav-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Admin Panel</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <div class="badge badge-primary" style="margin-bottom: 0.5rem;">
+                        <i class="fas fa-compass"></i> Career Discovery Journey
+                    </div>
+                    <h1>Discover What Kind of Work Suits You</h1>
+                    <p style="color: var(--text-secondary);">No exams or technical tests — just exploring the activities, challenges, and environments you naturally enjoy.</p>
+                </div>
+                <button class="btn btn-secondary" onclick="resetAssessment()" style="font-size: 0.85rem;" title="Start over with a clean session">
+                    <i class="fas fa-redo-alt"></i> Start Over
+                </button>
+            </header>
+
+            <div id="assessment-error"></div>
+            <div id="assessment-loading" style="text-align: center; padding: 4rem;">
+                <span class="loader"></span>
+                <p id="loading-message" style="margin-top: 1rem; color: var(--text-secondary);">Connecting to Career Discovery Engine...</p>
+            </div>
+
+            <!-- Main Assessment Container -->
+            <div id="assessment-container" style="display: none;">
+                <div class="assessment-card" id="card-inner">
+                    
+                    <!-- Question View -->
+                    <div id="question-view">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                            <span id="phase-badge" class="phase-indicator-badge">
+                                <i class="fas fa-compass"></i> <span id="phase-badge-text">Phase 1 of 2: Broad Discovery</span>
+                            </span>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; background: var(--bg-main); padding: 0.25rem 0.6rem; border-radius: var(--radius-md); border: 1px solid var(--border);">
+                                    <i class="fas fa-language" style="color: var(--primary);"></i>
+                                    <select id="assessment-lang-select" onchange="handleLanguageChange(this.value)" style="border: none; background: transparent; font-weight: 600; cursor: pointer; outline: none; font-size: 0.85rem;">
+                                        <option value="en">English</option>
+                                        <option value="te">తెలుగు (Telugu)</option>
+                                    </select>
+                                </div>
+                                <span id="question-counter" style="font-weight: 600; color: var(--text-secondary); font-size: 0.9rem;">
+                                    Question 1 of 10
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="progress-bar-container">
+                            <div id="progress-fill" class="progress-bar-fill" style="width: 10%;"></div>
+                        </div>
+
+                        <div class="guidance-box" id="guidance-banner">
+                            <i class="fas fa-lightbulb guidance-icon"></i>
+                            <span id="guidance-text">Let's discover what kind of work sounds most interesting to you.</span>
+                        </div>
+
+                        <h2 id="question-text" style="font-size: 1.35rem; margin-bottom: 1.5rem; line-height: 1.5;">
+                            Question text goes here
+                        </h2>
+
+                        <div id="options-container">
+                            <!-- Populated by JS -->
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; margin-top: 2.5rem; align-items: center;">
+                            <button id="prev-btn" class="btn btn-secondary" onclick="handlePrevious()" style="display: none;">
+                                <i class="fas fa-arrow-left"></i> Previous
+                            </button>
+                            <div style="margin-left: auto; display: flex; gap: 1rem;">
+                                <button id="next-btn" class="btn btn-primary" onclick="handleNext()">
+                                    Next <i class="fas fa-arrow-right"></i>
+                                </button>
+                                <button id="submit-btn" class="btn btn-accent" onclick="handleSubmitAssessment()" style="display: none;">
+                                    <i class="fas fa-paper-plane"></i> Submit Assessment
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Intermediate Neutral Transition View (Phase 2) - NO DOMAIN SPOILERS -->
+                    <div id="transition-view" style="display: none;" class="discovery-reveal-card">
+                        <div class="reveal-icon-circle">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h2 style="font-size: 1.6rem; margin-bottom: 0.75rem; color: var(--text-primary);">
+                            Nice! We're getting a better picture of the kinds of problems you enjoy.
+                        </h2>
+                        <p style="color: var(--text-secondary); max-width: 580px; margin: 0 auto 2.5rem; line-height: 1.6; font-size: 1.05rem;">
+                            Your answers gave us a few clues. Let's explore them a little deeper.
+                        </p>
+
+                        <button class="btn btn-primary" style="font-size: 1.05rem; padding: 0.85rem 2.5rem;" onclick="continueFromTransition()">
+                            Continue <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Final Completion Screen -->
+                    <div id="completion-view" style="display: none;" class="discovery-reveal-card">
+                        <div class="reveal-icon-circle" style="background: var(--success-light); color: var(--success);">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <span class="badge badge-success" style="margin-bottom: 0.75rem;">Discovery Completed</span>
+                        <h2 style="font-size: 1.65rem; margin-bottom: 0.75rem;">You've Completed All 10 Questions!</h2>
+                        <p style="color: var(--text-secondary); max-width: 580px; margin: 0 auto 2.5rem; line-height: 1.6; font-size: 1.05rem;">
+                            Your responses have calibrated your interest signals and work preferences. Click below to view your personalized Career Match Analysis.
+                        </p>
+
+                        <button id="final-submit-btn" class="btn btn-accent" style="font-size: 1.05rem; padding: 0.9rem 2.5rem;" onclick="handleSubmitAssessment()">
+                            <i class="fas fa-chart-pie"></i> View My Career Analysis
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/api.js"></script>
+    <script>
+        // State
+        const STORAGE_KEY = 'career_compass_discovery_answers';
+        const TRANSITION_KEY = 'career_compass_transition_ack';
+        let userAnswersList = []; // array of { question_id, option_id, question_data, selected_option_text }
+        let currentQuestion = null;
+        let currentSelectedOptionId = null;
+        let currentPhase = 'broad';
+        let isTransitionAcknowledged = false;
+        let currentLang = 'en';
+
+        function handleLanguageChange(lang) {
+            currentLang = lang;
+            fetchNextAdaptiveStep();
+        }
+
+        async function initAssessment() {
+            try {
+                const user = await requireAuth();
+                if (!user) return;
+
+                await syncAdminNav();
+
+                // Fetch profile to see saved assessment language
+                try {
+                    const profRes = await api.getProfile();
+                    if (profRes && profRes.data && profRes.data.assessment_language) {
+                        currentLang = profRes.data.assessment_language;
+                        const langSel = document.getElementById('assessment-lang-select');
+                        if (langSel) langSel.value = currentLang;
+                    }
+                } catch (e) {}
+
+                // Check query parameters: new=true or reset=true forces a fresh start
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('new') === 'true' || urlParams.get('reset') === 'true') {
+                    sessionStorage.removeItem(STORAGE_KEY);
+                    sessionStorage.removeItem(TRANSITION_KEY);
+                    userAnswersList = [];
+                    isTransitionAcknowledged = false;
+                    // Clean URL parameter so F5 refresh preserves subsequent session
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } else {
+                    loadSavedAnswers();
+                    isTransitionAcknowledged = sessionStorage.getItem(TRANSITION_KEY) === 'true';
+                }
+
+                // Immediately request the current question adaptively
+                await fetchNextAdaptiveStep();
+            } catch (err) {
+                renderFriendlyError(err);
+            }
+        }
+
+        function loadSavedAnswers() {
+            try {
+                const saved = sessionStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    userAnswersList = JSON.parse(saved) || [];
+                }
+            } catch (e) {
+                userAnswersList = [];
+            }
+        }
+
+        function persistAnswers() {
+            try {
+                sessionStorage.setItem(STORAGE_KEY, JSON.stringify(userAnswersList));
+                sessionStorage.setItem(TRANSITION_KEY, isTransitionAcknowledged ? 'true' : 'false');
+            } catch (e) {
+                // Ignore storage quota errors
+            }
+        }
+
+        function resetAssessment() {
+            if (confirm('Start over with a fresh Career Discovery session? Your current answers will be cleared.')) {
+                sessionStorage.removeItem(STORAGE_KEY);
+                sessionStorage.removeItem(TRANSITION_KEY);
+                userAnswersList = [];
+                isTransitionAcknowledged = false;
+                window.location.href = 'assessment.html?new=true';
+            }
+        }
+
+        function renderFriendlyError(err) {
+            document.getElementById('assessment-loading').style.display = 'none';
+            document.getElementById('assessment-container').style.display = 'none';
+            const errorDiv = document.getElementById('assessment-error');
+            errorDiv.style.display = 'block';
+            errorDiv.innerHTML = `
+                <div class="card" style="max-width: 600px; margin: 2rem auto; text-align: center; padding: 2.5rem;">
+                    <div style="font-size: 3rem; color: var(--warning); margin-bottom: 1rem;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h2 style="font-size: 1.4rem; margin-bottom: 0.75rem;">We couldn't connect to CareerCompass right now.</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.75rem;">
+                        ${escapeHtml(err.message || 'Please check your connection or try again.')}
+                    </p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="fetchNextAdaptiveStep()">
+                            <i class="fas fa-redo-alt"></i> Try Again
+                        </button>
+                        <button class="btn btn-secondary" onclick="window.location.reload()">
+                            <i class="fas fa-history"></i> Continue from Saved Progress
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function fetchNextAdaptiveStep() {
+            const loading = document.getElementById('assessment-loading');
+            const container = document.getElementById('assessment-container');
+            const errorDiv = document.getElementById('assessment-error');
+
+            loading.style.display = 'block';
+            container.style.display = 'none';
+            errorDiv.style.display = 'none';
+
+            try {
+                const answersPayload = userAnswersList.map(a => ({
+                    question_id: a.question_id,
+                    option_id: a.option_id
+                }));
+
+                const res = await api.getAdaptiveNextQuestion(answersPayload, isTransitionAcknowledged, currentLang);
+                loading.style.display = 'none';
+                container.style.display = 'block';
+
+                if (!res || !res.success || !res.data) {
+                    throw new Error('Invalid response from adaptive assessment server.');
+                }
+
+                const stepData = res.data;
+                currentPhase = stepData.phase;
+
+                if (stepData.phase === 'transition' && !isTransitionAcknowledged) {
+                    renderTransitionScreen(stepData);
+                } else if (stepData.is_complete || stepData.phase === 'complete') {
+                    renderCompletionScreen(stepData);
+                } else {
+                    renderQuestionScreen(stepData);
+                }
+            } catch (err) {
+                renderFriendlyError(err);
+            }
+        }
+
+        function renderQuestionScreen(stepData) {
+            document.getElementById('question-view').style.display = 'block';
+            document.getElementById('transition-view').style.display = 'none';
+            document.getElementById('completion-view').style.display = 'none';
+
+            currentQuestion = stepData.question;
+            if (!currentQuestion) return;
+
+            // Restore selection if previously answered
+            const prevAnswer = userAnswersList.find(a => a.question_id === currentQuestion.id);
+            currentSelectedOptionId = prevAnswer ? prevAnswer.option_id : null;
+
+            // Phase Badge Text & Icon
+            const phaseBadgeText = document.getElementById('phase-badge-text');
+            if (stepData.phase === 'broad') {
+                phaseBadgeText.innerHTML = '<i class="fas fa-compass"></i> Phase 1 of 2: Broad Discovery';
+            } else if (stepData.phase === 'deep_dive') {
+                phaseBadgeText.innerHTML = '<i class="fas fa-crosshairs"></i> Phase 2 of 2: Adaptive Deep Dive';
+            } else if (stepData.phase === 'work_style') {
+                phaseBadgeText.innerHTML = '<i class="fas fa-briefcase"></i> Work Style Discovery';
+            } else if (stepData.phase === 'problem_solving') {
+                phaseBadgeText.innerHTML = '<i class="fas fa-puzzle-piece"></i> Problem-Solving Style';
+            } else {
+                phaseBadgeText.innerHTML = '<i class="fas fa-compass"></i> Career Discovery';
+            }
+
+            // Question counter & progress bar
+            const stepNum = stepData.current_step || (userAnswersList.length + 1);
+            const totalSteps = stepData.total_steps || 10;
+            document.getElementById('question-counter').innerText = `Question ${stepNum} of ${totalSteps}`;
+            document.getElementById('progress-fill').style.width = `${Math.min(100, Math.max(10, stepData.progress_percent))}%`;
+
+            // Guidance banner
+            const guidanceText = document.getElementById('guidance-text');
+            guidanceText.innerText = stepData.encouragement_message || "Let's discover what kind of work sounds most interesting to you.";
+
+            // Question text
+            document.getElementById('question-text').innerText = currentQuestion.question_text;
+
+            // Render Options (pure activities, zero visible career labels)
+            const optionsContainer = document.getElementById('options-container');
+            const options = currentQuestion.assessment_options || [];
+
+            optionsContainer.innerHTML = options.map(opt => {
+                const isUnsure = opt.option_text.includes('not sure') || opt.option_text.includes('🤷');
+                const isSelected = currentSelectedOptionId === opt.id;
+                return `
+                    <div class="option-card ${isUnsure ? 'unsure-option' : ''} ${isSelected ? 'selected' : ''}" 
+                         onclick="selectOption('${opt.id}', '${escapeHtml(opt.option_text)}')"
+                         tabindex="0"
+                         onkeydown="if(event.key === 'Enter' || event.key === ' ') selectOption('${opt.id}', '${escapeHtml(opt.option_text)}')">
+                        <input type="radio" name="assessment_opt" class="option-radio" ${isSelected ? 'checked' : ''} tabindex="-1">
+                        <span class="option-text">${escapeHtml(opt.option_text)}</span>
+                    </div>
+                `;
+            }).join('');
+
+            // Navigation controls
+            document.getElementById('prev-btn').style.display = userAnswersList.length > 0 ? 'inline-flex' : 'none';
+            document.getElementById('next-btn').style.display = 'inline-flex';
+            document.getElementById('submit-btn').style.display = 'none';
+        }
+
+        function renderTransitionScreen(stepData) {
+            // Strictly neutral - NO DOMAIN SPOILERS OR MEDALS
+            document.getElementById('question-view').style.display = 'none';
+            document.getElementById('transition-view').style.display = 'block';
+            document.getElementById('completion-view').style.display = 'none';
+        }
+
+        function continueFromTransition() {
+            isTransitionAcknowledged = true;
+            sessionStorage.setItem(TRANSITION_KEY, 'true');
+            fetchNextAdaptiveStep();
+        }
+
+        function renderCompletionScreen(stepData) {
+            document.getElementById('question-view').style.display = 'none';
+            document.getElementById('transition-view').style.display = 'none';
+            document.getElementById('completion-view').style.display = 'block';
+        }
+
+        function selectOption(optionId, optionText) {
+            currentSelectedOptionId = optionId;
+
+            // Update DOM selected state
+            const cards = document.querySelectorAll('.option-card');
+            cards.forEach(c => {
+                const radio = c.querySelector('input[type="radio"]');
+                if (c.getAttribute('onclick').includes(optionId)) {
+                    c.classList.add('selected');
+                    if (radio) radio.checked = true;
+                } else {
+                    c.classList.remove('selected');
+                    if (radio) radio.checked = false;
+                }
+            });
+        }
+
+        async function handleNext() {
+            if (!currentSelectedOptionId) {
+                alert('Please select an option to continue, or choose "🤷 I am not sure yet".');
+                return;
+            }
+
+            // Save or update answer in list
+            const existingIdx = userAnswersList.findIndex(a => a.question_id === currentQuestion.id);
+            const answerObj = {
+                question_id: currentQuestion.id,
+                option_id: currentSelectedOptionId,
+            };
+
+            if (existingIdx >= 0) {
+                userAnswersList[existingIdx] = answerObj;
+            } else {
+                userAnswersList.push(answerObj);
+            }
+
+            persistAnswers();
+
+            // Fetch next adaptive question
+            await fetchNextAdaptiveStep();
+        }
+
+        async function handlePrevious() {
+            if (userAnswersList.length > 0) {
+                // If on transition screen, go back to question 5
+                if (document.getElementById('transition-view').style.display === 'block') {
+                    isTransitionAcknowledged = false;
+                    sessionStorage.removeItem(TRANSITION_KEY);
+                    // Pop Q5 answer to allow re-answering
+                    userAnswersList.pop();
+                    persistAnswers();
+                    await fetchNextAdaptiveStep();
+                    return;
+                }
+
+                // Step backward: pop the most recent answer so previous question reloads
+                userAnswersList.pop();
+                persistAnswers();
+                isTransitionAcknowledged = false;
+                sessionStorage.removeItem(TRANSITION_KEY);
+                await fetchNextAdaptiveStep();
+            }
+        }
+
+        async function handleSubmitAssessment() {
+            if (userAnswersList.length === 0) {
+                alert('Please answer the discovery questions before submitting.');
+                return;
+            }
+
+            const btn = document.getElementById('final-submit-btn') || document.getElementById('submit-btn');
+            const originalText = btn.innerHTML;
+
+            try {
+                btn.innerHTML = '<span class="loader" style="width: 16px; height: 16px; margin-right: 8px;"></span> Processing Results...';
+                btn.disabled = true;
+
+                const answersPayload = userAnswersList.map(a => ({
+                    question_id: a.question_id,
+                    option_id: a.option_id
+                }));
+
+                await api.submitAssessment(answersPayload);
+                try {
+                    await api.updateProfile({ assessment_language: currentLang });
+                } catch (e) {}
+                sessionStorage.removeItem(STORAGE_KEY);
+                sessionStorage.removeItem(TRANSITION_KEY);
+                window.location.href = 'results.html?from=assessment';
+            } catch (err) {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                showError('assessment-error', 'Submission error: ' + (err.message || 'Please try again.'));
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initAssessment);
+    </script>
+</body>
+</html>

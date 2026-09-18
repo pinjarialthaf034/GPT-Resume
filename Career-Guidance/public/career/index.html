@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerCompass AI — Diploma Engineering Career Platform</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(135deg, var(--bg-main) 0%, var(--primary-light) 100%);
+            padding: 2rem;
+            padding-top: 5rem;
+        }
+        .hero-content {
+            max-width: 800px;
+        }
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .features {
+            padding: 5rem 2rem;
+            background: var(--bg-card);
+        }
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .feature-card {
+            text-align: center;
+            padding: 2rem;
+            border-radius: var(--radius-xl);
+            background: var(--bg-main);
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1.5rem;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+        /* Auth Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            background: transparent;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        .form-group {
+            margin-bottom: 1.25rem;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus {
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <nav style="position: fixed; top: 0; width: 100%; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; z-index: 100; border-bottom: 1px solid var(--border);">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div class="sidebar-logo"><i class="fas fa-compass"></i></div>
+            <span style="font-weight: 700; font-size: 1.25rem;">CareerCompass AI</span>
+        </div>
+        <div id="nav-auth-container" style="display: flex; gap: 0.75rem; align-items: center;">
+            <button id="nav-login-btn" class="btn btn-primary" onclick="window.location.href='/index.html?showLogin=true'">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+            <button id="nav-signup-btn" class="btn btn-secondary" onclick="window.location.href='/index.html?showLogin=true'">
+                Sign Up
+            </button>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="badge badge-primary" style="margin-bottom: 1.5rem; font-size: 0.875rem; padding: 0.5rem 1rem;">
+                <i class="fas fa-sparkles" style="margin-right: 0.5rem;"></i> Powered by Google Gemini AI & Supabase
+            </div>
+            <h1>Empowering Diploma Engineers to Build Real Careers</h1>
+            <p>India's premier AI career guidance platform specifically tailored for polytechnic and diploma engineering students. Discover your strengths, bridge skill gaps, and achieve your professional aspirations.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <button id="hero-action-btn" class="btn btn-primary" style="font-size: 1.125rem; padding: 1rem 2rem;" onclick="handleHeroAction()">
+                    Start Your Journey <i class="fas fa-arrow-right"></i>
+                </button>
+                <a href="explorer.html" class="btn btn-secondary" style="font-size: 1.125rem; padding: 1rem 2rem;">
+                    Explore Careers <i class="fas fa-search"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div style="text-align: center; margin-bottom: 4rem;">
+            <h2>How it works</h2>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem;">A complete career guidance platform in four steps.</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-user-circle"></i></div>
+                <h3>1. Build Your Profile</h3>
+                <p style="color: var(--text-secondary); margin-top: 1rem;">Input your branch, current skills, CGPA, and career goals to set the foundation.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-brain"></i></div>
+                <h3>2. Multilingual Assessment</h3>
+                <p style="color: var(--text-secondary); margin-top: 1rem;">Take adaptive assessments in English or Telugu to discover your natural technical strengths.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-map"></i></div>
+                <h3>3. Follow the Roadmap</h3>
+                <p style="color: var(--text-secondary); margin-top: 1rem;">Track your progress step-by-step to bridge skill gaps and become industry-ready.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-file-alt"></i></div>
+                <h3>4. Resume Intelligence</h3>
+                <p style="color: var(--text-secondary); margin-top: 1rem;">Analyze your resume or pull from our Resume Builder with zero data loss.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer style="background: var(--bg-main); padding: 2rem; text-align: center; border-top: 1px solid var(--border); color: var(--text-secondary);">
+        <p>&copy; 2026 CareerCompass AI. All rights reserved.</p>
+    </footer>
+
+    <!-- Supabase CDN & Central API -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/api.js"></script>
+    <script>
+        async function handleHeroAction() {
+            const session = await api.getSession();
+            if (session) {
+                window.location.href = 'dashboard.html';
+            } else {
+                window.location.href = '/index.html?showLogin=true';
+            }
+        }
+
+        async function checkAuthState() {
+            const session = await api.getSession();
+            const navContainer = document.getElementById('nav-auth-container');
+            if (session && session.user) {
+                navContainer.innerHTML = `
+                    <a href="dashboard.html" class="btn btn-primary"><i class="fas fa-columns"></i> Dashboard</a>
+                    <button class="btn btn-secondary" onclick="api.signOut()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+                `;
+                const heroBtn = document.getElementById('hero-action-btn');
+                if (heroBtn) {
+                    heroBtn.innerHTML = `Go to Dashboard <i class="fas fa-arrow-right"></i>`;
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', checkAuthState);
+    </script>
+</body>
+</html>

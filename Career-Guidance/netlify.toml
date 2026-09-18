@@ -1,0 +1,30 @@
+[build]
+  publish = "public"
+
+# Route /api/resume-builder/* to GPT-Resume Render Backend
+# Must be defined BEFORE generic /api/* to avoid being swallowed
+[[redirects]]
+  from = "/api/resume-builder/*"
+  to = "https://gpt-resume-2smw.onrender.com/api/:splat"
+  status = 200
+  force = true
+  headers = {X-From = "Netlify"}
+
+# Route /api/* to Career-Guidance Render Backend
+[[redirects]]
+  from = "/api/*"
+  to = "https://career-guidance-02p7.onrender.com/api/:splat"
+  status = 200
+  force = true
+  headers = {X-From = "Netlify"}
+
+# Static SPA / subpath rewrites
+[[redirects]]
+  from = "/career/*"
+  to = "/career/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/resume/*"
+  to = "/resume/:splat"
+  status = 200

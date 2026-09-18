@@ -1,0 +1,1940 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Workspace</title>
+
+    <!-- Theme Initializer -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+            window.addEventListener("DOMContentLoaded", () => {
+                document.body.setAttribute("data-theme", savedTheme);
+            });
+        })();
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* =========================================
+           VARIABLES & SYSTEM THEMING
+           ========================================= */
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --text-primary: #0f172a;
+            --text-muted: #64748b;
+            --text-input: #0f172a;
+            --bg-input: #ffffff;
+            --border-input: #d1d5db;
+            --theme-color: #052617;
+            /* Dark Forest Green */
+            --accent-pill: #b3c298;
+            /* Sage Green Accent */
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-input: #f8fafc;
+            --bg-input: #1e293b;
+            --border-input: #475569;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-body);
+            padding: 25px;
+            color: var(--text-primary);
+            font-family: 'Poppins', sans-serif;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* =========================================
+           HEADER NAVBAR STYLING
+           ========================================= */
+        .builder-header {
+            width: 100%;
+            height: 70px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            position: sticky;
+            top: 15px;
+            z-index: 999;
+            margin-bottom: 25px;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .logo-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--theme-color);
+            transition: background 0.3s ease;
+        }
+
+        .theme-toggle-btn {
+            background: transparent;
+            border: 1px solid var(--border-input);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        [data-theme="dark"] .theme-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        /* =========================================
+           MAIN CONTAINER GRID LAYOUT
+           ========================================= */
+        .builder-container {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* =========================================
+           LEFT PANEL FORM CONSOLE
+           ========================================= */
+        .form-panel {
+            width: 40%;
+            min-height: 650px;
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 100px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .form-panel input,
+        .form-panel textarea,
+        .form-panel select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-input);
+            background: var(--bg-input);
+            color: var(--text-input);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .form-panel textarea {
+            height: 90px;
+            resize: vertical;
+        }
+
+        .form-panel input:focus,
+        .form-panel textarea:focus,
+        .form-panel select:focus {
+            border-color: var(--theme-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(5, 38, 23, 0.15);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .input-group label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .input-group-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .step {
+            display: none !important;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .step.active {
+            display: flex !important;
+        }
+
+        .step-header {
+            margin-bottom: 10px;
+        }
+
+        .step-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .step-header p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Dynamic Cards for Items */
+        .card-box {
+            border: 1px solid var(--border-input);
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            background: var(--bg-input);
+            position: relative;
+        }
+
+        .remove-card-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #fee2e2;
+            color: #ef4444;
+            border: 1px solid #fca5a5;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .remove-card-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .add-btn {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px dashed var(--border-input);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+            transition: background 0.2s ease;
+        }
+
+        .add-btn:hover {
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        /* =========================================
+           INTERACTIVE STEPPER PROGRESS BAR
+           ========================================= */
+        .stepper-progress-container {
+            position: relative;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .stepper-track-bg {
+            position: absolute;
+            top: 14px;
+            left: 15px;
+            right: 15px;
+            height: 3px;
+            background: rgba(0, 0, 0, 0.08);
+            z-index: 1;
+            border-radius: 2px;
+        }
+
+        [data-theme="dark"] .stepper-track-bg {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .stepper-track-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--theme-color);
+            border-radius: 2px;
+            transition: width 0.35s ease;
+        }
+
+        .stepper-steps-wrapper {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .step-circle {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--border-input);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .step-node.active .step-circle {
+            border-color: var(--theme-color);
+            background: var(--theme-color);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+        }
+
+        /* =========================================
+           AI ACTION BUTTONS & CHIPS
+           ========================================= */
+        .textarea-ai-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-ai-action {
+            align-self: flex-end;
+            background: rgba(124, 58, 237, 0.08);
+            color: #7c3aed;
+            border: 1px solid rgba(124, 58, 237, 0.25);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-ai-action:hover {
+            background: #7c3aed;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+        }
+
+        [data-theme="dark"] .btn-ai-action {
+            background: rgba(168, 85, 247, 0.12);
+            color: #c084fc;
+            border-color: rgba(168, 85, 247, 0.3);
+        }
+
+        [data-theme="dark"] .btn-ai-action:hover {
+            background: #a855f7;
+            color: #ffffff;
+        }
+
+        /* BUTTON CONSOLE */
+        .step-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .next-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: var(--theme-color);
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .next-btn:hover {
+            opacity: 0.9;
+        }
+
+        .back-btn {
+            padding: 12px 20px;
+            border: 1px solid var(--border-input);
+            border-radius: 8px;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* =========================================
+           RIGHT SIDE PANEL & CUSTOMIZER TOOLBAR
+           ========================================= */
+        .preview-panel {
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .customizer-toolbar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+        }
+
+        .toolbar-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toolbar-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .color-swatches {
+            display: flex;
+            gap: 8px;
+        }
+
+        .color-swatch {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.15);
+        }
+
+        .color-swatch.active {
+            border-color: var(--text-primary);
+            transform: scale(1.15);
+        }
+
+        .toolbar-select {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-input);
+            font-size: 12px;
+            font-weight: 700;
+            background: var(--bg-input);
+            color: var(--text-input);
+            cursor: pointer;
+        }
+
+        .btn-pdf-download {
+            background: #ef4444;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .btn-pdf-download:hover {
+            background: #dc2626;
+        }
+
+        /* =========================================
+           MORGAN MAXWELL RESUME CANVAS STYLING
+           ========================================= */
+        .resume-page {
+            width: 794px;
+            min-height: 1123px;
+            background: #f4f3ea;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .2);
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+            margin: 0 auto;
+            transition: background 0.3s ease;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        /* OVERVIEW TOP FULL-WIDTH HEADER REGION */
+        .resume-header-full {
+            position: relative;
+            width: 100%;
+            padding: 40px 35px 20px 35px;
+            z-index: 10;
+        }
+
+        .header-name {
+            font-size: 46px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #1a2e21;
+            line-height: 0.95;
+            letter-spacing: 1px;
+            outline: none;
+        }
+
+        .header-name span {
+            display: block;
+            font-weight: 400;
+            text-transform: none;
+            font-size: 42px;
+            color: #2e3831;
+        }
+
+        .header-title {
+            font-size: 19px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            color: #1a2e21;
+            margin-top: 15px;
+            margin-bottom: 25px;
+            outline: none;
+        }
+
+        /* FULL-WIDTH OVERLAPPING ABOUT ME CARD */
+        .about-card {
+            background-color: var(--accent-pill) !important;
+            border-radius: 28px;
+            padding: 24px 30px;
+            width: 100%;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+            z-index: 5;
+            position: relative;
+            transition: background-color 0.3s ease;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .about-badge {
+            background-color: var(--theme-color) !important;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 6px 22px;
+            border-radius: 15px;
+            display: inline-block;
+            margin-bottom: 14px;
+            outline: none;
+            transition: background-color 0.3s ease;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .about-text {
+            font-size: 11.5px;
+            line-height: 1.6;
+            color: #1a2e21;
+            font-weight: 400;
+            outline: none;
+            padding-right: 210px;
+            /* Space for absolute circular photo overlay */
+        }
+
+        /* CIRCULAR PHOTO OVERLAPPING ABOUT CARD AND DARK COLUMN */
+        .photo-container {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 7px solid #e5ebd9;
+            position: absolute;
+            right: 35px;
+            top: 35px;
+            z-index: 20;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            background-color: #e5ebd9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .photo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-placeholder {
+            font-size: 100px;
+            color: var(--theme-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            transition: color 0.3s ease;
+        }
+
+        /* TWO-COLUMN BODY CONTENT */
+        .resume-body {
+            display: flex;
+            width: 100%;
+            min-height: calc(100% - 260px);
+            position: relative;
+        }
+
+        .left-column {
+            width: 48%;
+            padding: 20px 30px 40px 35px;
+            display: flex;
+            flex-direction: column;
+            background-color: #f4f3ea !important;
+            z-index: 2;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .right-column {
+            width: 52%;
+            padding: 85px 35px 40px 30px;
+            /* Top padding accommodates the photo overlap */
+            display: flex;
+            flex-direction: column;
+            background-color: var(--theme-color) !important;
+            color: #ffffff;
+            z-index: 1;
+            transition: background-color 0.3s ease;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        /* BACKGROUND PANEL TO EXTEND DARK RIGHT SIDE TO TOP CORNER */
+        .right-column-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 52%;
+            height: 100%;
+            background-color: var(--theme-color);
+            z-index: 0;
+            transition: background-color 0.3s ease;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .pill-title {
+            background-color: var(--accent-pill) !important;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 6px 20px;
+            border-radius: 15px;
+            display: inline-block;
+            margin-bottom: 18px;
+            outline: none;
+            transition: background-color 0.3s ease;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .pill-title.dark-text {
+            color: #ffffff;
+        }
+
+        .pill-title.light-text {
+            color: #ffffff;
+            background-color: var(--accent-pill) !important;
+        }
+
+        .skills-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+
+        .skill-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11.5px;
+            color: #2e3831;
+            font-weight: 500;
+        }
+
+        .edu-section {
+            margin-bottom: 15px;
+        }
+
+        .edu-degree {
+            font-size: 12px;
+            font-weight: 600;
+            color: #1a2e21;
+            outline: none;
+        }
+
+        .edu-school,
+        .edu-address,
+        .edu-date {
+            font-size: 11px;
+            color: #4a5568;
+            margin-top: 2px;
+            outline: none;
+        }
+
+        .languages-container {
+            margin-bottom: 25px;
+        }
+
+        .lang-grid {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        .lang-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 70px;
+            margin-bottom: 10px;
+        }
+
+        .lang-label {
+            font-size: 11px;
+            font-weight: 500;
+            color: #1a2e21;
+            margin-bottom: 8px;
+            outline: none;
+        }
+
+        .circle-progress {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: conic-gradient(var(--theme-color) 0% 94%, #d1d5db 94% 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: background 0.3s ease;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .circle-progress::before {
+            content: "";
+            position: absolute;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background-color: #f4f3ea !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .circle-value {
+            position: relative;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--theme-color);
+            outline: none;
+            transition: color 0.3s ease;
+        }
+
+        .contact-list {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .contact-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 11px;
+            color: #2e3831;
+        }
+
+        .contact-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background-color: #8c3a3a !important;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .experience-item {
+            margin-bottom: 22px;
+        }
+
+        .exp-role {
+            font-size: 14px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+            outline: none;
+        }
+
+        .exp-company-date {
+            font-size: 11px;
+            color: #c2d6c6;
+            margin-bottom: 10px;
+            outline: none;
+        }
+
+        .exp-bullets {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .exp-bullets li {
+            font-size: 10.5px;
+            line-height: 1.5;
+            color: #e2e8f0;
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 14px;
+            outline: none;
+        }
+
+        .exp-bullets li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        [contenteditable="true"]:hover {
+            outline: 1px dashed var(--accent-pill) !important;
+            background-color: rgba(255, 255, 255, 0.1);
+            cursor: text;
+        }
+
+        /* PRINT STYLES - Force colors & background graphics */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+
+            body {
+                padding: 0 !important;
+                background: #ffffff !important;
+            }
+
+            .builder-header,
+            .form-panel,
+            .customizer-toolbar,
+            .no-print {
+                display: none !important;
+            }
+
+            .builder-container,
+            .preview-panel {
+                display: block !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .resume-page {
+                box-shadow: none !important;
+                width: 210mm !important;
+                min-height: 297mm !important;
+                margin: 0 auto !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+
+            .left-column {
+                background-color: #f4f3ea !important;
+            }
+
+            .right-column,
+            .right-column-bg {
+                background-color: var(--theme-color) !important;
+            }
+        }
+    </style>
+    <!-- Supabase CDN & Shared Auth/API Modules -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/shared/auth.js"></script>
+    <script src="/shared/api-config.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            if (window.ResumeAuth && typeof window.ResumeAuth.requireAuth === 'function') {
+                window.ResumeAuth.requireAuth("/index.html?showLogin=true").catch(() => {});
+            }
+        });
+    </script>
+</head>
+
+<body>
+
+    <!-- TOP NAVBAR -->
+    <header class="builder-header no-print">
+        <div class="logo">
+            <span class="logo-dot"></span>
+            GPT HUB
+        </div>
+        <div>
+            <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()">☀️ Toggle Theme</button>
+        </div>
+    </header>
+
+    <div class="builder-container">
+
+        <!-- LEFT SIDE FORM PANEL -->
+        <div class="form-panel no-print">
+
+            <!-- Stepper Progress Bar -->
+            <div class="stepper-progress-container">
+                <div class="stepper-track-bg">
+                    <div class="stepper-track-fill" id="stepperProgressFill"></div>
+                </div>
+                <div class="stepper-steps-wrapper">
+                    <div class="step-node active" data-step="1">
+                        <div class="step-circle">1</div>
+                    </div>
+                    <div class="step-node" data-step="2">
+                        <div class="step-circle">2</div>
+                    </div>
+                    <div class="step-node" data-step="3">
+                        <div class="step-circle">3</div>
+                    </div>
+                    <div class="step-node" data-step="4">
+                        <div class="step-circle">4</div>
+                    </div>
+                    <div class="step-node" data-step="5">
+                        <div class="step-circle">5</div>
+                    </div>
+                    <div class="step-node" data-step="6">
+                        <div class="step-circle">6</div>
+                    </div>
+                    <div class="step-node" data-step="7">
+                        <div class="step-circle">7</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 1: PERSONAL INFORMATION -->
+            <div id="step1" class="step active">
+                <div class="step-header">
+                    <h2>Personal Details</h2>
+                    <p>Enter contact details and profile photo.</p>
+                </div>
+                <div class="input-group">
+                    <label>Profile Photo</label>
+                    <input type="file" id="photoInput" accept="image/*">
+                </div>
+                <div class="input-group-row">
+                    <div class="input-group" style="flex:1;">
+                        <label>First Name</label>
+                        <input type="text" id="firstNameInput" value="MORGAN" placeholder="e.g. MORGAN">
+                    </div>
+                    <div class="input-group" style="flex:1;">
+                        <label>Last Name</label>
+                        <input type="text" id="lastNameInput" value="Maxwell" placeholder="e.g. Maxwell">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Job Title</label>
+                    <input type="text" id="roleInput" value="Graphic Designer" placeholder="e.g. Graphic Designer">
+                </div>
+                <div class="input-group">
+                    <label>Phone Number</label>
+                    <input type="text" id="phoneInput" value="+123-456-7890">
+                </div>
+                <div class="input-group">
+                    <label>Website URL</label>
+                    <input type="text" id="websiteInput" value="www.reallygreatsite.com">
+                </div>
+                <div class="input-group">
+                    <label>Address</label>
+                    <input type="text" id="addressInput" value="123 Anywhere St., Any City">
+                </div>
+                <div class="step-buttons">
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 2: PROFILE BIO WITH AI BUTTON -->
+            <div id="step2" class="step">
+                <div class="step-header">
+                    <h2>About Me Bio</h2>
+                    <p>Describe your creative profile and experience.</p>
+                </div>
+                <div class="textarea-ai-wrapper">
+                    <textarea id="summaryInput"
+                        placeholder="Write your professional summary...">Creative and detail-oriented graphic designer with 4 years of experience in developing visually compelling designs for print and digital media. Adept at collaborating with cross-functional teams and managing multiple projects to deliver high-quality results on time and within budget.</textarea>
+                    <button type="button" id="aiSummaryBtn" class="btn-ai-action"
+                        onclick="generateAiSummary()">✨Generate With Ai</button>
+                </div>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 3: SKILLS WITH AI BUTTON -->
+            <div id="step3" class="step">
+                <div class="step-header">
+                    <h2>Professional Skills</h2>
+                    <p>Highlight your core competencies and technical expertise.</p>
+                </div>
+
+                <div class="textarea-ai-wrapper">
+                    <textarea id="skillsInput" placeholder="e.g. Photoshop, Illustrator, Figma, UI/UX" rows="3"
+                        oninput="renderSkills()"></textarea>
+                    <button type="button" class="btn-ai-action" onclick="generateAiSkills(this)">
+                        ✨ Ai Generated Suggested Skills
+                    </button>
+                </div>
+
+                <div id="aiSuggestionsWrapper" style="margin-top: 15px; display: none;">
+                    <label
+                        style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Suggested
+                        Skills (Click to add):</label>
+                    <div id="suggestedSkillChips" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
+                    </div>
+                </div>
+
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+            <!-- STEP 4: DYNAMIC LANGUAGES -->
+            <div id="step4" class="step">
+                <div class="step-header">
+                    <h2>Languages & Proficiency</h2>
+                    <p>Add, edit or delete spoken languages.</p>
+                </div>
+
+                <div id="langFormContainer">
+                    <div class="card-box lang-entry">
+                        <button type="button" class="remove-card-btn" onclick="removeCard(this, renderLanguages)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <div class="input-group">
+                            <label>Language</label>
+                            <input type="text" class="lang-name-input" value="Russian">
+                        </div>
+                        <div class="input-group-row">
+                            <select class="lang-level-select" onchange="handleLevelChange(this)">
+                                <option value="custom">Custom %</option>
+                                <option value="normal">Normal (30%)</option>
+                                <option value="medium">Medium (50%)</option>
+                                <option value="good">Good (75%)</option>
+                                <option value="fluent" selected>Fluent / Native (94%)</option>
+                            </select>
+                            <input type="number" class="lang-pct-input" value="94" min="0" max="100"
+                                style="width: 80px;">
+                        </div>
+                    </div>
+                    <div class="card-box lang-entry">
+                        <button type="button" class="remove-card-btn" onclick="removeCard(this, renderLanguages)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <div class="input-group">
+                            <label>Language</label>
+                            <input type="text" class="lang-name-input" value="Chinese">
+                        </div>
+                        <div class="input-group-row">
+                            <select class="lang-level-select" onchange="handleLevelChange(this)">
+                                <option value="custom">Custom %</option>
+                                <option value="normal">Normal (30%)</option>
+                                <option value="medium">Medium (50%)</option>
+                                <option value="good">Good (75%)</option>
+                                <option value="fluent" selected>Fluent / Native (86%)</option>
+                            </select>
+                            <input type="number" class="lang-pct-input" value="86" min="0" max="100"
+                                style="width: 80px;">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="add-btn" onclick="addLanguageInput()">＋ Add Language</button>
+
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 5: DYNAMIC EDUCATION -->
+            <div id="step5" class="step">
+                <div class="step-header">
+                    <h2>Education</h2>
+                    <p>Add, edit or delete academic degrees.</p>
+                </div>
+                <div id="eduFormContainer">
+                    <div class="card-box edu-entry">
+                        <button type="button" class="remove-card-btn" onclick="removeCard(this, renderEducation)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="edu-degree-input" placeholder="Degree Name"
+                            value="Bachelor of Fine Arts in Graphic Design">
+                        <input type="text" class="edu-school-input" placeholder="University / School"
+                            value="Paucek and Lage University" style="margin-top: 6px;">
+                        <input type="text" class="edu-address-input" placeholder="Address / Location"
+                            value="123 Anywhere St., Any City" style="margin-top: 6px;">
+                        <input type="text" class="edu-date-input" placeholder="Dates Attended" value="2016 - 2020"
+                            style="margin-top: 6px;">
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addEducationInput()">＋ Add Education</button>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 6: DYNAMIC WORK EXPERIENCE -->
+            <div id="step6" class="step">
+                <div class="step-header">
+                    <h2>Professional Experience</h2>
+                    <p>Add, edit or delete job experiences.</p>
+                </div>
+                <div id="expFormContainer">
+                    <div class="card-box exp-entry">
+                        <button type="button" class="remove-card-btn" onclick="removeCard(this, renderExperiences)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="job-role-input" placeholder="Role Title"
+                            value="Senior Graphic Designer">
+                        <input type="text" class="job-meta-input" placeholder="Date & Company"
+                            value="June 2022 - May 2024 | Fradel and Spies Company" style="margin-top: 6px;">
+                        <div class="textarea-ai-wrapper" style="margin-top: 6px;">
+                            <textarea class="job-bullets-input"
+                                placeholder="Achievements (One per line)">Designed branding materials, marketing collateral, and digital assets, resulting in a 25% increase in client engagement.&#10;Collaborated with marketing and product teams to develop visually appealing and effective campaigns.&#10;Managed multiple design projects simultaneously, ensuring timely delivery and adherence to brand guidelines.</textarea>
+                            <button type="button" class="btn-ai-action" onclick="generateAiExperience(this)">✨Ai
+                                Generated Bullet Points</button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addExperienceInput()">＋ Add Experience</button>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 7: EXPORT & REVIEW -->
+            <div id="step7" class="step">
+                <div class="step-header">
+                    <h2>Export Resume</h2>
+                    <p>Review and download your document.</p>
+                </div>
+                <p style="font-size: 12px; margin-bottom: 15px; color: var(--text-muted);">
+                    Review your completed document in the preview window or click "Download PDF" to launch the browser
+                    print menu to save as PDF.
+                </p>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="downloadPDF()">
+                        Download PDF <i class="fa-solid fa-download" style="margin-left: 8px;"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE PREVIEW & CUSTOMIZER TOOLBAR -->
+        <div class="preview-panel">
+
+            <!-- Live Customizer Toolbar -->
+            <div class="customizer-toolbar no-print">
+                <div class="toolbar-section">
+                    <span class="toolbar-label">Theme Color:</span>
+                    <div class="color-swatches">
+                        <span class="color-swatch active" style="background-color: #052617;"
+                            onclick="changeTheme('#052617', '#b3c298')"></span>
+                        <span class="color-swatch" style="background-color: #1a365d;"
+                            onclick="changeTheme('#1a365d', '#90cdf4')"></span>
+                        <span class="color-swatch" style="background-color: #3c1361;"
+                            onclick="changeTheme('#3c1361', '#d6bcfa')"></span>
+                        <span class="color-swatch" style="background-color: #581845;"
+                            onclick="changeTheme('#581845', '#fbb6ce')"></span>
+                        <span class="color-swatch" style="background-color: #2d3748;"
+                            onclick="changeTheme('#2d3748', '#cbd5e0')"></span>
+                    </div>
+                </div>
+                <div class="toolbar-section">
+                    <span class="toolbar-label">Font Style:</span>
+                    <select id="fontSelector" class="toolbar-select">
+                        <option value="Poppins">Poppins</option>
+                        <option value="Montserrat">Montserrat</option>
+                        <option value="Inter">Inter</option>
+                        <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                        <option value="Outfit">Outfit</option>
+                    </select>
+                </div>
+                <div class="toolbar-section">
+                    <button class="btn-pdf-download" onclick="downloadPDF()">Download PDF <i
+                            class="fa-solid fa-download"></i></button>
+                </div>
+            </div>
+
+            <!-- Live Resume Page Target -->
+            <div class="resume-page" id="resume-pdf-target">
+
+                <!-- BACKGROUND EXTENSION FOR RIGHT COLUMN -->
+                <div class="right-column-bg"></div>
+
+                <!-- TOP FULL WIDTH HEADER SECTION WITH ABOUT CARD & OVERLAPPING PHOTO -->
+                <div class="resume-header-full">
+                    <!-- OVERLAPPING PHOTO CONTAINER -->
+                    <div class="photo-container" id="photoWrapper">
+                        <div class="avatar-placeholder" id="avatarPlaceholder">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <img id="previewPhoto" style="display: none;" alt="Morgan Maxwell">
+                    </div>
+
+                    <div class="header-name" id="previewName" contenteditable="true">
+                        MORGAN <span id="previewLastName">Maxwell</span>
+                    </div>
+                    <div class="header-title" id="previewRole" contenteditable="true">Graphic Designer</div>
+
+                    <!-- ABOUT ME BANNER ACCROSS FULL WIDTH -->
+                    <div class="about-card">
+                        <div class="about-badge" contenteditable="true">About Me</div>
+                        <p class="about-text" id="previewSummary" contenteditable="true">
+                            Creative and detail-oriented graphic designer with 4 years of experience in developing
+                            visually compelling designs for print and digital media. Adept at collaborating with
+                            cross-functional teams and managing multiple projects to deliver high-quality results on
+                            time and within budget.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- MAIN TWO COLUMN BODY -->
+                <div class="resume-body">
+                    <!-- LEFT COLUMN (CREAM) -->
+                    <div class="left-column">
+                        <!-- SKILLS -->
+                        <div class="pill-title dark-text" contenteditable="true">Skills:</div>
+                        <div class="skills-list" id="previewSkills">
+                            <!-- Dynamic Skills -->
+                        </div>
+
+                        <!-- EDUCATION -->
+                        <div class="pill-title dark-text" contenteditable="true">Education:</div>
+                        <div id="previewEducation">
+                            <!-- Dynamic Education Cards -->
+                        </div>
+
+                        <!-- DYNAMIC LANGUAGES CIRCLES -->
+                        <div class="pill-title dark-text" contenteditable="true">Language:</div>
+                        <div class="languages-container">
+                            <div class="lang-grid" id="previewLanguages">
+                                <!-- Dynamic Languages Circles -->
+                            </div>
+                        </div>
+
+                        <!-- CONTACT -->
+                        <div class="contact-list">
+                            <div class="contact-row">
+                                <div class="contact-icon"><i class="fa-solid fa-phone"></i></div>
+                                <span id="previewPhone" contenteditable="true">+123-456-7890</span>
+                            </div>
+                            <div class="contact-row">
+                                <div class="contact-icon"><i class="fa-solid fa-globe"></i></div>
+                                <span id="previewWebsite" contenteditable="true">www.reallygreatsite.com</span>
+                            </div>
+                            <div class="contact-row">
+                                <div class="contact-icon"><i class="fa-solid fa-location-dot"></i></div>
+                                <span id="previewAddress" contenteditable="true">123 Anywhere St., Any City</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN (DARK GREEN / THEME) -->
+                    <div class="right-column">
+                        <!-- PROFESSIONAL EXPERIENCE -->
+                        <div class="pill-title light-text" contenteditable="true">Professional Experience:</div>
+
+                        <div id="previewExperience">
+                            <!-- Dynamic Experience List -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // STEPPER CONTROL
+        let currentStep = 1;
+        const totalSteps = 7;
+
+        function updateStepperUI() {
+            for (let i = 1; i <= totalSteps; i++) {
+                const stepEl = document.getElementById(`step${i}`);
+                if (stepEl) stepEl.classList.toggle("active", i === currentStep);
+            }
+            document.querySelectorAll(".step-node").forEach(node => {
+                const stepNum = parseInt(node.getAttribute("data-step"));
+                node.classList.toggle("active", stepNum <= currentStep);
+            });
+            const fill = document.getElementById("stepperProgressFill");
+            if (fill) fill.style.width = `${((currentStep - 1) / (totalSteps - 1)) * 100}%`;
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) { currentStep++; updateStepperUI(); }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) { currentStep--; updateStepperUI(); }
+        }
+
+        // ACCENT COLOR & THEME SWITCHING
+        function changeTheme(themeColor, pillColor) {
+            document.documentElement.style.setProperty('--theme-color', themeColor);
+            if (pillColor) {
+                document.documentElement.style.setProperty('--accent-pill', pillColor);
+            }
+            document.querySelectorAll('.color-swatch').forEach(s => {
+                s.classList.toggle('active', s.getAttribute('onclick').includes(themeColor));
+            });
+            renderLanguages();
+        }
+
+        // FIXED THEME TOGGLE FUNCTIONALITY
+        function toggleTheme() {
+            const curTheme = document.documentElement.getAttribute("data-theme") || "light";
+            const nextTheme = curTheme === "light" ? "dark" : "light";
+            document.documentElement.setAttribute("data-theme", nextTheme);
+            if (document.body) {
+                document.body.setAttribute("data-theme", nextTheme);
+            }
+            localStorage.setItem("theme", nextTheme);
+        }
+
+        // FONT CONTROL
+        document.getElementById("fontSelector").addEventListener("change", function () {
+            document.getElementById("resume-pdf-target").style.fontFamily = `'${this.value}', sans-serif`;
+        });
+
+        // TWO-WAY BINDINGS FOR STATIC FIELDS
+        function bindTwoWay(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            if (input && preview) {
+                input.addEventListener("input", () => { preview.innerText = input.value; });
+                preview.addEventListener("input", () => { input.value = preview.innerText; });
+            }
+        }
+
+        bindTwoWay("roleInput", "previewRole");
+        bindTwoWay("phoneInput", "previewPhone");
+        bindTwoWay("websiteInput", "previewWebsite");
+        bindTwoWay("addressInput", "previewAddress");
+        bindTwoWay("summaryInput", "previewSummary");
+
+        // First & Last Name Two-Way Binding
+        const firstNameInput = document.getElementById("firstNameInput");
+        const lastNameInput = document.getElementById("lastNameInput");
+        const previewName = document.getElementById("previewName");
+
+        function updateNameFromForm() {
+            const fName = firstNameInput.value || "MORGAN";
+            const lName = lastNameInput.value || "Maxwell";
+            previewName.innerHTML = `${fName} <span id="previewLastName">${lName}</span>`;
+        }
+
+        firstNameInput.addEventListener("input", updateNameFromForm);
+        lastNameInput.addEventListener("input", updateNameFromForm);
+
+        // Photo Upload Handler (Toggles avatar icon when file is uploaded)
+        const photoInput = document.getElementById("photoInput");
+        if (photoInput) {
+            photoInput.addEventListener("change", function (e) {
+                const file = e.target.files[0];
+                const previewImg = document.getElementById("previewPhoto");
+                const avatarIcon = document.getElementById("avatarPlaceholder");
+
+                if (file) {
+                    previewImg.src = URL.createObjectURL(file);
+                    previewImg.style.display = "block";
+                    avatarIcon.style.display = "none";
+                }
+            });
+        }
+
+        // Skills Parsing Handler
+        const skillsInput = document.getElementById("skillsInput");
+        function renderSkills() {
+            const items = skillsInput.value.split(",");
+            const container = document.getElementById("previewSkills");
+            container.innerHTML = "";
+            items.forEach(item => {
+                if (item.trim() !== "") {
+                    const parts = item.split(":");
+                    const skillName = parts[0] ? parts[0].trim() : item.trim();
+                    const skillPct = parts[1] ? parts[1].trim() : "";
+
+                    const div = document.createElement("div");
+                    div.className = "skill-item";
+                    div.innerHTML = `<span contenteditable="true">${skillName}</span><span contenteditable="true">${skillPct}</span>`;
+                    container.appendChild(div);
+                }
+            });
+        }
+        if (skillsInput) skillsInput.addEventListener("input", renderSkills);
+
+        // =======================================================
+        // DYNAMIC LANGUAGES & 2-WAY BINDING
+        // =======================================================
+        function addLanguageInput() {
+            const container = document.getElementById("langFormContainer");
+            const div = document.createElement("div");
+            div.className = "card-box lang-entry";
+            div.innerHTML = `
+                <button type="button" class="remove-card-btn" onclick="removeCard(this, renderLanguages)"><i class="fa-solid fa-xmark"></i></button>
+                <div class="input-group">
+                    <label>Language</label>
+                    <input type="text" class="lang-name-input" placeholder="e.g. English">
+                </div>
+                <div class="input-group-row">
+                    <select class="lang-level-select" onchange="handleLevelChange(this)">
+                        <option value="custom">Custom %</option>
+                        <option value="normal">Normal (30%)</option>
+                        <option value="medium">Medium (50%)</option>
+                        <option value="good">Good (75%)</option>
+                        <option value="fluent" selected>Fluent / Native (90%)</option>
+                    </select>
+                    <input type="number" class="lang-pct-input" value="90" min="0" max="100" style="width: 80px;">
+                </div>
+            `;
+            container.appendChild(div);
+            bindLangEvents();
+        }
+
+        function handleLevelChange(selectEl) {
+            const card = selectEl.closest(".lang-entry");
+            const pctInput = card.querySelector(".lang-pct-input");
+            switch (selectEl.value) {
+                case "normal": pctInput.value = 30; break;
+                case "medium": pctInput.value = 50; break;
+                case "good": pctInput.value = 75; break;
+                case "fluent": pctInput.value = 90; break;
+            }
+            renderLanguages();
+        }
+
+        function bindLangEvents() {
+            document.querySelectorAll(".lang-entry").forEach(entry => {
+                const nameIn = entry.querySelector(".lang-name-input");
+                const pctIn = entry.querySelector(".lang-pct-input");
+                const selectIn = entry.querySelector(".lang-level-select");
+
+                nameIn.removeEventListener("input", renderLanguages);
+                pctIn.removeEventListener("input", renderLanguages);
+
+                nameIn.addEventListener("input", renderLanguages);
+                pctIn.addEventListener("input", () => {
+                    selectIn.value = "custom";
+                    renderLanguages();
+                });
+            });
+            renderLanguages();
+        }
+
+        function renderLanguages() {
+            const container = document.getElementById("previewLanguages");
+            container.innerHTML = "";
+            const themeColor = getComputedStyle(document.documentElement).getPropertyValue('--theme-color').trim() || "#052617";
+
+            document.querySelectorAll(".lang-entry").forEach((entry) => {
+                const nameInput = entry.querySelector(".lang-name-input");
+                const pctInput = entry.querySelector(".lang-pct-input");
+
+                const langName = nameInput.value.trim();
+                let pctVal = parseInt(pctInput.value) || 0;
+                pctVal = Math.min(100, Math.max(0, pctVal));
+
+                if (langName) {
+                    const box = document.createElement("div");
+                    box.className = "lang-box";
+                    box.innerHTML = `
+                        <span class="lang-label" contenteditable="true">${langName}</span>
+                        <div class="circle-progress" style="background: conic-gradient(${themeColor} 0% ${pctVal}%, #d1d5db ${pctVal}% 100%)">
+                            <span class="circle-value" contenteditable="true">${pctVal}%</span>
+                        </div>
+                    `;
+
+                    const labelEl = box.querySelector(".lang-label");
+                    const valEl = box.querySelector(".circle-value");
+
+                    labelEl.addEventListener("input", () => { nameInput.value = labelEl.innerText; });
+                    valEl.addEventListener("input", () => {
+                        let parsed = parseInt(valEl.innerText) || 0;
+                        pctInput.value = parsed;
+                        box.querySelector(".circle-progress").style.background = `conic-gradient(${themeColor} 0% ${parsed}%, #d1d5db ${parsed}% 100%)`;
+                    });
+
+                    container.appendChild(box);
+                }
+            });
+        }
+
+        // =======================================================
+        // DYNAMIC EDUCATION & 2-WAY BINDING
+        // =======================================================
+        function addEducationInput() {
+            const container = document.getElementById("eduFormContainer");
+            const div = document.createElement("div");
+            div.className = "card-box edu-entry";
+            div.innerHTML = `
+                <button type="button" class="remove-card-btn" onclick="removeCard(this, renderEducation)"><i class="fa-solid fa-xmark"></i></button>
+                <input type="text" class="edu-degree-input" placeholder="Degree Name">
+                <input type="text" class="edu-school-input" placeholder="University / School" style="margin-top:6px;">
+                <input type="text" class="edu-address-input" placeholder="Address / Location" style="margin-top:6px;">
+                <input type="text" class="edu-date-input" placeholder="Dates Attended" style="margin-top:6px;">
+            `;
+            container.appendChild(div);
+            bindEduEvents();
+        }
+
+        function bindEduEvents() {
+            document.querySelectorAll(".edu-entry").forEach(entry => {
+                entry.querySelectorAll("input").forEach(input => {
+                    input.removeEventListener("input", renderEducation);
+                    input.addEventListener("input", renderEducation);
+                });
+            });
+            renderEducation();
+        }
+
+        function renderEducation() {
+            const container = document.getElementById("previewEducation");
+            container.innerHTML = "";
+
+            document.querySelectorAll(".edu-entry").forEach(entry => {
+                const degreeInput = entry.querySelector(".edu-degree-input");
+                const schoolInput = entry.querySelector(".edu-school-input");
+                const addressInput = entry.querySelector(".edu-address-input");
+                const dateInput = entry.querySelector(".edu-date-input");
+
+                const degree = degreeInput.value.trim();
+                const school = schoolInput.value.trim();
+                const address = addressInput.value.trim();
+                const date = dateInput.value.trim();
+
+                if (degree || school || address || date) {
+                    const item = document.createElement("div");
+                    item.className = "edu-section";
+                    item.innerHTML = `
+                        <div class="edu-degree" contenteditable="true">${degree || 'Degree Name'}</div>
+                        <div class="edu-school" contenteditable="true">${school || ''}</div>
+                        <div class="edu-address" contenteditable="true">${address || ''}</div>
+                        <div class="edu-date" contenteditable="true">${date || ''}</div>
+                    `;
+
+                    const degEl = item.querySelector(".edu-degree");
+                    const schEl = item.querySelector(".edu-school");
+                    const addEl = item.querySelector(".edu-address");
+                    const dateEl = item.querySelector(".edu-date");
+
+                    degEl.addEventListener("input", () => { degreeInput.value = degEl.innerText; });
+                    schEl.addEventListener("input", () => { schoolInput.value = schEl.innerText; });
+                    addEl.addEventListener("input", () => { addressInput.value = addEl.innerText; });
+                    dateEl.addEventListener("input", () => { dateInput.value = dateEl.innerText; });
+
+                    container.appendChild(item);
+                }
+            });
+        }
+
+        // =======================================================
+        // DYNAMIC EXPERIENCE & 2-WAY BINDING
+        // =======================================================
+        function addExperienceInput() {
+            const container = document.getElementById("expFormContainer");
+            const div = document.createElement("div");
+            div.className = "card-box exp-entry";
+            div.innerHTML = `
+                <button type="button" class="remove-card-btn" onclick="removeCard(this, renderExperiences)"><i class="fa-solid fa-xmark"></i></button>
+                <input type="text" class="job-role-input" placeholder="Role Title">
+                <input type="text" class="job-meta-input" placeholder="Date & Company" style="margin-top:6px;">
+                <div class="textarea-ai-wrapper" style="margin-top:6px;">
+                    <textarea class="job-bullets-input" placeholder="Achievements (One per line)"></textarea>
+                    <button type="button" class="btn-ai-action" onclick="generateAiExperience(this)">✨AI Generated Bullet Points</button>
+                </div>
+            `;
+            container.appendChild(div);
+            bindExpEvents();
+        }
+
+        function bindExpEvents() {
+            document.querySelectorAll(".exp-entry").forEach(entry => {
+                entry.querySelectorAll("input, textarea").forEach(input => {
+                    input.removeEventListener("input", renderExperiences);
+                    input.addEventListener("input", renderExperiences);
+                });
+            });
+            renderExperiences();
+        }
+
+        function renderExperiences() {
+            const container = document.getElementById("previewExperience");
+            container.innerHTML = "";
+
+            document.querySelectorAll(".exp-entry").forEach(entry => {
+                const roleInput = entry.querySelector(".job-role-input");
+                const metaInput = entry.querySelector(".job-meta-input");
+                const bulletsInput = entry.querySelector(".job-bullets-input");
+
+                const role = roleInput.value.trim();
+                const meta = metaInput.value.trim();
+                const bulletsText = bulletsInput.value;
+
+                if (role || meta || bulletsText) {
+                    const item = document.createElement("div");
+                    item.className = "experience-item";
+
+                    let bulletsHtml = "";
+                    if (bulletsText) {
+                        bulletsText.split("\n").forEach(line => {
+                            if (line.trim() !== "") {
+                                bulletsHtml += `<li contenteditable="true">${line.replace(/^[•\-\*]\s*/, '').trim()}</li>`;
+                            }
+                        });
+                    }
+
+                    item.innerHTML = `
+                        <div class="exp-role" contenteditable="true">${role || 'Role Title'}</div>
+                        <div class="exp-company-date" contenteditable="true">${meta || ''}</div>
+                        <ul class="exp-bullets">${bulletsHtml}</ul>
+                    `;
+
+                    const roleEl = item.querySelector(".exp-role");
+                    const metaEl = item.querySelector(".exp-company-date");
+                    const ulEl = item.querySelector(".exp-bullets");
+
+                    roleEl.addEventListener("input", () => { roleInput.value = roleEl.innerText; });
+                    metaEl.addEventListener("input", () => { metaInput.value = metaEl.innerText; });
+                    ulEl.addEventListener("input", () => {
+                        const lis = ulEl.querySelectorAll("li");
+                        bulletsInput.value = Array.from(lis).map(li => li.innerText.trim()).join("\n");
+                    });
+
+                    container.appendChild(item);
+                }
+            });
+        }
+
+        function removeCard(btn, renderCallback) {
+            btn.parentElement.remove();
+            if (renderCallback) renderCallback();
+        }
+
+        // AI FEATURE ACTIONS (BACKEND CONNECTORS)
+        // 1. AI SUMMARY GENERATOR
+        // AI SUMMARY GENERATOR
+        // FIXED AI SUMMARY GENERATOR
+        // 1. GENERATE SUMMARY AI (FIXED & RELIABLE)
+        // FIXED & STABLE AI SUMMARY GENERATOR
+        // 1. STABLE AI SUMMARY GENERATOR (Validates non-empty input before sending)
+        // FIXED: Directs request to /api/generate-summary endpoint
+        // =======================================================
+        // FIXED SUMMARY GENERATOR (Routes through /api/generate-section)
+        // =======================================================
+        // =======================================================
+        // AI SUMMARY GENERATOR (Matched to Photographer template style)
+        // =======================================================
+        async function generateAiSummary(btn) {
+            const textarea = document.getElementById("summaryInput");
+            const previewSummary = document.getElementById("previewSummary");
+            if (!textarea) return;
+
+            const userVal = textarea.value.trim();
+            if (!userVal) {
+                alert("Please enter draft notes or keywords first!");
+                textarea.focus();
+                return;
+            }
+
+            const origText = btn ? btn.innerHTML : "";
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+            }
+
+            const host = window.location.hostname || "127.0.0.1";
+
+            try {
+                // Calls the dedicated summary endpoint matching main.py
+                const res = await fetch(getResumeApiUrl('generate-summary'), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_input: userVal
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const summaryResult = data.summary || data.text || "";
+                    if (summaryResult) {
+                        textarea.value = summaryResult;
+                        if (previewSummary) previewSummary.innerText = summaryResult;
+                    }
+                } else {
+                    const errData = await res.json().catch(() => ({}));
+                    alert(`Error (${res.status}): ${errData.detail || "Failed to generate summary."}`);
+                }
+            } catch (err) {
+                console.error("AI Summary Error:", err);
+                alert("API Connection Failed: API is deployed on Render. Check your internet connection.");
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = origText;
+                }
+            }
+        }
+        // 2. AI SKILLS GENERATOR (Strictly reads skillsInput box, generates chips below)
+        // AI SKILLS GENERATOR (Connects to main.py at ${getResumeApiUrl('')})
+        async function generateAiSkills(btn) {
+            const skillsInputElement = document.getElementById("skillsInput");
+            const container = document.getElementById("suggestedSkillChips");
+            const wrapper = document.getElementById("aiSuggestionsWrapper");
+
+            const userTypedSkills = skillsInputElement ? skillsInputElement.value.trim() : "";
+
+            if (!userTypedSkills) {
+                alert("Please enter a few skills or topics in the input box first!");
+                return;
+            }
+
+            const origText = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+
+            // Always fallback to 127.0.0.1 if hostname is empty (e.g. opened directly from local file)
+            const host = window.location.hostname && window.location.hostname !== "" ? window.location.hostname : "127.0.0.1";
+            const endpoint = getResumeApiUrl('generate-section');
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_input: userTypedSkills,
+                        section_type: "skills"
+                    })
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Server returned error status ${res.status}`);
+                }
+
+                const data = await res.json();
+                const rawSkills = data.text || data.skills || data.summary || "";
+
+                if (rawSkills && container) {
+                    // Split skills safely
+                    const skillsArray = rawSkills
+                        .split(",")
+                        .map(s => s.replace(/^[-\d\.\s•\*]+/, "").trim())
+                        .filter(s => s !== "");
+
+                    container.innerHTML = ""; // Clear old chips
+
+                    skillsArray.forEach(skillName => {
+                        const chip = document.createElement("button");
+                        chip.type = "button";
+
+                        // Chip styling matching Image 3 (+ Skill rounded pill)
+                        chip.style.cssText = `
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 6px 14px;
+                    background-color: var(--bg-input, #f3f4f6);
+                    color: var(--text-primary, #374151);
+                    border: 1px solid var(--border-input, #d1d5db);
+                    border-radius: 20px;
+                    font-size: 12px;
+                    font-weight: 500;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                `;
+
+                        chip.innerHTML = `<span style="font-weight: bold; color: var(--theme-color, #4f46e5);">+</span> ${skillName}`;
+
+                        // Append chip to #skillsInput when clicked without wiping current skills
+                        chip.onclick = () => {
+                            const currentVal = skillsInputElement.value.trim();
+                            const existingSkills = currentVal
+                                ? currentVal.split(",").map(s => s.trim().toLowerCase())
+                                : [];
+
+                            if (!existingSkills.includes(skillName.toLowerCase())) {
+                                skillsInputElement.value = currentVal.length > 0
+                                    ? `${currentVal}, ${skillName}`
+                                    : skillName;
+
+                                renderSkills(); // Update live preview
+                                chip.remove(); // Remove clicked suggestion
+
+                                if (container.children.length === 0 && wrapper) {
+                                    wrapper.style.display = "none";
+                                }
+                            }
+                        };
+
+                        container.appendChild(chip);
+                    });
+
+                    if (wrapper) wrapper.style.display = "block";
+                }
+            } catch (err) {
+                console.error("AI Skills Error:", err);
+                alert(`API Connection Failed: Ensure "API is deployed on Render. Check your internet connection.`);
+            } finally {
+                btn.innerHTML = origText;
+            }
+        }
+
+        // 3. AI EXPERIENCE BULLETS GENERATOR
+        async function generateAiExperience(btn) {
+            const textarea = btn.previousElementSibling;
+            if (!textarea) return;
+
+            const userNotes = textarea.value.trim();
+            if (!userNotes) {
+                alert("Please write a few raw work notes in the box first!");
+                return;
+            }
+
+            const origText = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+
+            try {
+                const res = await fetch(getResumeApiUrl('generate-section'), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_input: userNotes,
+                        section_type: "experience_bullets"
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const cleanBullets = data.text || data.summary || "";
+                    if (cleanBullets) {
+                        textarea.value = cleanBullets;
+                        renderExperiences();
+                    }
+                } else {
+                    alert(`Backend Error (${res.status}): Make sure main.py is running!`);
+                }
+            } catch (err) {
+                console.error("AI Experience Error:", err);
+                alert(`Connection Failed: API is deployed on Render. Check your internet connection.`);
+            } finally {
+                btn.innerHTML = origText;
+            }
+        }
+        // PRINT / SAVE AS PDF DIALOG TRIGGER
+        function downloadPDF() {
+            window.print();
+        }
+
+        // Initialize Init State
+        bindLangEvents();
+        bindEduEvents();
+        bindExpEvents();
+        renderSkills();
+        updateStepperUI();
+    </script>
+
+</body>
+
+</html>

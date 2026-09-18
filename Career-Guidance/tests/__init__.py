@@ -1,0 +1,3 @@
+"""
+CareerCompass AI — Test Suite
+"""

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerCompass AI — Resume Review</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .dropzone {
+            border: 2px dashed var(--primary);
+            border-radius: var(--radius-xl);
+            padding: 3rem 2rem;
+            text-align: center;
+            background: var(--bg-card);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .dropzone:hover, .dropzone.dragover {
+            background: var(--primary-light);
+            border-color: var(--primary-hover);
+        }
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+        .score-val {
+            font-size: 2.25rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .score-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.25rem;
+            opacity: 0.9;
+        }
+        .feedback-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            border: 1px solid #dc2626;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo"><i class="fas fa-compass"></i></div>
+                <div class="sidebar-title">CareerCompass</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="profile.html" class="nav-item">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="results.html" class="nav-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Career Analysis</span>
+                </a>
+                <a href="roadmap.html" class="nav-item">
+                    <i class="fas fa-map"></i>
+                    <span>My Roadmap</span>
+                </a>
+                <a href="explorer.html" class="nav-item">
+                    <i class="fas fa-search"></i>
+                    <span>Career Explorer</span>
+                </a>
+                <a href="chat.html" class="nav-item">
+                    <i class="fas fa-comments"></i>
+                    <span>AI Counselor</span>
+                </a>
+                <a href="resume.html" class="nav-item active">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Resume Review</span>
+                </a>
+                <a href="admin.html" class="nav-item" id="admin-nav-item" style="display: none;">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Admin Panel</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+                <div>
+                    <div class="badge badge-primary" style="margin-bottom: 0.5rem;">
+                        <i class="fas fa-file-invoice"></i> Resume Intelligence
+                    </div>
+                    <h1>Diploma Resume Analyzer</h1>
+                    <p style="color: var(--text-secondary);">Upload your resume (PDF or DOCX) to receive structured guidance, missing skill detection, and project improvements.</p>
+                </div>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <button class="btn btn-secondary" onclick="openResumeBuilder(event)">
+                        <i class="fas fa-external-link-alt"></i> Open Builder
+                    </button>
+                    <button class="btn btn-secondary" onclick="checkBuilderResume()">
+                        <i class="fas fa-sync-alt"></i> Fetch Builder Resume
+                    </button>
+                    <button id="delete-resume-btn" class="btn btn-danger" style="display: none;" onclick="deleteResumeAnalysis()">
+                        <i class="fas fa-trash-alt"></i> Delete Review
+                    </button>
+                </div>
+            </header>
+
+            <div id="resume-error"></div>
+            <div id="resume-status-banner" style="display: none; margin-bottom: 1.5rem;"></div>
+
+            <!-- Upload Zone -->
+            <div id="upload-container" class="card" style="margin-bottom: 2rem;">
+                <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+                    <input type="file" id="file-input" style="display: none;" accept=".pdf,.docx" onchange="handleFileSelect(event)">
+                    <div style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Drop your resume here or click to browse</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">Supports PDF or DOCX format (Max size: 5MB)</p>
+                    <button type="button" class="btn btn-primary" onclick="event.stopPropagation(); document.getElementById('file-input').click()">
+                        Select Resume File
+                    </button>
+                </div>
+                
+                <div id="selected-file-banner" style="display: none; margin-top: 1.25rem; padding: 1rem; background: var(--bg-subtle); border-radius: var(--radius-md); justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <i class="fas fa-file-pdf" style="font-size: 1.5rem; color: var(--primary);"></i>
+                        <div>
+                            <strong id="file-name-text">filename.pdf</strong>
+                            <span id="file-size-text" style="display: block; font-size: 0.75rem; color: var(--text-secondary);">1.2 MB</span>
+                        </div>
+                    </div>
+                    <button id="analyze-btn" class="btn btn-accent" onclick="uploadAndAnalyze()">
+                        <i class="fas fa-magic"></i> Analyze Resume
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="analysis-loading" style="display: none; text-align: center; padding: 4rem;">
+                <span class="loader" style="width: 36px; height: 36px;"></span>
+                <h3 style="margin-top: 1.5rem;">Analyzing Resume with Gemini AI...</h3>
+                <p style="color: var(--text-secondary); margin-top: 0.5rem;">Extracting skills, validating engineering benchmarks, and constructing feedback.</p>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resume-results" style="display: none;">
+                <!-- Readiness Score Card -->
+                <div class="card ai-container" style="text-align: center; padding: 2.5rem; margin-bottom: 2rem;">
+                    <div class="score-circle">
+                        <span id="score-number" class="score-val">0</span>
+                        <span class="score-label">Readiness</span>
+                    </div>
+                    <h2 style="font-size: 1.35rem; margin-bottom: 0.5rem;">Career Readiness Score</h2>
+                    <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto; font-size: 0.9rem;">
+                        This score reflects how well your diploma credentials and technical skills are presented against engineering industry benchmarks.
+                    </p>
+                </div>
+
+                <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; margin-top: 0; margin-bottom: 1.5rem;">
+                    <!-- Strengths -->
+                    <div class="feedback-section">
+                        <h3 style="color: var(--success); font-size: 1.15rem; margin-bottom: 1rem;">
+                            <i class="fas fa-check-circle"></i> Resume Strengths
+                        </h3>
+                        <ul id="resume-strengths" style="list-style: none; padding: 0;">
+                            <!-- Populated by JS -->
+                        </ul>
+                    </div>
+
+                    <!-- Missing Skills -->
+                    <div class="feedback-section">
+                        <h3 style="color: var(--warning); font-size: 1.15rem; margin-bottom: 1rem;">
+                            <i class="fas fa-exclamation-triangle"></i> Missing Key Skills
+                        </h3>
+                        <ul id="resume-missing" style="list-style: none; padding: 0;">
+                            <!-- Populated by JS -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Skill Alignment Card -->
+                <div class="feedback-section">
+                    <h3 style="font-size: 1.15rem; margin-bottom: 0.75rem;">
+                        <i class="fas fa-bullseye text-primary"></i> Skill Alignment with Your Branch
+                    </h3>
+                    <p id="alignment-text" style="color: var(--text-secondary); line-height: 1.6; margin: 0;"></p>
+                </div>
+
+                <!-- Project & Formatting Tips Grid -->
+                <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; margin-top: 0; margin-bottom: 2rem;">
+                    <!-- Formatting Feedback -->
+                    <div class="feedback-section">
+                        <h3 style="font-size: 1.15rem; margin-bottom: 1rem;">
+                            <i class="fas fa-edit text-primary"></i> Formatting Recommendations
+                        </h3>
+                        <ul id="formatting-list" style="list-style: none; padding: 0;">
+                            <!-- Populated by JS -->
+                        </ul>
+                    </div>
+
+                    <!-- Project Suggestions -->
+                    <div class="feedback-section">
+                        <h3 style="font-size: 1.15rem; margin-bottom: 1rem;">
+                            <i class="fas fa-lightbulb" style="color: #f59e0b;"></i> Projects to Add
+                        </h3>
+                        <ul id="projects-list" style="list-style: none; padding: 0;">
+                            <!-- Populated by JS -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Supabase CDN & Central API -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let selectedFile = null;
+
+        function openResumeBuilder(e) {
+            if (e) e.preventDefault();
+            const builderUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+                ? 'http://127.0.0.1:8001/builder.html'
+                : '/resume/builder.html';
+            window.open(builderUrl, '_blank');
+        }
+
+        async function checkBuilderResume() {
+            const banner = document.getElementById('resume-status-banner');
+            try {
+                const res = await api.getBuilderResume();
+                if (res && res.success && res.data) {
+                    const resume = res.data;
+                    banner.innerHTML = `
+                        <div class="alert alert-info" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <i class="fas fa-file-signature"></i> <strong>Builder Resume Found:</strong>
+                                ${escapeHtml(resume.title || 'Untitled Resume')} (Template: ${escapeHtml(resume.template_id || 'Default')})
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="openResumeBuilder(event)">
+                                <i class="fas fa-edit"></i> Edit in Builder
+                            </button>
+                        </div>
+                    `;
+                    banner.style.display = 'block';
+                } else {
+                    banner.innerHTML = `
+                        <div class="alert alert-warning">
+                            <i class="fas fa-info-circle"></i> No builder resume found yet. Click <strong>Open Builder</strong> to create one!
+                        </div>
+                    `;
+                    banner.style.display = 'block';
+                }
+            } catch (err) {
+                console.warn('Builder resume check:', err);
+            }
+        }
+
+        async function initResumePage() {
+            try {
+                const user = await requireAuth();
+                if (!user) return;
+
+                await syncAdminNav();
+
+                const res = await api.getLatestResumeAnalysis();
+                if (res.success && res.data) {
+                    renderResumeFeedback(res.data);
+                }
+
+                // Check builder resume
+                await checkBuilderResume();
+            } catch (err) {
+                console.warn('No existing resume analysis:', err);
+            }
+        }
+
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            if (files && files.length > 0) {
+                processFile(files[0]);
+            }
+        }
+
+        // Drag & drop handlers
+        const dropzone = document.getElementById('dropzone');
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+        });
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('dragover');
+        });
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                processFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        function processFile(file) {
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!['pdf', 'docx'].includes(ext)) {
+                alert('Please select a PDF or DOCX file.');
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size exceeds 5MB limit.');
+                return;
+            }
+
+            selectedFile = file;
+            document.getElementById('file-name-text').innerText = file.name;
+            document.getElementById('file-size-text').innerText = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+            document.getElementById('selected-file-banner').style.display = 'flex';
+        }
+
+        async function uploadAndAnalyze() {
+            if (!selectedFile) return;
+
+            const btn = document.getElementById('analyze-btn');
+            const loading = document.getElementById('analysis-loading');
+            const results = document.getElementById('resume-results');
+            const errorDiv = document.getElementById('resume-error');
+
+            try {
+                errorDiv.style.display = 'none';
+                loading.style.display = 'block';
+                results.style.display = 'none';
+                btn.disabled = true;
+
+                const res = await api.analyzeResume(selectedFile);
+                loading.style.display = 'none';
+
+                if (res.success && res.data) {
+                    renderResumeFeedback(res.data);
+                } else {
+                    showError('resume-error', 'Analysis failed.');
+                }
+            } catch (err) {
+                loading.style.display = 'none';
+                showError('resume-error', err.message);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function deleteResumeAnalysis() {
+            if (!confirm('Are you sure you want to delete your current resume analysis? This will only remove your resume review feedback and will preserve your profile, assessment results, and roadmap.')) {
+                return;
+            }
+
+            try {
+                await api.deleteResumeAnalysis();
+                document.getElementById('resume-results').style.display = 'none';
+                document.getElementById('delete-resume-btn').style.display = 'none';
+                const banner = document.getElementById('resume-status-banner');
+                banner.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> Resume analysis deleted successfully.
+                    </div>
+                `;
+                banner.style.display = 'block';
+            } catch (err) {
+                showError('resume-error', 'Failed to delete resume analysis: ' + (err.message || 'Server error'));
+            }
+        }
+
+        function renderResumeFeedback(data) {
+            document.getElementById('score-number').innerText = data.guidance_score || 0;
+            document.getElementById('alignment-text').innerText = data.skill_alignment || 'Skill alignment data unavailable.';
+
+            // Strengths - XSS safe
+            const strengthsUl = document.getElementById('resume-strengths');
+            strengthsUl.innerHTML = (data.strengths || []).map(s => `
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border); display: flex; gap: 0.5rem;">
+                    <i class="fas fa-check text-success" style="margin-top: 3px;"></i>
+                    <span>${escapeHtml(s)}</span>
+                </li>
+            `).join('') || '<li>No specific strengths recorded.</li>';
+
+            // Missing Skills - XSS safe
+            const missingUl = document.getElementById('resume-missing');
+            missingUl.innerHTML = (data.missing_skills || []).map(s => `
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border); display: flex; gap: 0.5rem;">
+                    <i class="fas fa-times text-danger" style="margin-top: 3px;"></i>
+                    <span>${escapeHtml(s)}</span>
+                </li>
+            `).join('') || '<li>All essential branch skills detected.</li>';
+
+            // Formatting - XSS safe
+            const formatUl = document.getElementById('formatting-list');
+            formatUl.innerHTML = (data.formatting_feedback || []).map(f => `
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border); display: flex; gap: 0.5rem;">
+                    <i class="fas fa-info-circle text-primary" style="margin-top: 3px;"></i>
+                    <span>${escapeHtml(f)}</span>
+                </li>
+            `).join('') || '<li>Formatting conforms to standard guidelines.</li>';
+
+            // Projects - XSS safe
+            const projectsUl = document.getElementById('projects-list');
+            projectsUl.innerHTML = (data.project_suggestions || []).map(p => `
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border); display: flex; gap: 0.5rem;">
+                    <i class="fas fa-code text-warning" style="margin-top: 3px;"></i>
+                    <span>${escapeHtml(p)}</span>
+                </li>
+            `).join('') || '<li>Existing projects align well with profile.</li>';
+
+            document.getElementById('resume-results').style.display = 'block';
+            document.getElementById('delete-resume-btn').style.display = 'inline-flex';
+        }
+
+        document.addEventListener('DOMContentLoaded', initResumePage);
+    </script>
+</body>
+</html>

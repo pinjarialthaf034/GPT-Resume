@@ -1,0 +1,865 @@
+/* Premium Styles for Project Manager Workspace UI */
+
+:root {
+    --bg-body: #f8fafc;
+    --bg-card: #ffffff;
+    --border-color: rgba(0, 0, 0, 0.06);
+    --text-primary: #0f172a;
+    --text-muted: #64748b;
+    --text-input: #0f172a;
+    --bg-input: #ffffff;
+    --border-input: #d1d5db;
+    --accent-blue: #2563eb;
+    
+    /* Project Manager Resume Theme Color defaults */
+    --theme-color: #000000;
+}
+
+[data-theme="dark"] {
+    --bg-body: #0f172a;
+    --bg-card: #1e293b;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --text-primary: #f8fafc;
+    --text-muted: #94a3b8;
+    --text-input: #f8fafc;
+    --bg-input: #1e293b;
+    --border-input: #475569;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--bg-body);
+    padding: 30px;
+    color: var(--text-primary);
+    font-family: 'Montserrat', sans-serif;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* =========================================
+   HEADER NAVBAR STYLING
+   ========================================= */
+.builder-header {
+    width: 100%;
+    height: 75px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    margin-bottom: 30px;
+    transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.logo-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.theme-toggle-btn {
+    background: transparent;
+    border: 1px solid var(--border-input);
+    color: var(--text-primary);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+    background: rgba(0,0,0,0.04);
+}
+
+[data-theme="dark"] .theme-toggle-btn:hover {
+    background: rgba(255,255,255,0.04);
+}
+
+/* =========================================
+   MAIN CONTAINER GRID Layout
+   ========================================= */
+.builder-container {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* =========================================
+   LEFT PANEL INPUT FORM CONSOLE
+   ========================================= */
+.form-panel {
+    width: 40%;
+    min-height: 700px;
+    background: var(--bg-card);
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 95px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.form-panel input,
+.form-panel textarea,
+.form-panel select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-input);
+    background: var(--bg-input);
+    color: var(--text-input);
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.form-panel textarea {
+    height: 120px;
+    resize: none;
+}
+
+.form-panel input:focus,
+.form-panel textarea:focus,
+.form-panel select:focus {
+    border-color: var(--accent-blue);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.step { 
+    display: none; 
+    flex-direction: column;
+    gap: 15px;
+}
+
+.step.active { 
+    display: flex; 
+}
+
+.step-header { 
+    margin-bottom: 10px; 
+    text-align: left;
+}
+
+.step-header h2 { 
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 5px;
+    color: var(--text-primary);
+}
+
+.step-header p {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* =========================================
+   INTERACTIVE STEPPER PROGRESS BAR
+   ========================================= */
+.stepper-progress-container {
+    position: relative;
+    margin-bottom: 25px;
+    width: 100%;
+}
+
+.stepper-track-bg {
+    position: absolute;
+    top: 14px;
+    left: 20px;
+    right: 20px;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.08);
+    z-index: 1;
+    border-radius: 2px;
+}
+
+[data-theme="dark"] .stepper-track-bg {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.stepper-track-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent-blue);
+    border-radius: 2px;
+    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stepper-steps-wrapper {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    z-index: 2;
+}
+
+.step-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    flex: 1;
+}
+
+.step-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 2px solid var(--border-input);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step-node.active .step-circle {
+    border-color: var(--accent-blue);
+    background: var(--accent-blue);
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.4);
+}
+
+.step-node.completed .step-circle {
+    border-color: var(--accent-blue);
+    background: var(--bg-card);
+    color: var(--accent-blue);
+}
+
+.step-label {
+    margin-top: 6px;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    transition: color 0.3s ease;
+    text-align: center;
+}
+
+.step-node.active .step-label {
+    color: var(--text-primary);
+}
+
+.step-node.completed .step-label {
+    color: var(--accent-blue);
+}
+
+/* =========================================
+   BUTTON CONSOLE
+   ========================================= */
+.next-btn {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 8px;
+    background: var(--accent-blue);
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.next-btn:hover {
+    background: #1d4ed8;
+}
+
+.next-btn:active {
+    transform: scale(0.98);
+}
+
+.back-btn {
+    flex: 1;
+    padding: 13px;
+    border: 1px solid var(--border-input);
+    border-radius: 8px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 700;
+    transition: background 0.2s ease;
+}
+
+.back-btn:hover {
+    background: rgba(0,0,0,0.02);
+}
+
+[data-theme="dark"] .back-btn:hover {
+    background: rgba(255,255,255,0.02);
+}
+
+.step-buttons { 
+    display: flex; 
+    gap: 10px; 
+    margin-top: 10px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    text-align: left;
+}
+
+.input-group label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+/* =========================================
+   AI ENHANCEMENT ENGINE
+   ========================================= */
+.textarea-ai-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.btn-ai-action {
+    align-self: flex-end;
+    background: rgba(124, 58, 237, 0.08);
+    color: #7c3aed;
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+}
+
+.btn-ai-action:hover {
+    background: #7c3aed;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+}
+
+[data-theme="dark"] .btn-ai-action {
+    background: rgba(168, 85, 247, 0.12);
+    color: #c084fc;
+    border-color: rgba(168, 85, 247, 0.25);
+}
+
+[data-theme="dark"] .btn-ai-action:hover {
+    background: #a855f7;
+    color: #ffffff;
+}
+
+.ai-chips-wrapper {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+}
+
+.chip-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.skill-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.skill-chip {
+    background: rgba(37, 99, 235, 0.06);
+    color: var(--accent-blue);
+    border: 1px solid rgba(37, 99, 235, 0.15);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.skill-chip:hover {
+    background: var(--accent-blue);
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+/* =========================================
+   RIGHT SIDE PANEL & CUSTOMIZER TOOLBAR
+   ========================================= */
+.preview-panel {
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.customizer-toolbar {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    margin-bottom: 5px;
+    transition: all 0.3s ease;
+}
+
+.toolbar-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toolbar-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.color-swatches {
+    display: flex;
+    gap: 8px;
+}
+
+.color-swatch {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.2s, border-color 0.2s;
+    box-shadow: inset 0 0 3px rgba(0,0,0,0.2);
+}
+
+.color-swatch:hover {
+    transform: scale(1.15);
+}
+
+.color-swatch.active {
+    border-color: var(--text-primary);
+    transform: scale(1.15);
+}
+
+.toolbar-select {
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-input);
+    font-size: 12px;
+    font-weight: 700;
+    background: var(--bg-input);
+    color: var(--text-input);
+    cursor: pointer;
+    outline: none;
+}
+
+.btn-pdf-download {
+    background: #ef4444;
+    color: #ffffff;
+    border: none;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn-pdf-download:hover {
+    background: #dc2626;
+}
+
+.btn-pdf-download:active {
+    transform: scale(0.98);
+}
+
+/* =========================================
+   PROJECT MANAGER RESUME SPECIFIC CANVAS STYLING
+   ========================================= */
+.resume-page {
+    width: 794px;
+    min-height: 1123px;
+    background: #ffffff;
+    display: flex;
+    box-shadow: 0 10px 30px rgba(0,0,0,.15);
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+    margin: 0 auto;
+    color: #000000;
+    text-align: left;
+}
+
+/* LEFT SIDEBAR WITH VARIABLE BACKGROUND */
+.resume-sidebar {
+    width: 38%;
+    background-color: var(--theme-color);
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.3s ease;
+}
+
+.photo-wrapper {
+    width: 100%;
+    height: 310px;
+    background: #111;
+    overflow: hidden;
+}
+
+.sidebar-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.sidebar-content {
+    padding: 35px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.sidebar-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #ffffff;
+    margin-bottom: 20px;
+    outline: none;
+}
+
+/* SIDEBAR CONTACT */
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 11.5px;
+    margin-bottom: 14px;
+    color: #ffffff;
+    font-weight: 300;
+}
+
+.contact-item i {
+    width: 16px;
+    text-align: center;
+    font-size: 13px;
+    color: #ffffff;
+}
+
+/* SIDEBAR BULLET LISTS */
+.sidebar-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.sidebar-list li {
+    font-size: 12px;
+    line-height: 1.6;
+    margin-bottom: 8px;
+    position: relative;
+    padding-left: 16px;
+    color: #ffffff;
+    font-weight: 300;
+    outline: none;
+}
+
+.sidebar-list li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.edu-item {
+    margin-bottom: 18px;
+}
+
+.edu-degree {
+    font-size: 12.5px;
+    font-weight: 400;
+    color: #ffffff;
+    outline: none;
+}
+
+.edu-school {
+    font-size: 11.5px;
+    font-weight: 300;
+    color: #cccccc;
+    margin-top: 2px;
+    outline: none;
+}
+
+.edu-date {
+    font-size: 11px;
+    color: #aaaaaa;
+    margin-top: 2px;
+    font-weight: 300;
+    outline: none;
+}
+
+.lang-text {
+    font-size: 12px;
+    margin-bottom: 8px;
+    color: #ffffff;
+    font-weight: 300;
+    outline: none;
+}
+
+/* RIGHT MAIN CONTENT (62% WIDTH) */
+.resume-main {
+    width: 62%;
+    padding: 50px 40px;
+    background: #ffffff;
+    color: #000000;
+}
+
+/* HEADER NAME & TITLE */
+.main-header {
+    margin-bottom: 35px;
+}
+
+#previewName {
+    font-family: 'Oswald', sans-serif;
+    font-size: 68px;
+    font-weight: 700;
+    line-height: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #000000;
+    outline: none;
+}
+
+#previewRole {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--theme-color);
+    margin-top: 15px;
+    outline: none;
+    transition: color 0.3s ease;
+}
+
+.about-text {
+    font-size: 11.5px;
+    line-height: 1.7;
+    color: #222222;
+    font-weight: 400;
+    margin-top: 20px;
+    outline: none;
+}
+
+/* EXPERIENCE SECTION TIMELINE */
+.main-section-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #000000;
+    margin-top: 35px;
+    margin-bottom: 25px;
+    outline: none;
+}
+
+.timeline-container {
+    position: relative;
+    padding-left: 20px;
+    border-left: 1.5px solid var(--theme-color);
+    margin-left: 5px;
+    transition: border-color 0.3s ease;
+}
+
+.job-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.job-node {
+    position: absolute;
+    left: -25px;
+    top: 4px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    border: 1.5px solid var(--theme-color);
+    transition: border-color 0.3s ease;
+}
+
+.job-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #000000;
+    outline: none;
+}
+
+.job-company {
+    font-size: 12px;
+    color: #444444;
+    font-weight: 400;
+    margin-top: 2px;
+    outline: none;
+}
+
+.job-date {
+    font-size: 11.5px;
+    color: #666666;
+    margin-top: 2px;
+    margin-bottom: 12px;
+    font-weight: 400;
+    outline: none;
+}
+
+.main-bullet-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.main-bullet-list li {
+    font-size: 11.5px;
+    color: #222222;
+    line-height: 1.6;
+    margin-bottom: 6px;
+    position: relative;
+    padding-left: 16px;
+    font-weight: 400;
+    outline: none;
+}
+
+.main-bullet-list li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--theme-color);
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+/* Inline editable hover visual indicator */
+[contenteditable="true"]:hover {
+    outline: 1px dashed #000000 !important;
+    background-color: #f7f7f7;
+    cursor: text;
+}
+
+/* =========================================
+   PRINT AND PDF EXPORT MEDIA STYLES
+   ========================================= */
+@media print {
+    /* Standard A4 Page Setup */
+    @page {
+        size: A4 portrait;
+        margin: 0;
+    }
+
+    html, body {
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Hide all UI elements, side forms, control toolbars, theme toggles, and buttons */
+    .panel-wrapper,
+    .form-panel,
+    .color-panel,
+    .ai-panel,
+    .builder-header,
+    .customizer-toolbar,
+    .toast-container,
+    .stepper-progress-container,
+    .no-print,
+    button,
+    input[type="file"] {
+        display: none !important;
+    }
+
+    /* Display ONLY the Target Resume Canvas */
+    .builder-container,
+    .preview-panel {
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        background: none !important;
+        box-shadow: none !important;
+    }
+
+    #resume-pdf-target {
+        width: 210mm !important;
+        min-height: 297mm !important;
+        box-shadow: none !important;
+        border: none !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
+    }
+}

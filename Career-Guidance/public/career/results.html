@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerCompass AI — Career Analysis Results</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <style>
+        .career-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .career-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        .match-score-badge {
+            font-size: 1.25rem;
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-lg);
+            background: var(--primary-light);
+            color: var(--primary);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .skill-pill {
+            display: inline-block;
+            padding: 0.25rem 0.625rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin: 0.2rem;
+        }
+        .skill-matched {
+            background: var(--success-light);
+            color: var(--success);
+        }
+        .skill-missing {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+        .gap-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .gap-item:last-child {
+            border-bottom: none;
+        }
+        .career-choice-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .career-choice-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        .career-choice-card.selected {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.05);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25), var(--shadow-md);
+        }
+        .career-choice-card.selected .card-selected-badge {
+            display: inline-flex !important;
+        }
+        .select-career-btn {
+            margin-top: 1.25rem;
+            width: 100%;
+            padding: 0.65rem 1rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .career-choice-card.selected .select-career-btn {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo"><i class="fas fa-compass"></i></div>
+                <div class="sidebar-title">CareerCompass</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="profile.html" class="nav-item">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="results.html" class="nav-item active">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Career Analysis</span>
+                </a>
+                <a href="roadmap.html" class="nav-item">
+                    <i class="fas fa-map"></i>
+                    <span>My Roadmap</span>
+                </a>
+                <a href="explorer.html" class="nav-item">
+                    <i class="fas fa-search"></i>
+                    <span>Career Explorer</span>
+                </a>
+                <a href="chat.html" class="nav-item">
+                    <i class="fas fa-comments"></i>
+                    <span>AI Counselor</span>
+                </a>
+                <a href="resume.html" class="nav-item">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Resume Review</span>
+                </a>
+                <a href="admin.html" class="nav-item" id="admin-nav-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Admin Panel</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <div class="badge badge-primary" style="margin-bottom: 0.5rem;">
+                        <i class="fas fa-sparkles"></i> AI-Powered Career Intelligence
+                    </div>
+                    <h1>Career Match Analysis</h1>
+                    <p style="color: var(--text-secondary);">Personalized recommendations powered by Google Gemini and deterministic diploma engineering benchmarks.</p>
+                </div>
+                <div style="display: flex; gap: 0.75rem;">
+                    <button id="regenerate-btn" class="btn btn-secondary" onclick="generateAnalysis(true)">
+                        <i class="fas fa-sync-alt"></i> Re-Analyze
+                    </button>
+                    <button class="btn btn-primary" onclick="window.location.href='roadmap.html'">
+                        <i class="fas fa-map"></i> View Roadmap
+                    </button>
+                </div>
+            </header>
+
+            <div id="results-error"></div>
+
+            <div id="results-loading" style="text-align: center; padding: 4rem;">
+                <span class="loader" style="width: 32px; height: 32px;"></span>
+                <p id="loading-text" style="margin-top: 1rem; color: var(--text-secondary); font-weight: 500;">
+                    Retrieving your career intelligence...
+                </p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="card" style="display: none; text-align: center; padding: 4rem 2rem;">
+                <div style="width: 72px; height: 72px; background: var(--primary-light); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h2>No AI Analysis Generated Yet</h2>
+                <p style="color: var(--text-secondary); max-width: 500px; margin: 0.75rem auto 2rem;">
+                    Get a personalized career guidance report, skill gaps assessment, and customized roadmap tailored to your diploma profile.
+                </p>
+                <button class="btn btn-accent" style="font-size: 1rem; padding: 0.85rem 1.75rem;" onclick="generateAnalysis(false)">
+                    <i class="fas fa-magic"></i> Generate Career Analysis
+                </button>
+            </div>
+
+            <!-- Analysis Content -->
+            <div id="analysis-content" style="display: none;">
+                <!-- Status Banner -->
+                <div id="status-banner" style="margin-bottom: 1.5rem;"></div>
+
+                <!-- Executive Summary -->
+                <div class="card ai-container" style="margin-bottom: 2rem;">
+                    <h2 style="font-size: 1.25rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-compass text-primary"></i> Executive Guidance Summary
+                    </h2>
+                    <p id="summary-text" style="font-size: 1.05rem; line-height: 1.6; color: var(--text-primary);"></p>
+                </div>
+
+                <!-- Assessment Interest Signals Card -->
+                <div id="interest-signals-card" class="card" style="margin-bottom: 2rem; display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
+                        <h2 style="font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+                            <i class="fas fa-satellite-dish text-primary"></i> Your Interest Signals
+                        </h2>
+                        <span class="badge badge-primary" style="font-size: 0.8rem;"><i class="fas fa-check-circle"></i> Discovery Calibrated</span>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.25rem; line-height: 1.5;">
+                        These signals reflect the types of activities and problems you naturally seemed drawn to during the assessment.
+                    </p>
+                    <div id="interest-signals-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- 5-Dimension Compatibility Radar -->
+                <div class="card" style="margin-bottom: 2rem;">
+                    <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-crosshairs text-primary"></i> 5-Dimension Match Analysis
+                    </h2>
+                    <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1.5rem;">
+                        Holistic alignment across diploma specialization, technical proficiency, student interests, career goals, and academic performance.
+                    </p>
+                    <div style="max-width: 440px; margin: 0 auto; position: relative; height: 320px;">
+                        <canvas id="matchRadarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 🎯 Choose Your Career Path (Student Selection UI) -->
+                <div id="career-selection-section" class="card" style="margin-bottom: 2.5rem; border: 2px solid var(--primary); background: linear-gradient(135deg, var(--bg-card) 0%, rgba(37, 99, 235, 0.04) 100%);">
+                    <div style="margin-bottom: 1.5rem;">
+                        <div class="badge badge-primary" style="margin-bottom: 0.5rem;">
+                            <i class="fas fa-hand-pointer"></i> Student Decision
+                        </div>
+                        <h2 style="font-size: 1.45rem; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.5rem;">
+                            🎯 Choose Your Career Path
+                        </h2>
+                        <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--text-primary);">
+                            Which career interests you the most?
+                        </h3>
+                        <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5; margin: 0;">
+                            These are your strongest matches based on your assessment, branch, skills, interests, goals and academic profile. Choose the one you would like to explore first.
+                        </p>
+                    </div>
+
+                    <!-- Top 3 Selectable Cards Grid -->
+                    <div id="choice-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                        <!-- Populated dynamically with Top 3 cards -->
+                    </div>
+
+                    <!-- Selection Confirmation Box -->
+                    <div id="choice-confirmation-box" style="display: none; background: var(--bg-card); border: 1.5px solid var(--primary); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; box-shadow: var(--shadow-sm);">
+                        <div>
+                            <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; color: var(--primary); margin-bottom: 0.25rem;">
+                                <i class="fas fa-check-circle"></i> Selection Confirmed
+                            </div>
+                            <div style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary);" id="selected-career-title-display">
+                                You selected: Software Developer
+                            </div>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem; margin-bottom: 0;">
+                                Great choice! We'll build your learning roadmap specifically for this career.
+                            </p>
+                        </div>
+                        <div>
+                            <button id="build-roadmap-btn" class="btn btn-primary" style="font-size: 1rem; padding: 0.85rem 1.75rem; font-weight: 600;" onclick="confirmAndBuildRoadmap()">
+                                Build My Roadmap <i class="fas fa-arrow-right" style="margin-left: 0.4rem;"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recommended Careers -->
+                <div style="margin-bottom: 1rem;">
+                    <h2 style="font-size: 1.35rem; margin-bottom: 0.25rem;">Career Match</h2>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem;">
+                        Career Match combines your interests with your diploma branch, skills, academic performance, goals, and assessment results.
+                    </p>
+                </div>
+                <div id="careers-list" style="margin-bottom: 2rem;">
+                    <!-- Populated by JS -->
+                </div>
+
+                <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; margin-top: 0; margin-bottom: 2rem;">
+                    <!-- Strengths Card -->
+                    <div class="card">
+                        <h2 style="font-size: 1.25rem; margin-bottom: 1rem; color: var(--success);">
+                            <i class="fas fa-award"></i> Core Strengths
+                        </h2>
+                        <ul id="strengths-list" style="list-style: none; padding: 0;">
+                            <!-- Populated by JS -->
+                        </ul>
+                    </div>
+
+                    <!-- Priority Skills Card -->
+                    <div class="card">
+                        <h2 style="font-size: 1.25rem; margin-bottom: 1rem; color: var(--primary);">
+                            <i class="fas fa-bolt"></i> High-Priority Skills to Learn
+                        </h2>
+                        <ul id="priority-skills-list" style="list-style: none; padding: 0;">
+                            <!-- Populated by JS -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Detailed Skill Gaps -->
+                <div class="card" style="margin-bottom: 2rem;">
+                    <h2 style="font-size: 1.25rem; margin-bottom: 1rem;">
+                        <i class="fas fa-tools text-primary"></i> Skill Gap Analysis
+                    </h2>
+                    <div id="skill-gaps-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Next Steps Banner -->
+                <div class="card" style="background: linear-gradient(135deg, var(--bg-card) 0%, var(--primary-light) 100%); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+                    <div>
+                        <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Ready to start bridging your skill gaps?</h3>
+                        <p style="color: var(--text-secondary);">Your personalized learning roadmap is prepared with weekly milestones and curated resources.</p>
+                    </div>
+                    <button class="btn btn-primary" style="font-size: 1rem; padding: 0.75rem 1.5rem;" onclick="window.location.href='roadmap.html'">
+                        Open Interactive Roadmap <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/api.js"></script>
+    <script>
+        async function initResults() {
+            try {
+                const user = await requireAuth();
+                if (!user) return;
+
+                await syncAdminNav();
+                // Check if user has analysis
+                const res = await api.getLatestAnalysis();
+                document.getElementById('results-loading').style.display = 'none';
+
+                if (res.success && res.data) {
+                    renderAnalysis(res.data);
+                } else {
+                    document.getElementById('empty-state').style.display = 'block';
+                }
+
+                await loadAndRenderAssessmentSignals();
+            } catch (err) {
+                document.getElementById('results-loading').style.display = 'none';
+                showError('results-error', err.message);
+            }
+        }
+
+        async function loadAndRenderAssessmentSignals() {
+            try {
+                const profRes = await api.getProfile();
+                if (profRes && profRes.data && profRes.data.assessment_signals) {
+                    renderInterestSignals(profRes.data.assessment_signals);
+                }
+            } catch (e) {
+                console.warn('Could not load profile assessment signals:', e);
+            }
+        }
+
+        function renderInterestSignals(signals) {
+            const card = document.getElementById('interest-signals-card');
+            const grid = document.getElementById('interest-signals-grid');
+            if (!card || !grid || !signals) return;
+
+            const topDomains = signals.top_interest_domains || [];
+            if (topDomains.length === 0) {
+                card.style.display = 'none';
+                return;
+            }
+
+            const medals = ['🥇', '🥈', '🥉'];
+            grid.innerHTML = topDomains.map((dom, idx) => `
+                <div style="background: var(--bg-main); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem; display: flex; align-items: center; gap: 0.85rem;">
+                    <span style="font-size: 1.6rem; line-height: 1;">${medals[idx] || '🎯'}</span>
+                    <div>
+                        <div style="font-weight: 600; font-size: 0.95rem; color: var(--text-primary); margin-bottom: 0.25rem;">
+                            ${escapeHtml(dom.icon || '🎯')} ${escapeHtml(dom.domain_label)}
+                        </div>
+                        <div style="font-size: 0.8rem;">
+                            <span class="badge ${dom.level === 'Strong' ? 'badge-primary' : 'badge-warning'}">${dom.level} Interest Signal</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            card.style.display = 'block';
+        }
+
+        async function generateAnalysis(forceRegenerate = false) {
+            const btn = document.getElementById('regenerate-btn');
+            const loading = document.getElementById('results-loading');
+            const loadingText = document.getElementById('loading-text');
+
+            try {
+                document.getElementById('empty-state').style.display = 'none';
+                document.getElementById('analysis-content').style.display = 'none';
+                document.getElementById('results-error').style.display = 'none';
+
+                loading.style.display = 'block';
+                loadingText.innerText = forceRegenerate
+                    ? 'Synthesizing updated profile with Gemini AI...'
+                    : 'Running matching engine & generating career guidance...';
+
+                const res = await api.generateAnalysis(forceRegenerate);
+                loading.style.display = 'none';
+
+                if (res.success && res.data) {
+                    renderAnalysis(res.data);
+                    await loadAndRenderAssessmentSignals();
+                } else {
+                    showError('results-error', 'Unable to retrieve career analysis.');
+                }
+            } catch (err) {
+                loading.style.display = 'none';
+                showError('results-error', err.message);
+            }
+        }
+
+        let radarChartInstance = null;
+        function renderRadarChart(data) {
+            const canvas = document.getElementById('matchRadarChart');
+            if (!canvas || typeof Chart === 'undefined') return;
+
+            const topCareer = (data.recommended_careers && data.recommended_careers[0]) || {};
+            const overallScore = topCareer.score || 75;
+
+            // Use authentic AI dimension scores when available, with resilient fallback
+            const branchScore = topCareer.branch_compatibility !== undefined
+                ? Math.round(topCareer.branch_compatibility)
+                : Math.min(100, Math.round(overallScore * 1.05));
+
+            const matchedCount = (topCareer.matched_skills || []).length;
+            const missingCount = (topCareer.missing_skills || []).length;
+            const totalSkills = matchedCount + missingCount;
+            const skillScore = topCareer.skill_match !== undefined
+                ? Math.round(topCareer.skill_match)
+                : (totalSkills > 0 ? Math.round((matchedCount / totalSkills) * 100) : overallScore);
+
+            const interestScore = topCareer.interest_alignment !== undefined
+                ? Math.round(topCareer.interest_alignment)
+                : Math.min(100, Math.round(overallScore * 0.96));
+
+            const goalScore = topCareer.goal_alignment !== undefined
+                ? Math.round(topCareer.goal_alignment)
+                : Math.min(100, Math.round(overallScore * 1.02));
+
+            const cgpaScore = topCareer.academic_compatibility !== undefined
+                ? Math.round(topCareer.academic_compatibility)
+                : Math.min(100, Math.round(overallScore * 0.98));
+
+            if (radarChartInstance) {
+                radarChartInstance.destroy();
+            }
+
+            const ctx = canvas.getContext('2d');
+            radarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        'Branch Fit',
+                        'Skill Match',
+                        'Interest Alignment',
+                        'Career Goal',
+                        'CGPA Compatibility'
+                    ],
+                    datasets: [{
+                        label: topCareer.title || 'Career Match',
+                        data: [branchScore, skillScore, interestScore, goalScore, cgpaScore],
+                        fill: true,
+                        backgroundColor: 'rgba(37, 99, 235, 0.15)',
+                        borderColor: '#2563eb',
+                        pointBackgroundColor: '#2563eb',
+                        pointBorderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(0, 0, 0, 0.08)' },
+                            grid: { color: 'rgba(0, 0, 0, 0.08)' },
+                            pointLabels: {
+                                font: { size: 12, weight: '600' },
+                                color: '#4b5563'
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            ticks: { stepSize: 20, display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        function renderAnalysis(data) {
+            document.getElementById('summary-text').innerText = data.summary || 'Summary unavailable.';
+
+            // Status banner
+            const banner = document.getElementById('status-banner');
+            if (data.is_fallback) {
+                banner.innerHTML = `
+                    <div class="alert alert-warning" style="padding: 0.75rem 1rem; font-size: 0.875rem;">
+                        <i class="fas fa-exclamation-triangle"></i> <strong>Preliminary Rule-Based Matches:</strong> Gemini AI is temporarily unavailable. Displaying preliminary matches from curriculum rules. Please click 'Regenerate Analysis' to try again.
+                    </div>
+                `;
+            } else if (data.is_cached) {
+                banner.innerHTML = `
+                    <div class="alert alert-success" style="padding: 0.75rem 1rem; font-size: 0.875rem;">
+                        <i class="fas fa-bolt"></i> <strong>Instant Result:</strong> Loaded from cached AI analysis (${new Date(data.generated_at).toLocaleDateString()}). 0 Gemini quota consumed.
+                    </div>
+                `;
+            } else {
+                banner.innerHTML = `
+                    <div class="alert alert-success" style="padding: 0.75rem 1rem; font-size: 0.875rem;">
+                        <i class="fas fa-sparkles"></i> <strong>Fresh AI Career Intelligence:</strong> Generated dynamically by Google Gemini AI model.
+                    </div>
+                `;
+            }
+
+            // Render 5-Dimension Radar
+            renderRadarChart(data);
+
+            // Render Top 3 Career Path Selection Section
+            renderCareerChoiceSection(data);
+
+            // Careers List (XSS sanitized)
+            const careersList = document.getElementById('careers-list');
+            const careers = data.recommended_careers || [];
+            careersList.innerHTML = careers.map((c, idx) => `
+                <div class="career-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                        <div>
+                            <span class="badge badge-primary" style="margin-bottom: 0.25rem;">Rank #${idx + 1}</span>
+                            <h3 style="font-size: 1.35rem; margin-top: 0.25rem;">${escapeHtml(c.title)}</h3>
+                        </div>
+                        <div class="match-score-badge">
+                            <i class="fas fa-bullseye"></i> ${Math.round(c.score)}% Match
+                        </div>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.25rem; font-size: 0.95rem;">${escapeHtml(c.reason)}</p>
+                    
+                    ${c.career_outlook ? `
+                    <div style="margin-bottom: 0.75rem; font-size: 0.85rem; color: var(--text-secondary);">
+                        <i class="fas fa-chart-line text-primary"></i> <strong>Industry Outlook:</strong> ${escapeHtml(c.career_outlook)}
+                    </div>` : ''}
+
+                    <div style="margin-bottom: 0.75rem;">
+                        <strong style="font-size: 0.85rem; color: var(--text-secondary); margin-right: 0.5rem;">Your Matched Skills:</strong>
+                        ${(c.matched_skills || []).map(s => `<span class="skill-pill skill-matched"><i class="fas fa-check"></i> ${escapeHtml(s)}</span>`).join('') || '<span style="font-size: 0.85rem; color: var(--text-tertiary);">None yet</span>'}
+                    </div>
+                    <div>
+                        <strong style="font-size: 0.85rem; color: var(--text-secondary); margin-right: 0.5rem;">Skills to Build:</strong>
+                        ${(c.missing_skills || []).map(s => `<span class="skill-pill skill-missing"><i class="fas fa-arrow-up"></i> ${escapeHtml(s)}</span>`).join('') || '<span style="font-size: 0.85rem; color: var(--success);">All target skills matched!</span>'}
+                    </div>
+
+                    ${(c.next_steps && c.next_steps.length > 0) ? `
+                    <div style="margin-top: 0.9rem; font-size: 0.85rem; background: var(--bg-primary); padding: 0.6rem 0.8rem; border-radius: 6px; border: 1px solid var(--border);">
+                        <strong style="color: var(--text-primary);"><i class="fas fa-lightbulb" style="color: #f59e0b;"></i> Recommended Action:</strong>
+                        <span style="color: var(--text-secondary); margin-left: 0.35rem;">${escapeHtml(c.next_steps[0])}</span>
+                    </div>` : ''}
+                </div>
+            `).join('');
+
+            // Strengths (XSS sanitized)
+            const strengthsList = document.getElementById('strengths-list');
+            strengthsList.innerHTML = (data.strengths || []).map(s => `
+                <li style="padding: 0.6rem 0; border-bottom: 1px solid var(--border); display: flex; gap: 0.75rem;">
+                    <i class="fas fa-check-circle" style="color: var(--success); margin-top: 3px;"></i>
+                    <span>${escapeHtml(s)}</span>
+                </li>
+            `).join('');
+
+            // Priority Skills (XSS sanitized)
+            const priorityList = document.getElementById('priority-skills-list');
+            priorityList.innerHTML = (data.priority_skills || []).map((s, idx) => `
+                <li style="padding: 0.6rem 0; border-bottom: 1px solid var(--border); display: flex; gap: 0.75rem; align-items: center;">
+                    <span style="width: 22px; height: 22px; background: var(--primary-light); color: var(--primary); border-radius: 50%; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center;">${idx + 1}</span>
+                    <strong style="font-size: 0.95rem;">${escapeHtml(s)}</strong>
+                </li>
+            `).join('');
+
+            // Detailed Skill Gaps (XSS sanitized)
+            const gapsList = document.getElementById('skill-gaps-list');
+            const gaps = data.skill_gaps || [];
+            if (gaps.length === 0) {
+                gapsList.innerHTML = '<p style="color: var(--text-secondary);">No prominent skill gaps identified.</p>';
+            } else {
+                gapsList.innerHTML = gaps.map(g => `
+                    <div class="gap-item">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1rem;">${escapeHtml(g.skill_name)}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                                Current: <span style="text-transform: capitalize;">${escapeHtml(g.current_level || 'None')}</span> &bull; Target: <span style="text-transform: capitalize;">${escapeHtml(g.required_level)}</span>
+                                ${g.learning_resource ? ` &bull; Resource: ${escapeHtml(g.learning_resource)}` : ''}
+                            </div>
+                        </div>
+                        <div>
+                            <span class="badge ${g.priority === 'high' ? 'badge-warning' : 'badge-primary'}" style="text-transform: uppercase;">${escapeHtml(g.priority)} priority</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('analysis-content').style.display = 'block';
+        }
+
+        let currentlySelectedCareer = null;
+        let currentTopCareers = [];
+
+        function renderCareerChoiceSection(data) {
+            const choiceSection = document.getElementById('career-selection-section');
+            const grid = document.getElementById('choice-cards-grid');
+            if (!choiceSection || !grid) return;
+
+            currentTopCareers = (data.recommended_careers || []).slice(0, 3);
+            if (currentTopCareers.length === 0) {
+                choiceSection.style.display = 'none';
+                return;
+            }
+
+            choiceSection.style.display = 'block';
+
+            // If backend already persisted a selected_career, and it is in top 3, preserve it
+            const existing = data.selected_career;
+            if (existing && currentTopCareers.some(c => c.title.toLowerCase().trim() === existing.toLowerCase().trim())) {
+                currentlySelectedCareer = existing;
+            } else {
+                currentlySelectedCareer = null;
+            }
+
+            renderChoiceCards();
+        }
+
+        function renderChoiceCards() {
+            const grid = document.getElementById('choice-cards-grid');
+            const confirmBox = document.getElementById('choice-confirmation-box');
+            const displayTitle = document.getElementById('selected-career-title-display');
+            if (!grid) return;
+
+            const medals = ['🥇 Rank #1', '🥈 Rank #2', '🥉 Rank #3'];
+
+            grid.innerHTML = currentTopCareers.map((c, idx) => {
+                const isSelected = currentlySelectedCareer && (c.title.toLowerCase().trim() === currentlySelectedCareer.toLowerCase().trim());
+                const matched = c.matched_skills || [];
+                const missing = c.missing_skills || [];
+                const safeTitle = escapeHtml(c.title);
+                const attrTitle = c.title.replace(/"/g, '&quot;');
+
+                return `
+                    <div class="career-choice-card ${isSelected ? 'selected' : ''}" 
+                         id="choice-card-${idx}" 
+                         data-career-title="${attrTitle}"
+                         onclick="selectCareerCard(this.getAttribute('data-career-title'))">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                            <span class="badge ${isSelected ? 'badge-primary' : 'badge-secondary'}" style="font-weight: 700;">
+                                ${medals[idx] || `Rank #${idx + 1}`}
+                            </span>
+                            <span class="match-score-badge" style="font-size: 0.85rem; padding: 0.25rem 0.65rem;">
+                                <i class="fas fa-bullseye"></i> ${Math.round(c.score)}% Match
+                            </span>
+                        </div>
+
+                        <h3 style="font-size: 1.2rem; margin: 0 0 0.5rem 0; color: var(--text-primary);">
+                            ${safeTitle}
+                        </h3>
+
+                        <p style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.5; margin-bottom: 1rem; flex-grow: 1;">
+                            ${escapeHtml(c.reason || 'Strong profile alignment with industry curriculum.')}
+                        </p>
+
+                        <div style="margin-bottom: 0.65rem; font-size: 0.8rem;">
+                            <strong style="color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Matched Skills:</strong>
+                            <div>
+                                ${matched.length > 0 
+                                    ? matched.slice(0, 3).map(s => `<span class="skill-pill skill-matched" style="font-size: 0.75rem; padding: 0.2rem 0.5rem;"><i class="fas fa-check"></i> ${escapeHtml(s)}</span>`).join('') + (matched.length > 3 ? `<span style="font-size: 0.75rem; color: var(--text-tertiary); margin-left: 0.25rem;">+${matched.length - 3} more</span>` : '')
+                                    : '<span style="color: var(--text-tertiary);">None yet</span>'}
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 1.25rem; font-size: 0.8rem;">
+                            <strong style="color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Skills to Build:</strong>
+                            <div>
+                                ${missing.length > 0 
+                                    ? missing.slice(0, 3).map(s => `<span class="skill-pill skill-missing" style="font-size: 0.75rem; padding: 0.2rem 0.5rem;"><i class="fas fa-arrow-up"></i> ${escapeHtml(s)}</span>`).join('') + (missing.length > 3 ? `<span style="font-size: 0.75rem; color: var(--text-tertiary); margin-left: 0.25rem;">+${missing.length - 3} more</span>` : '')
+                                    : '<span style="color: var(--success);">All target skills matched!</span>'}
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn ${isSelected ? 'btn-primary' : 'btn-outline'} select-career-btn" style="width: 100%; font-weight: 600; font-size: 0.9rem; padding: 0.6rem 1rem;">
+                            ${isSelected ? '<i class="fas fa-check-circle"></i> Selected' : 'Choose this career <i class="fas fa-arrow-right"></i>'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            if (currentlySelectedCareer && confirmBox && displayTitle) {
+                displayTitle.innerText = `You selected: ${currentlySelectedCareer}`;
+                confirmBox.style.display = 'flex';
+            } else if (confirmBox) {
+                confirmBox.style.display = 'none';
+            }
+        }
+
+        function selectCareerCard(title) {
+            if (!title) return;
+            currentlySelectedCareer = title;
+            renderChoiceCards();
+            const confirmBox = document.getElementById('choice-confirmation-box');
+            if (confirmBox) {
+                confirmBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        async function confirmAndBuildRoadmap() {
+            if (!currentlySelectedCareer) {
+                alert('Please choose a career path first.');
+                return;
+            }
+
+            const btn = document.getElementById('build-roadmap-btn');
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Building Roadmap...';
+
+            try {
+                const res = await api.selectCareer(currentlySelectedCareer);
+                if (res && res.success) {
+                    window.location.href = 'roadmap.html';
+                } else {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                    showError('results-error', (res && res.error) ? res.error : 'Failed to select career. Please try again.');
+                }
+            } catch (err) {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+                showError('results-error', err.message || 'Failed to select career.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initResults);
+    </script>
+</body>
+</html>

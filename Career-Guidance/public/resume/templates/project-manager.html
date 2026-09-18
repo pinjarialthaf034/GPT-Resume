@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Workspace</title>
+
+    <!-- Theme Initializer -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+            const observer = new MutationObserver(() => {
+                if (document.body) {
+                    document.body.setAttribute("data-theme", savedTheme);
+                    observer.disconnect();
+                }
+            });
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+        })();
+    </script>
+
+    <!-- Supabase JS Library & Initialization -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        (function () {
+            try {
+                if (window.supabase && typeof window.supabase.createClient === 'function') {
+                    const client = window.supabase.createClient('https://fwupeplirgbyujdpzsyk.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3dXBlcGxpcmdieXVqZHB6c3lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzNTI0MzMsImV4cCI6MjA5OTkyODQzM30.jpi6dvHuMPA4SAaadido8V51AiwfGbqvoGdshJvlpxY');
+                    window.supabase = client;
+                } else {
+                    console.error("Supabase CDN failed to load properly.");
+                }
+            } catch (error) {
+                console.error("Error initializing Supabase client:", error);
+            }
+        })();
+    </script>
+    <script src="/shared/auth.js"></script>
+    <script src="/shared/api-config.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700&family=Oswald:wght@600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Link Stylesheet -->
+    <link rel="stylesheet" href="project-manager.css">
+    <style>
+        /* =========================================
+           DYNAMIC CARDS & BUTTONS STYLING
+           ========================================= */
+        .dynamic-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            position: relative;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .dynamic-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .card-item-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #334155;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-remove-item {
+            background: #fee2e2;
+            color: #ef4444;
+            border: 1px solid #fca5a5;
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-remove-item:hover {
+            background: #ef4444;
+            color: #ffffff;
+            border-color: #ef4444;
+        }
+
+        .btn-add-item {
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-add-item:hover {
+            background: #222222;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-add-item i {
+            font-size: 12px;
+        }
+
+        /* Dynamic Input Fields Inside Cards */
+        .dynamic-card input[type="text"],
+        .dynamic-card textarea {
+            width: 100%;
+            padding: 9px 12px;
+            margin-bottom: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 12.5px;
+            font-family: inherit;
+            transition: border-color 0.2s ease;
+        }
+
+        .dynamic-card input[type="text"]:focus,
+        .dynamic-card textarea:focus {
+            outline: none;
+            border-color: var(--theme-color, #000000);
+        }
+
+        .dynamic-card textarea {
+            height: 75px;
+            resize: vertical;
+        }
+
+        /* Sidebar & Main Preview Container Adjustments */
+        #previewEducationContainer .edu-item {
+            margin-bottom: 16px;
+        }
+
+        #previewEducationContainer .edu-item:last-child {
+            margin-bottom: 0;
+        }
+
+        #previewExperience .job-item {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        #previewExperience .job-item:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- html2pdf.js for exporting PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        @media print {
+
+            /* Force page dimensions to exact A4 Portrait with zero browser margins */
+            @page {
+                size: A4 portrait !important;
+                margin: 0 !important;
+            }
+
+            /* Lock body & HTML to standard A4 size */
+            html,
+            body {
+                width: 210mm !important;
+                height: 297mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+                overflow: hidden !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Hide form panels, color pickers, and UI elements */
+            .panel-wrapper,
+            .form-panel,
+            .color-panel,
+            .ai-panel,
+            .builder-header,
+            .customizer-toolbar,
+            .toast-container,
+            .no-print,
+            button,
+            input {
+                display: none !important;
+            }
+
+            /* Reset main layout grid */
+            .builder-container {
+                display: block !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 210mm !important;
+                height: 297mm !important;
+            }
+
+            /* Lock the Resume preview element strictly to A4 size */
+            #resume-pdf-target,
+            .resume-page {
+                display: flex !important;
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 210mm !important;
+                height: 297mm !important;
+                min-height: 297mm !important;
+                max-height: 297mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Ensure sidebar stretches to full 297mm height without bottom blank space */
+            .resume-sidebar,
+            .resume-main {
+                height: 297mm !important;
+                min-height: 297mm !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TOP NAVBAR -->
+    <header class="builder-header no-print">
+        <div class="logo">
+            <span class="logo-dot"></span>
+            GPT HUB
+        </div>
+        <div class="header-right">
+            <button id="themeToggle" class="theme-toggle-btn">☀️ Light</button>
+        </div>
+    </header>
+
+    <div class="builder-container">
+
+        <!-- LEFT SIDE FORM PANEL -->
+        <div class="form-panel no-print">
+
+            <!-- Stepper Progress Bar -->
+            <div class="stepper-progress-container">
+                <div class="stepper-track-bg">
+                    <div class="stepper-track-fill" id="stepperProgressFill"></div>
+                </div>
+                <div class="stepper-steps-wrapper">
+                    <div class="step-node active" data-step="1" title="Personal Details & Photo Upload">
+                        <div class="step-circle">1</div>
+                        <span class="step-label">Contact</span>
+                    </div>
+                    <div class="step-node" data-step="2" title="About Me">
+                        <div class="step-circle">2</div>
+                        <span class="step-label">About</span>
+                    </div>
+                    <div class="step-node" data-step="3" title="Skills & Languages">
+                        <div class="step-circle">3</div>
+                        <span class="step-label">Skills & Lang</span>
+                    </div>
+                    <div class="step-node" data-step="4" title="Education Credentials">
+                        <div class="step-circle">4</div>
+                        <span class="step-label">Education</span>
+                    </div>
+                    <div class="step-node" data-step="5" title="Professional Experience">
+                        <div class="step-circle">5</div>
+                        <span class="step-label">Experience</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 1: Contact Details -->
+            <div id="step1" class="step active">
+                <div class="step-header">
+                    <h2>Personal Details</h2>
+                    <p>Add your contact information.</p>
+                </div>
+                <div class="input-group">
+                    <label>Profile Picture</label>
+                    <input type="file" id="photoInput" accept="image/*">
+                </div>
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="nameInput" placeholder="Your Full Name">
+                </div>
+                <div class="input-group">
+                    <label>Job Title</label>
+                    <input type="text" id="roleInput" placeholder="Project Manager">
+                </div>
+                <div class="input-group">
+                    <label>Phone Number</label>
+                    <input type="text" id="phoneInput" placeholder="123-456-7890">
+                </div>
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="emailInput" placeholder="hello@reallygreatsite.com">
+                </div>
+                <div class="input-group">
+                    <label>Address / Location</label>
+                    <input type="text" id="addressInput" placeholder="123 Anywhere St., Any City">
+                </div>
+                <div class="input-group">
+                    <label>Website URL</label>
+                    <input type="text" id="websiteInput" placeholder="reallygreatsite.com">
+                </div>
+                <button class="next-btn" onclick="nextStep()">Continue</button>
+            </div>
+
+            <!-- STEP 2: About Me -->
+            <div id="step2" class="step">
+                <div class="step-header">
+                    <h2>About Me</h2>
+                    <p>Describe your PM style and professional profile.</p>
+                </div>
+                <div class="textarea-ai-wrapper">
+                    <textarea id="summaryInput" placeholder="Write your professional bio..."></textarea>
+                    <button type="button" id="aiSummaryBtn" class="btn-ai-action">✨ Generate with AI</button>
+                </div>
+                <div class="step-buttons">
+                    <button class="back-btn" onclick="prevStep()">Back</button>
+                    <button class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Skills & Languages -->
+            <!-- STEP 3: Skills & Languages -->
+            <div id="step3" class="step">
+                <div class="step-header">
+                    <h2>Skills</h2>
+                    <p>Enter skills separated by commas or select from suggested chips.</p>
+                </div>
+                <div class="input-group">
+                    <label>Skills List</label>
+                    <textarea id="skillsInput"
+                        placeholder="Web Design, Wireframe Creation, Front End Coding..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label>Languages</label>
+                    <input type="text" id="langInput" placeholder="English, Spanish">
+                </div>
+                <div class="ai-chips-wrapper">
+                    <span class="chip-title">AI Suggested Skills (Click to Add):</span>
+                    <div class="skill-chips" id="suggestedSkillChips">
+                        <!-- Dynamic AI chips will load here -->
+                        <span class="chip-placeholder"
+                            style="font-size: 11px; color: var(--text-muted); font-style: italic;">Click the button
+                            below to generate customized skills for your profile.</span>
+                    </div>
+                </div>
+                <button type="button" id="aiSkillsBtn" class="btn-ai-action" style="margin-top: 15px;">✨ AI Generate
+                    Suggested Skills</button>
+                <div class="step-buttons">
+                    <button class="back-btn" onclick="prevStep()">Back</button>
+                    <button class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+            <!-- STEP 4: Education Credentials -->
+            <div id="step4" class="step">
+                <div class="step-header">
+                    <h2>Education</h2>
+                    <p>Add your academic credentials.</p>
+                </div>
+                <div id="educationInputsContainer" class="dynamic-list-container">
+                    <!-- Dynamic Education cards injected here -->
+                </div>
+                <button type="button" id="addEduBtn" class="btn-add-item">+ Add Education</button>
+                <div class="step-buttons">
+                    <button class="back-btn" onclick="prevStep()">Back</button>
+                    <button class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 5: Experience -->
+            <div id="step5" class="step">
+                <div class="step-header">
+                    <h2>Professional Experience</h2>
+                    <p>Add your recent employment highlights.</p>
+                </div>
+                <div id="experienceInputsContainer" class="dynamic-list-container">
+                    <!-- Dynamic Experience cards injected here -->
+                </div>
+                <button type="button" id="addExpBtn" class="btn-add-item">+ Add Experience</button>
+                <div class="step-buttons">
+                    <button class="back-btn" onclick="prevStep()">Back</button>
+                    <button class="next-btn" id="finishBtn" onclick="downloadPDF()">
+                        Download PDF <i class="fa-solid fa-download" style="margin-left: 8px;"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE RESUME PREVIEW & CUSTOMIZER -->
+        <div class="preview-panel">
+
+            <!-- Live Customizer Toolbar -->
+            <div class="customizer-toolbar no-print">
+                <div class="toolbar-section">
+                    <span class="toolbar-label">Theme Color:</span>
+                    <div class="color-swatches">
+                        <span class="color-swatch active" data-color="#000000" style="background-color: #000000;"
+                            onclick="changeTheme('#000000')" title="Classic Black"></span>
+                        <span class="color-swatch" data-color="#1a365d" style="background-color: #1a365d;"
+                            onclick="changeTheme('#1a365d')" title="Navy Blue"></span>
+                        <span class="color-swatch" data-color="#0f5132" style="background-color: #0f5132;"
+                            onclick="changeTheme('#0f5132')" title="Emerald Green"></span>
+                        <span class="color-swatch" data-color="#581845" style="background-color: #581845;"
+                            onclick="changeTheme('#581845')" title="Burgundy"></span>
+                        <span class="color-swatch" data-color="#2d3748" style="background-color: #2d3748;"
+                            onclick="changeTheme('#2d3748')" title="Charcoal"></span>
+                        <span class="color-swatch" data-color="#3c1361" style="background-color: #3c1361;"
+                            onclick="changeTheme('#3c1361')" title="Deep Purple"></span>
+                    </div>
+                </div>
+                <div class="toolbar-section">
+                    <span class="toolbar-label">Font Style:</span>
+                    <select id="fontSelector" class="toolbar-select">
+                        <option value="Montserrat">Montserrat</option>
+                        <option value="Segoe UI">Segoe UI</option>
+                        <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                        <option value="Inter">Inter</option>
+                        <option value="Outfit">Outfit</option>
+                    </select>
+                </div>
+                <div class="toolbar-section">
+                    <button id="downloadPdfBtn" class="btn-pdf-download" onclick="downloadPDF()">Download PDF <i
+                            class="fa-solid fa-download" style="margin-left: 8px;"></i></button>
+                </div>
+            </div>
+
+            <!-- Live A4 Resume Target Canvas -->
+            <div class="resume-page" id="resume-pdf-target">
+
+                <!-- LEFT SIDEBAR -->
+                <div class="resume-sidebar">
+
+                    <img id="previewPhoto" class="sidebar-photo"
+                        src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23475569'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>"
+                        alt="Avatar">
+
+                    <div class="sidebar-content">
+
+                        <!-- CONTACT -->
+                        <div class="sidebar-section">
+                            <div class="contact-item">
+                                <i class="fa-solid fa-phone"></i>
+                                <span id="previewPhone" contenteditable="true">123-456-7890</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fa-regular fa-envelope"></i>
+                                <span id="previewEmail" contenteditable="true">hello@reallygreatsite.com</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <span id="previewAddress" contenteditable="true">123 Anywhere St., Any City</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fa-solid fa-globe"></i>
+                                <span id="previewWebsite" contenteditable="true">reallygreatsite.com</span>
+                            </div>
+                        </div>
+
+                        <!-- SKILLS -->
+                        <div class="sidebar-section">
+                            <h3 class="sidebar-title" contenteditable="true">SKILLS</h3>
+                            <ul id="previewSkills" class="sidebar-list">
+                                <li contenteditable="true">Web Design</li>
+                                <li contenteditable="true">Design Thinking</li>
+                                <li contenteditable="true">Wireframe Creation</li>
+                                <li contenteditable="true">Front End Coding</li>
+                                <li contenteditable="true">Problem-Solving</li>
+                                <li contenteditable="true">Computer Literacy</li>
+                                <li contenteditable="true">Project Management Tools</li>
+                                <li contenteditable="true">Strong Communication</li>
+                            </ul>
+                        </div>
+
+                        <!-- EDUCATION -->
+                        <div class="sidebar-section">
+                            <h3 class="sidebar-title" contenteditable="true">EDUCATION</h3>
+
+                            <div id="previewEducationContainer">
+                                <!-- Dynamic Education preview list -->
+                            </div>
+                        </div>
+
+                        <!-- LANGUAGE -->
+                        <div class="sidebar-section">
+                            <h3 class="sidebar-title" contenteditable="true">LANGUAGE</h3>
+                            <div id="previewLanguages">
+                                <div class="lang-text" contenteditable="true">English</div>
+                                <div class="lang-text" contenteditable="true">Spanish</div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- RIGHT MAIN CONTENT -->
+                <div class="resume-main">
+
+                    <!-- HEADER -->
+                    <div class="main-header">
+                        <div id="previewName" contenteditable="true">JAMIE<br>CHASTAIN</div>
+                        <div id="previewRole" contenteditable="true">PROJECT MANAGER</div>
+                        <p id="previewSummary" class="about-text" contenteditable="true">
+                            I am a qualified and professional web developer with five years of experience in database
+                            administration and website design. Strong creative and analytical skills. Team player with
+                            an eye for detail.
+                        </p>
+                    </div>
+
+                    <!-- EXPERIENCE -->
+                    <h3 class="main-section-title" contenteditable="true">EXPERIENCE</h3>
+
+                    <div class="timeline-container" id="previewExperience">
+
+                        <div class="job-item">
+                            <div class="job-node"></div>
+                            <div class="job-title" contenteditable="true">APPLICATIONS DEVELOPER</div>
+                            <div class="job-company" contenteditable="true">Arowwai Industries</div>
+                            <div class="job-date" contenteditable="true">2016 - Present</div>
+                            <ul class="main-bullet-list">
+                                <li contenteditable="true">Database administration and website design</li>
+                                <li contenteditable="true">Built the logic for a streamlined ad-serving platform that
+                                    scaled</li>
+                                <li contenteditable="true">Educational institutions and online classroom management</li>
+                            </ul>
+                        </div>
+
+                        <div class="job-item">
+                            <div class="job-node"></div>
+                            <div class="job-title" contenteditable="true">WEB CONTENT MANAGER</div>
+                            <div class="job-company" contenteditable="true">Ginyard International Co.</div>
+                            <div class="job-date" contenteditable="true">2014 - 2016</div>
+                            <ul class="main-bullet-list">
+                                <li contenteditable="true">Database administration and website design</li>
+                                <li contenteditable="true">Built the logic for a streamlined ad-serving platform that
+                                    scaled</li>
+                                <li contenteditable="true">Educational institutions and online classroom management</li>
+                            </ul>
+                        </div>
+
+                        <div class="job-item">
+                            <div class="job-node"></div>
+                            <div class="job-title" contenteditable="true">ANALYSIS CONTENT</div>
+                            <div class="job-company" contenteditable="true">Aldenaire & Partners</div>
+                            <div class="job-date" contenteditable="true">2010 - 2014</div>
+                            <ul class="main-bullet-list">
+                                <li contenteditable="true">Database administration and website design</li>
+                                <li contenteditable="true">Built the logic for a streamlined ad-serving platform that
+                                    scaled</li>
+                                <li contenteditable="true">Educational institutions and online classroom management</li>
+                            </ul>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- TOAST ALERTS OVERLAY -->
+    <div id="toastContainer" class="toast-container no-print"></div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script src="../theme-toggle.js"></script>
+    <script src="project-manager.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerCompass AI — My Profile</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .skill-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .skill-tag select {
+            border: none;
+            background: transparent;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            outline: none;
+            cursor: pointer;
+        }
+        .skill-tag .remove-btn {
+            color: var(--danger);
+            cursor: pointer;
+        }
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            z-index: 50;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        .search-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+        }
+        .search-item:hover {
+            background: var(--bg-subtle);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="fas fa-compass"></i>
+                </div>
+                <div class="sidebar-title">CareerCompass</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="profile.html" class="nav-item active">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="results.html" class="nav-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Career Analysis</span>
+                </a>
+                <a href="roadmap.html" class="nav-item">
+                    <i class="fas fa-map"></i>
+                    <span>My Roadmap</span>
+                </a>
+                <a href="explorer.html" class="nav-item">
+                    <i class="fas fa-search"></i>
+                    <span>Career Explorer</span>
+                </a>
+                <a href="chat.html" class="nav-item">
+                    <i class="fas fa-comments"></i>
+                    <span>AI Counselor</span>
+                </a>
+                <a href="resume.html" class="nav-item">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Resume Review</span>
+                </a>
+                <a href="admin.html" class="nav-item" id="admin-nav-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Admin Panel</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header style="margin-bottom: 2rem;">
+                <h1>My Profile</h1>
+                <p style="color: var(--text-secondary);">Update your details to get the most accurate AI career analysis.</p>
+            </header>
+
+            <div id="profile-error"></div>
+            <div id="profile-success"></div>
+            
+            <div id="loading" style="text-align: center; padding: 3rem;">
+                <span class="loader"></span>
+            </div>
+
+            <div id="profile-content" style="display: none;">
+                <form id="profile-form" onsubmit="saveProfile(event)">
+                    <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; margin-top: 0;">
+                        <!-- Basic Info -->
+                        <div class="card">
+                            <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;"><i class="fas fa-info-circle text-primary"></i> Basic Information</h2>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" id="full-name" class="form-control" required placeholder="e.g. Your Full Name">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" id="email" class="form-control" placeholder="student@example.com">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Branch of Study</label>
+                                <select id="branch" class="form-control" required>
+                                    <option value="" disabled selected>Select your branch...</option>
+                                    <option value="CSE">Computer Science Engineering</option>
+                                    <option value="IT">Information Technology</option>
+                                    <option value="ECE">Electronics & Communication</option>
+                                    <option value="EEE">Electrical & Electronics</option>
+                                    <option value="MECHANICAL">Mechanical Engineering</option>
+                                    <option value="CIVIL">Civil Engineering</option>
+                                    <option value="AUTOMOBILE">Automobile Engineering</option>
+                                    <option value="OTHER">Other</option>
+                                </select>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="form-group">
+                                    <label class="form-label">Current Semester</label>
+                                    <select id="semester" class="form-control" required>
+                                        <option value="1">Semester 1</option>
+                                        <option value="2">Semester 2</option>
+                                        <option value="3">Semester 3</option>
+                                        <option value="4">Semester 4</option>
+                                        <option value="5">Semester 5</option>
+                                        <option value="6">Semester 6</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Current CGPA (out of 10.0)</label>
+                                    <input type="number" id="cgpa" class="form-control" step="0.01" min="0" max="10" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Career Goal (Optional)</label>
+                                <input type="text" id="career-goal" class="form-control" placeholder="e.g. Become a Full Stack Developer at a top tech company">
+                            </div>
+                        </div>
+
+                        <!-- Skills & Interests -->
+                        <div class="card">
+                            <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;"><i class="fas fa-tools text-primary"></i> Skills & Interests</h2>
+                            
+                            <div class="form-group" style="position: relative;">
+                                <label class="form-label">Add Skills</label>
+                                <input type="text" id="skill-search" class="form-control" placeholder="Search skills..." autocomplete="off">
+                                <div id="skill-results" class="search-results"></div>
+                            </div>
+                            
+                            <div id="skills-container" style="margin-bottom: 2rem;">
+                                <!-- Selected skills go here -->
+                            </div>
+                            
+                            <div class="form-group" style="position: relative;">
+                                <label class="form-label">Add Interests</label>
+                                <input type="text" id="interest-search" class="form-control" placeholder="Search interests..." autocomplete="off">
+                                <div id="interest-results" class="search-results"></div>
+                            </div>
+                            
+                            <div id="interests-container">
+                                <!-- Selected interests go here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
+                        <button type="button" class="btn btn-secondary" onclick="sessionStorage.removeItem('career_compass_discovery_answers'); window.location.href='assessment.html?new=true'">
+                            <i class="fas fa-clipboard-list"></i> Take Career Assessment
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="save-btn">
+                            <i class="fas fa-save"></i> Save Profile
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let allSkills = [];
+        let allInterests = [];
+        
+        let userSkills = [];
+        let userInterests = [];
+        let profileExists = false;
+        let currentUser = null;
+
+        async function initProfile() {
+            try {
+                currentUser = await requireAuth();
+                if (!currentUser) return;
+
+                await syncAdminNav();
+
+                // Prefill email from auth user if present
+                const emailInput = document.getElementById('email');
+                if (emailInput && currentUser.email) {
+                    emailInput.value = currentUser.email;
+                }
+
+                // Fetch reference data
+                const [skillsRes, interestsRes] = await Promise.all([
+                    api.getSkillsList(),
+                    api.getInterestsList()
+                ]);
+                
+                allSkills = skillsRes.data || [];
+                allInterests = interestsRes.data || [];
+                
+                // Fetch existing profile
+                let profileRes = null;
+                try {
+                    profileRes = await api.getProfile();
+                } catch (e) {
+                    if (e.status === 404) {
+                        profileExists = false;
+                    } else {
+                        throw e;
+                    }
+                }
+                
+                if (profileRes.data) {
+                    profileExists = true;
+                    const p = profileRes.data;
+                    if (p.full_name) document.getElementById('full-name').value = p.full_name;
+                    if (p.email) document.getElementById('email').value = p.email;
+                    if(p.branch) document.getElementById('branch').value = p.branch;
+                    if(p.semester) document.getElementById('semester').value = p.semester;
+                    if(p.cgpa) document.getElementById('cgpa').value = p.cgpa;
+                    if(p.career_goal) document.getElementById('career-goal').value = p.career_goal;
+                    
+                    if (p.skills) {
+                        userSkills = p.skills.map(s => ({
+                            skill_id: s.skill_id || (s.skills ? s.skills.id : null),
+                            name: s.name || (s.skills ? s.skills.name : (s.skill_name || 'Skill')),
+                            proficiency: s.proficiency || 'beginner'
+                        }));
+                    }
+                    if (p.interests) {
+                        userInterests = p.interests.map(i => typeof i === 'string' ? i : (i.name || ''));
+                    }
+                }
+                
+                renderSkills();
+                renderInterests();
+                setupSearch();
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('profile-content').style.display = 'block';
+                
+            } catch (err) {
+                document.getElementById('loading').style.display = 'none';
+                showError('profile-error', err.message);
+            }
+        }
+        
+        function renderSkills() {
+            const container = document.getElementById('skills-container');
+            if (userSkills.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-tertiary); font-size: 0.875rem;">No skills added yet.</p>';
+                return;
+            }
+            
+            container.innerHTML = userSkills.map((s, idx) => `
+                <div class="skill-tag">
+                    ${s.name}
+                    <select onchange="updateSkillProficiency(${idx}, this.value)">
+                        <option value="beginner" ${s.proficiency === 'beginner' ? 'selected' : ''}>Beginner</option>
+                        <option value="intermediate" ${s.proficiency === 'intermediate' ? 'selected' : ''}>Intermediate</option>
+                        <option value="advanced" ${s.proficiency === 'advanced' ? 'selected' : ''}>Advanced</option>
+                    </select>
+                    <i class="fas fa-times remove-btn" onclick="removeSkill(${idx})"></i>
+                </div>
+            `).join('');
+        }
+        
+        function renderInterests() {
+            const container = document.getElementById('interests-container');
+            if (userInterests.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-tertiary); font-size: 0.875rem;">No interests added yet.</p>';
+                return;
+            }
+            
+            container.innerHTML = userInterests.map((interest, idx) => `
+                <div class="skill-tag">
+                    ${interest}
+                    <i class="fas fa-times remove-btn" onclick="removeInterest(${idx})"></i>
+                </div>
+            `).join('');
+        }
+        
+        function updateSkillProficiency(idx, val) {
+            userSkills[idx].proficiency = val;
+        }
+        
+        function removeSkill(idx) {
+            userSkills.splice(idx, 1);
+            renderSkills();
+        }
+        
+        function removeInterest(idx) {
+            userInterests.splice(idx, 1);
+            renderInterests();
+        }
+        
+        function setupSearch() {
+            const skillInput = document.getElementById('skill-search');
+            const skillResults = document.getElementById('skill-results');
+            
+            skillInput.addEventListener('input', (e) => {
+                const val = e.target.value.toLowerCase();
+                if (!val) {
+                    skillResults.style.display = 'none';
+                    return;
+                }
+                
+                const matches = allSkills.filter(s => 
+                    s.name.toLowerCase().includes(val) && 
+                    !userSkills.find(us => us.name === s.name)
+                ).slice(0, 5);
+                
+                if (matches.length > 0) {
+                    skillResults.innerHTML = matches.map(m => `
+                        <div class="search-item" onclick="addSkill('${m.name}')">${m.name} <small style="color: var(--text-tertiary)">(${m.category})</small></div>
+                    `).join('');
+                    skillResults.style.display = 'block';
+                } else {
+                    skillResults.style.display = 'none';
+                }
+            });
+            
+            const interestInput = document.getElementById('interest-search');
+            const interestResults = document.getElementById('interest-results');
+            
+            interestInput.addEventListener('input', (e) => {
+                const val = e.target.value.toLowerCase();
+                if (!val) {
+                    interestResults.style.display = 'none';
+                    return;
+                }
+                
+                const matches = allInterests.filter(i => 
+                    i.name.toLowerCase().includes(val) && 
+                    !userInterests.includes(i.name)
+                ).slice(0, 5);
+                
+                if (matches.length > 0) {
+                    interestResults.innerHTML = matches.map(m => `
+                        <div class="search-item" onclick="addInterest('${m.name}')">${m.name}</div>
+                    `).join('');
+                    interestResults.style.display = 'block';
+                } else {
+                    interestResults.style.display = 'none';
+                }
+            });
+            
+            // Hide on click outside
+            document.addEventListener('click', (e) => {
+                if(e.target !== skillInput) skillResults.style.display = 'none';
+                if(e.target !== interestInput) interestResults.style.display = 'none';
+            });
+        }
+        
+        function addSkill(name) {
+            const found = allSkills.find(s => s.name.toLowerCase() === name.toLowerCase());
+            userSkills.push({
+                skill_id: found ? found.id : null,
+                name: name,
+                proficiency: 'beginner'
+            });
+            document.getElementById('skill-search').value = '';
+            renderSkills();
+        }
+        
+        function addInterest(name) {
+            userInterests.push(name);
+            document.getElementById('interest-search').value = '';
+            renderInterests();
+        }
+        
+        async function saveProfile(e) {
+            e.preventDefault();
+            const btn = document.getElementById('save-btn');
+            
+            try {
+                btn.innerHTML = '<span class="loader" style="width: 16px; height: 16px;"></span> Saving...';
+                btn.disabled = true;
+                
+                document.getElementById('profile-error').style.display = 'none';
+                document.getElementById('profile-success').style.display = 'none';
+                
+                const data = {
+                    full_name: document.getElementById('full-name').value,
+                    email: document.getElementById('email').value || (currentUser ? currentUser.email : ''),
+                    branch: document.getElementById('branch').value,
+                    semester: parseInt(document.getElementById('semester').value),
+                    cgpa: parseFloat(document.getElementById('cgpa').value),
+                    career_goal: document.getElementById('career-goal').value,
+                    skills: userSkills,
+                    interests: userInterests
+                };
+                
+                let res;
+                if (profileExists) {
+                    res = await api.updateProfile(data);
+                } else {
+                    res = await api.createProfile(data);
+                    profileExists = true;
+                }
+                
+                const successDiv = document.getElementById('profile-success');
+                successDiv.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${res.message}</div>`;
+                successDiv.style.display = 'block';
+                
+            } catch (err) {
+                showError('profile-error', err.message);
+            } finally {
+                btn.innerHTML = '<i class="fas fa-save"></i> Save Profile';
+                btn.disabled = false;
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', initProfile);
+    </script>
+</body>
+</html>

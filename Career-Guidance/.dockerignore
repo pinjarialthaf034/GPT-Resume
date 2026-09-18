@@ -1,0 +1,55 @@
+# CareerCompass AI — .dockerignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+*.log
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Secrets — NEVER in image
+.env
+.env.local
+.env.*.local
+*.key
+
+# Development / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Git
+.git/
+.gitignore
+
+# Tests (not needed in production image)
+tests/
+
+# Uploads / temp
+uploads/
+tmp/
+
+# Frontend (served separately or via static mount)
+# Remove this line if backend serves frontend static files
+# frontend/
+
+# Documentation
+README.md
+*.md

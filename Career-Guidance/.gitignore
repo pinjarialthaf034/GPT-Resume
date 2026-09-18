@@ -1,0 +1,54 @@
+# CareerCompass AI — .gitignore
+
+# --- Environment & Secrets ---
+.env
+.env.local
+.env.*.local
+*.key
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.log
+
+# --- Virtual Environments ---
+venv/
+.venv/
+env/
+ENV/
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Uploads (temp files) ---
+uploads/
+tmp/
+
+# --- Node (if frontend tooling added later) ---
+node_modules/
+
+
+# --- Local audit / analysis artifacts ---
+scratch/

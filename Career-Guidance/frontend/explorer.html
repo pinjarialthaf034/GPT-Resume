@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerCompass AI — Career Explorer</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+        }
+        .search-box input {
+            padding-left: 2.75rem;
+        }
+        .careers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+        .explorer-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s ease;
+        }
+        .explorer-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+            border-color: var(--primary-light);
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            width: 100%;
+            max-width: 650px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2.25rem;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+        .close-modal-btn {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            background: var(--bg-subtle);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        .close-modal-btn:hover {
+            color: var(--danger);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo"><i class="fas fa-compass"></i></div>
+                <div class="sidebar-title">CareerCompass</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="profile.html" class="nav-item">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="results.html" class="nav-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Career Analysis</span>
+                </a>
+                <a href="roadmap.html" class="nav-item">
+                    <i class="fas fa-map"></i>
+                    <span>My Roadmap</span>
+                </a>
+                <a href="explorer.html" class="nav-item active">
+                    <i class="fas fa-search"></i>
+                    <span>Career Explorer</span>
+                </a>
+                <a href="chat.html" class="nav-item">
+                    <i class="fas fa-comments"></i>
+                    <span>AI Counselor</span>
+                </a>
+                <a href="resume.html" class="nav-item">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Resume Review</span>
+                </a>
+                <a href="admin.html" class="nav-item" id="admin-nav-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Admin Panel</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header style="margin-bottom: 2rem;">
+                <div class="badge badge-primary" style="margin-bottom: 0.5rem;">
+                    <i class="fas fa-compass"></i> Diploma Engineering Knowledge Base
+                </div>
+                <h1>Explore Career Pathways</h1>
+                <p style="color: var(--text-secondary);">Browse industry roles curated for Polytechnic & Diploma graduates across CSE, ECE, Mechanical, Civil & Automobile branches.</p>
+            </header>
+
+            <!-- Search & Filters -->
+            <div class="filter-bar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" class="form-control" placeholder="Search by role, e.g. Frontend, VLSI, EV..." oninput="handleSearch()">
+                </div>
+                <select id="branch-filter" class="form-control" style="width: auto; min-width: 180px;" onchange="handleSearch()">
+                    <option value="">All Branches</option>
+                    <option value="CSE">CSE / Computer</option>
+                    <option value="IT">Information Tech</option>
+                    <option value="ECE">Electronics (ECE)</option>
+                    <option value="EEE">Electrical (EEE)</option>
+                    <option value="MECHANICAL">Mechanical</option>
+                    <option value="CIVIL">Civil</option>
+                    <option value="AUTOMOBILE">Automobile</option>
+                </select>
+            </div>
+
+            <div id="explorer-error"></div>
+
+            <div id="explorer-loading" style="text-align: center; padding: 4rem;">
+                <span class="loader"></span>
+                <p style="margin-top: 1rem; color: var(--text-secondary);">Loading career catalog...</p>
+            </div>
+
+            <div id="careers-grid" class="careers-grid" style="display: none;">
+                <!-- Populated by JS -->
+            </div>
+
+            <div id="no-results" class="card" style="display: none; text-align: center; padding: 3rem;">
+                <i class="fas fa-search" style="font-size: 2.5rem; color: var(--text-tertiary); margin-bottom: 1rem;"></i>
+                <h3>No career paths found</h3>
+                <p style="color: var(--text-secondary); margin-top: 0.5rem;">Try adjusting your branch filter or keyword search.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Career Detail Modal -->
+    <div id="career-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="close-modal-btn" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div id="modal-body">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let debounceTimer;
+
+        async function fetchCareers() {
+            const branch = document.getElementById('branch-filter').value;
+            const search = document.getElementById('search-input').value.trim();
+
+            document.getElementById('explorer-loading').style.display = 'block';
+            document.getElementById('careers-grid').style.display = 'none';
+            document.getElementById('no-results').style.display = 'none';
+
+            try {
+                const res = await api.getCareers(branch, search);
+                document.getElementById('explorer-loading').style.display = 'none';
+
+                const careers = res.data || [];
+                if (careers.length === 0) {
+                    document.getElementById('no-results').style.display = 'block';
+                    return;
+                }
+
+                renderCareers(careers);
+            } catch (err) {
+                document.getElementById('explorer-loading').style.display = 'none';
+                showError('explorer-error', err.message);
+            }
+        }
+
+        function renderCareers(careers) {
+            const grid = document.getElementById('careers-grid');
+            grid.innerHTML = careers.map(c => `
+                <div class="explorer-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                        <span class="badge badge-primary">${escapeHtml(c.industry || 'Engineering')}</span>
+                        <span style="font-weight: 700; color: var(--primary); font-size: 0.95rem;">₹ ${escapeHtml(c.avg_salary_lpa || 4.0)} LPA</span>
+                    </div>
+                    <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">${escapeHtml(c.title)}</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.5; margin-bottom: 1.25rem; flex: 1;">
+                        ${escapeHtml(c.description || 'Specialized diploma engineering career path.')}
+                    </p>
+                    <div style="margin-bottom: 1rem;">
+                        ${(c.branches || []).map(b => `<span class="badge" style="background: var(--bg-subtle); color: var(--text-secondary); margin-right: 0.25rem; font-size: 0.7rem;">${escapeHtml(b)}</span>`).join('')}
+                    </div>
+                    <button class="btn btn-secondary" style="width: 100%;" onclick="openDetailModal('${escapeHtml(c.id)}')">
+                        <i class="fas fa-info-circle"></i> View Requirements
+                    </button>
+                </div>
+            `).join('');
+
+            grid.style.display = 'grid';
+        }
+
+        function handleSearch() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(fetchCareers, 300);
+        }
+
+        async function openDetailModal(careerId) {
+            const modal = document.getElementById('career-modal');
+            const body = document.getElementById('modal-body');
+            body.innerHTML = '<div style="text-align: center; padding: 2rem;"><span class="loader"></span></div>';
+            modal.style.display = 'flex';
+
+            try {
+                const res = await api.getCareerDetail(careerId);
+                const c = res.data;
+
+                const skills = c.career_skills || [];
+                const projects = (c.career_projects || []).map(cp => cp.projects).filter(Boolean);
+
+                body.innerHTML = `
+                    <span class="badge badge-primary" style="margin-bottom: 0.5rem;">${escapeHtml(c.industry || 'Industry Profile')}</span>
+                    <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">${escapeHtml(c.title)}</h2>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem;">${escapeHtml(c.description || '')}</p>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; background: var(--bg-subtle); padding: 1rem; border-radius: var(--radius-md);">
+                        <div>
+                            <span style="font-size: 0.8rem; color: var(--text-tertiary); display: block;">Entry Salary (LPA)</span>
+                            <strong style="font-size: 1.1rem; color: var(--primary);">₹ ${escapeHtml(c.avg_salary_lpa || 4.0)} LPA</strong>
+                        </div>
+                        <div>
+                            <span style="font-size: 0.8rem; color: var(--text-tertiary); display: block;">Min CGPA Benchmark</span>
+                            <strong style="font-size: 1.1rem; color: var(--text-primary);">${escapeHtml(c.min_cgpa || 6.0)} / 10.0</strong>
+                        </div>
+                    </div>
+
+                    <h3 style="font-size: 1.1rem; margin-bottom: 0.75rem;"><i class="fas fa-tools text-primary"></i> Required Industry Skills</h3>
+                    <div style="margin-bottom: 1.5rem;">
+                        ${skills.length > 0 ? skills.map(s => `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid var(--border);">
+                                <span><strong>${escapeHtml(s.skills ? s.skills.name : 'Skill')}</strong></span>
+                                <span class="badge badge-primary" style="text-transform: capitalize;">${escapeHtml(s.required_level || 'beginner')}</span>
+                            </div>
+                        `).join('') : '<p style="color: var(--text-secondary); font-size: 0.875rem;">General engineering foundational skills required.</p>'}
+                    </div>
+
+                    <h3 style="font-size: 1.1rem; margin-bottom: 0.75rem;"><i class="fas fa-project-diagram text-primary"></i> Suggested Portfolio Projects</h3>
+                    <div>
+                        ${projects.length > 0 ? projects.map(p => `
+                            <div style="background: var(--bg-main); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0.75rem 1rem; margin-bottom: 0.5rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <strong>${escapeHtml(p.title)}</strong>
+                                    <span class="badge badge-warning" style="text-transform: capitalize;">${escapeHtml(p.difficulty || 'intermediate')}</span>
+                                </div>
+                                <p style="color: var(--text-secondary); font-size: 0.825rem; margin-top: 0.35rem;">${escapeHtml(p.description)}</p>
+                            </div>
+                        `).join('') : '<p style="color: var(--text-secondary); font-size: 0.875rem;">Hands-on diploma final year capstone project recommended.</p>'}
+                    </div>
+                `;
+            } catch (err) {
+                body.innerHTML = `<div class="alert alert-danger">${escapeHtml(err.message)}</div>`;
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('career-modal').style.display = 'none';
+        }
+
+        // Close on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            syncAdminNav();
+            fetchCareers();
+        });
+    </script>
+</body>
+</html>

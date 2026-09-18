@@ -1,0 +1,1836 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Workspace</title>
+
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+            window.addEventListener("DOMContentLoaded", () => {
+                document.body.setAttribute("data-theme", savedTheme);
+            });
+        })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* =========================================
+           VARIABLES & SYSTEM THEMING
+           ========================================= */
+        :root {
+            --sidebar-bg: #183B56;
+            --main-text-color: #2D3748;
+            --sidebar-text: #ffffff;
+            --sidebar-border: rgba(255, 255, 255, 0.4);
+
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --text-primary: #0f172a;
+            --text-muted: #64748b;
+            --text-input: #0f172a;
+            --bg-input: #ffffff;
+            --border-input: #d1d5db;
+            --theme-color: #183B56;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-input: #f8fafc;
+            --bg-input: #1e293b;
+            --border-input: #475569;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+
+        }
+
+        body {
+            background: var(--bg-body);
+            padding: 25px;
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* =========================================
+           TOP HEADER NAVBAR
+           ========================================= */
+        .builder-header {
+            width: 100%;
+            height: 70px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            position: sticky;
+            top: 15px;
+            z-index: 999;
+            margin-bottom: 25px;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .logo-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--theme-color);
+            transition: background 0.3s ease;
+        }
+
+        .theme-toggle-btn {
+            background: transparent;
+            border: 1px solid var(--border-input);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        [data-theme="dark"] .theme-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        /* =========================================
+           MAIN CONTAINER GRID LAYOUT
+           ========================================= */
+        .builder-container {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* =========================================
+           LEFT PANEL FORM CONSOLE
+           ========================================= */
+        .form-panel {
+            width: 40%;
+            min-height: 650px;
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 100px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .form-panel input,
+        .form-panel textarea,
+        .form-panel select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-input);
+            background: var(--bg-input);
+            color: var(--text-input);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .form-panel textarea {
+            height: 90px;
+            resize: vertical;
+        }
+
+        .form-panel input:focus,
+        .form-panel textarea:focus {
+            border-color: var(--theme-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(24, 59, 86, 0.15);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .input-group label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .step {
+            display: none !important;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .step.active {
+            display: flex !important;
+        }
+
+        .step-header {
+            margin-bottom: 10px;
+        }
+
+        .step-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .step-header p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* =========================================
+           INTERACTIVE STEPPER PROGRESS BAR
+           ========================================= */
+        .stepper-progress-container {
+            position: relative;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .stepper-track-bg {
+            position: absolute;
+            top: 14px;
+            left: 15px;
+            right: 15px;
+            height: 3px;
+            background: rgba(0, 0, 0, 0.08);
+            z-index: 1;
+            border-radius: 2px;
+        }
+
+        [data-theme="dark"] .stepper-track-bg {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .stepper-track-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--theme-color);
+            border-radius: 2px;
+            transition: width 0.35s ease;
+        }
+
+        .stepper-steps-wrapper {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .step-circle {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--border-input);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .step-node.active .step-circle {
+            border-color: var(--theme-color);
+            background: var(--theme-color);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Dynamic Input Cards */
+        .card-box {
+            border: 1px solid var(--border-input);
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            background: var(--bg-input);
+            position: relative;
+        }
+
+        .remove-card-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #fee2e2;
+            color: #ef4444;
+            border: 1px solid #fca5a5;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .remove-card-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* ADD BUTTON STYLES */
+        .add-btn {
+            background: rgba(24, 59, 86, 0.05);
+            color: var(--theme-color);
+            border: 1.5px dashed var(--theme-color);
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: 0.3px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+        }
+
+        .add-btn:hover {
+            background: var(--theme-color);
+            color: #ffffff;
+            border-style: solid;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(24, 59, 86, 0.2);
+        }
+
+        .add-btn:active {
+            transform: translateY(0);
+        }
+
+        [data-theme="dark"] .add-btn {
+            background: rgba(56, 189, 248, 0.08);
+            color: #38bdf8;
+            border-color: #38bdf8;
+        }
+
+        [data-theme="dark"] .add-btn:hover {
+            background: #38bdf8;
+            color: #0f172a;
+            box-shadow: 0 6px 16px rgba(56, 189, 248, 0.3);
+        }
+
+        /* AI BUTTON STYLES */
+        .textarea-ai-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-ai-action {
+            align-self: flex-end;
+            background: rgba(124, 58, 237, 0.08);
+            color: #7c3aed;
+            border: 1px solid rgba(124, 58, 237, 0.25);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-ai-action:hover {
+            background: #7c3aed;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+        }
+
+        /* BUTTON CONSOLE */
+        .step-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .next-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: var(--theme-color);
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .next-btn:hover {
+            opacity: 0.9;
+        }
+
+        .back-btn {
+            padding: 12px 20px;
+            border: 1px solid var(--border-input);
+            border-radius: 8px;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* =========================================
+           RIGHT SIDE PANEL & CUSTOMIZER TOOLBAR
+           ========================================= */
+        .preview-panel {
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .customizer-toolbar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+        }
+
+        .toolbar-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toolbar-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .color-swatches {
+            display: flex;
+            gap: 8px;
+        }
+
+        .color-swatch {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.15);
+        }
+
+        .color-swatch.active {
+            border-color: var(--text-primary);
+            transform: scale(1.15);
+        }
+
+        .toolbar-select {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-input);
+            font-size: 12px;
+            font-weight: 700;
+            background: var(--bg-input);
+            color: var(--text-input);
+            cursor: pointer;
+        }
+
+        .btn-pdf-download {
+            background: #ef4444;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .btn-pdf-download:hover {
+            background: #dc2626;
+        }
+
+        /* =========================================
+           RESUME CANVAS STYLING
+           ========================================= */
+        .resume-page {
+            width: 794px;
+            min-height: 1123px;
+            background: #ffffff;
+            display: flex;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+            overflow: hidden;
+            flex-shrink: 0;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        /* LEFT SIDEBAR */
+        .resume-sidebar {
+            width: 35%;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding: 40px 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background-color 0.3s ease;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        /* AVATAR WRAPPER */
+        .photo-wrapper {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 3px solid #ffffff;
+            overflow: hidden;
+            margin-bottom: 35px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .avatar-icon {
+            font-size: 70px;
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .sidebar-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+            /* Displayed when user uploads custom photo */
+        }
+
+        .sidebar-content {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .sidebar-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #ffffff;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1.5px solid var(--sidebar-border);
+            outline: none;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 11px;
+            margin-bottom: 12px;
+            color: #ffffff;
+            font-weight: 300;
+            line-height: 1.3;
+        }
+
+        .contact-item i {
+            width: 14px;
+            text-align: center;
+            font-size: 12px;
+            color: #ffffff;
+        }
+
+        .sidebar-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .sidebar-list li {
+            font-size: 11.5px;
+            line-height: 1.7;
+            position: relative;
+            padding-left: 14px;
+            color: #ffffff;
+            font-weight: 300;
+            outline: none;
+        }
+
+        .sidebar-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .edu-item {
+            margin-bottom: 15px;
+        }
+
+        .edu-date {
+            font-size: 12px;
+            font-weight: 600;
+            color: #ffffff;
+            outline: none;
+            margin-bottom: 2px;
+        }
+
+        .edu-school {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #ffffff;
+            outline: none;
+            letter-spacing: 0.5px;
+        }
+
+        .edu-degree {
+            font-size: 11px;
+            font-weight: 300;
+            color: #e2e8f0;
+            margin-top: 3px;
+            outline: none;
+        }
+
+        .lang-item {
+            font-size: 11.5px;
+            line-height: 1.7;
+            position: relative;
+            padding-left: 14px;
+            color: #ffffff;
+            font-weight: 300;
+            outline: none;
+        }
+
+        .lang-item::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        /* RIGHT MAIN CONTENT */
+        .resume-main {
+            width: 65%;
+            padding: 45px 35px;
+            background: #ffffff;
+            color: var(--main-text-color);
+        }
+
+        .main-header {
+            margin-bottom: 30px;
+        }
+
+        #previewName {
+            font-size: 34px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #1a202c;
+            line-height: 1.1;
+            outline: none;
+        }
+
+        #previewName span {
+            font-weight: 300;
+            color: #2b6cb0;
+        }
+
+        #previewRole {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #4a5568;
+            margin-top: 8px;
+            outline: none;
+        }
+
+        .main-section-title {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #1a202c;
+            margin-top: 25px;
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 1.5px solid #cbd5e0;
+            outline: none;
+        }
+
+        .about-text {
+            font-size: 11px;
+            line-height: 1.6;
+            color: #4a5568;
+            font-weight: 400;
+            outline: none;
+        }
+
+        .timeline-container {
+            position: relative;
+            padding-left: 18px;
+            margin-left: 4px;
+        }
+
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            top: 6px;
+            bottom: 10px;
+            left: 3px;
+            width: 1.5px;
+            background-color: #cbd5e0;
+        }
+
+        .job-item {
+            position: relative;
+            margin-bottom: 22px;
+        }
+
+        .job-node {
+            position: absolute;
+            left: -18px;
+            top: 4px;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: var(--sidebar-bg);
+            border: 1.5px solid var(--sidebar-bg);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .job-title-company {
+            font-size: 12px;
+            font-weight: 700;
+            color: #2d3748;
+            outline: none;
+        }
+
+        .job-role-sub {
+            font-size: 11px;
+            color: #718096;
+            font-weight: 500;
+            margin-top: 2px;
+            margin-bottom: 8px;
+            outline: none;
+        }
+
+        .job-date {
+            font-size: 11px;
+            color: #718096;
+            font-weight: 500;
+            outline: none;
+        }
+
+        .main-bullet-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .main-bullet-list li {
+            font-size: 10.5px;
+            color: #4a5568;
+            line-height: 1.5;
+            margin-bottom: 5px;
+            position: relative;
+            padding-left: 12px;
+            font-weight: 400;
+            outline: none;
+        }
+
+        .main-bullet-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #4a5568;
+        }
+
+        /* DYNAMIC REFERENCES GRID */
+        .references-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .ref-card {
+            width: 47%;
+        }
+
+        .ref-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: #2d3748;
+            outline: none;
+        }
+
+        .ref-title {
+            font-size: 10.5px;
+            color: #718096;
+            margin-bottom: 4px;
+            outline: none;
+        }
+
+        .ref-detail {
+            font-size: 10px;
+            color: #4a5568;
+            line-height: 1.4;
+            outline: none;
+        }
+
+        [contenteditable="true"]:hover {
+            outline: 1px dashed var(--theme-color) !important;
+            background-color: #f7fafc;
+            cursor: text;
+        }
+
+        /* PRINT STYLES FOR NATIVE PRINT MENU */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+
+            }
+
+            body {
+                padding: 0;
+                background: #ffffff !important;
+            }
+
+            .builder-header,
+            .form-panel,
+            .customizer-toolbar,
+            .no-print {
+                display: none !important;
+            }
+
+            .builder-container,
+            .preview-panel {
+                display: block !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .resume-page {
+                box-shadow: none !important;
+                width: 210mm !important;
+                min-height: 297mm !important;
+                margin: 0 auto !important;
+            }
+
+            .resume-sidebar {
+                background-color: var(--sidebar-bg) !important;
+            }
+        }
+    </style>
+    <!-- Supabase CDN & Shared Auth/API Modules -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/shared/auth.js"></script>
+    <script src="/shared/api-config.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            if (window.ResumeAuth && typeof window.ResumeAuth.requireAuth === 'function') {
+                window.ResumeAuth.requireAuth("/index.html?showLogin=true").catch(() => {});
+            }
+        });
+    </script>
+</head>
+
+<body>
+
+    <header class="builder-header no-print">
+        <div class="logo">
+            <span class="logo-dot"></span>
+            GPT HUB
+        </div>
+        <div>
+            <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()">☀️ Toggle Theme</button>
+        </div>
+    </header>
+
+    <div class="builder-container">
+
+        <div class="form-panel no-print">
+
+            <div class="stepper-progress-container">
+                <div class="stepper-track-bg">
+                    <div class="stepper-track-fill" id="stepperProgressFill"></div>
+                </div>
+                <div class="stepper-steps-wrapper">
+                    <div class="step-node active" data-step="1">
+                        <div class="step-circle">1</div>
+                    </div>
+                    <div class="step-node" data-step="2">
+                        <div class="step-circle">2</div>
+                    </div>
+                    <div class="step-node" data-step="3">
+                        <div class="step-circle">3</div>
+                    </div>
+                    <div class="step-node" data-step="4">
+                        <div class="step-circle">4</div>
+                    </div>
+                    <div class="step-node" data-step="5">
+                        <div class="step-circle">5</div>
+                    </div>
+                    <div class="step-node" data-step="6">
+                        <div class="step-circle">6</div>
+                    </div>
+                    <div class="step-node" data-step="7">
+                        <div class="step-circle">7</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="step1" class="step active">
+                <div class="step-header">
+                    <h2>Personal Information</h2>
+                    <p>Enter contact details and personal info.</p>
+                </div>
+                <div class="input-group">
+                    <label>Profile Photo</label>
+                    <input type="file" id="photoInput" accept="image/*">
+                </div>
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="nameInput" value="RICHARD SANCHEZ">
+                </div>
+                <div class="input-group">
+                    <label>Title / Role</label>
+                    <input type="text" id="roleInput" value="MARKETING MANAGER">
+                </div>
+                <div class="input-group">
+                    <label>Phone Number</label>
+                    <input type="text" id="phoneInput" value="+123-456-7890">
+                </div>
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="emailInput" value="hello@reallygreatsite.com">
+                </div>
+                <div class="input-group">
+                    <label>Address</label>
+                    <input type="text" id="addressInput" value="123 Anywhere St., Any City">
+                </div>
+                <div class="input-group">
+                    <label>Website URL</label>
+                    <input type="text" id="websiteInput" value="www.reallygreatsite.com">
+                </div>
+                <div class="step-buttons">
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <div id="step2" class="step">
+                <div class="step-header">
+                    <h2>Profile Summary</h2>
+                    <p>Provide a summary of your professional background.</p>
+                </div>
+                <div class="textarea-ai-wrapper">
+                    <textarea
+                        id="summaryInput">Strategic and data-driven Marketing Manager with 6+ years of experience directing multi-channel campaigns, brand strategy, and high-converting performance marketing efforts. Proven track record in optimizing ROI and scaling brand engagement across digital ecosystems.</textarea>
+                    <button type="button" class="btn-ai-action" onclick="enhanceSummaryAI(this)">✨ Generate With
+                        AI</button>
+                </div>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <div id="step3" class="step">
+                <div class="step-header">
+                    <h2>Education</h2>
+                    <p>List degrees and academic institutions.</p>
+                </div>
+                <div id="eduFormContainer">
+                    <div class="card-box edu-entry">
+                        <button type="button" class="remove-card-btn" onclick="removeCard(this, renderEducation)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="edu-degree-input" placeholder="Degree Title"
+                            value="Master of Business Management">
+                        <input type="text" class="edu-school-input" placeholder="University/School"
+                            value="WARDIERE UNIVERSITY" style="margin-top: 6px;">
+                        <input type="text" class="edu-date-input" placeholder="Dates" value="2029 - 2030"
+                            style="margin-top: 6px;">
+                    </div>
+                    <div class="card-box edu-entry">
+                        <button type="button" class="remove-card-btn" onclick="removeCard(this, renderEducation)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="edu-degree-input" placeholder="Degree Title"
+                            value="Bachelor of Business (GPA: 3.8 / 4.0)">
+                        <input type="text" class="edu-school-input" placeholder="University/School"
+                            value="WARDIERE UNIVERSITY" style="margin-top: 6px;">
+                        <input type="text" class="edu-date-input" placeholder="Dates" value="2025 - 2029"
+                            style="margin-top: 6px;">
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addEducationInput()"><i class="fa-solid fa-plus"></i> Add
+                    Education</button>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <div id="step4" class="step">
+                <div class="step-header">
+                    <h2>Work Experience</h2>
+                    <p>Detail your marketing roles and achievements.</p>
+                </div>
+                <div id="expFormContainer">
+                    <div class="card-box exp-entry">
+                        <button type="button" class="remove-card-btn" onclick="removeCard(this, renderExperiences)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="job-role-input" placeholder="Role Title"
+                            value="Marketing Manager & Specialist">
+                        <input type="text" class="job-sub-input" placeholder="Company / Studio" value="Borcelle Studio"
+                            style="margin-top:6px;">
+                        <input type="text" class="job-date-input" placeholder="Dates" value="2030 - PRESENT"
+                            style="margin-top:6px;">
+                        <div class="textarea-ai-wrapper" style="margin-top: 6px;">
+                            <textarea class="job-bullets-input"
+                                placeholder="Responsibilities (One per line)">Develop and execute comprehensive marketing strategies and campaigns that align with the company's goals and objectives.&#10;Lead, mentor, and manage a high-performing marketing team, fostering a collaborative and results-driven work environment.&#10;Monitor brand consistency across marketing channels and materials.</textarea>
+                            <button type="button" class="btn-ai-action" onclick="enhanceExpAI(this)">✨ AI Generated
+                                Bullet Points</button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addExperienceInput()"><i class="fa-solid fa-plus"></i>
+                    Add Experience</button>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <div id="step5" class="step">
+                <div class="step-header">
+                    <h2>Core Skills</h2>
+                    <p>Enter your top key competencies.</p>
+                </div>
+                <div class="input-group">
+                    <label>Skills (Comma Separated)</label>
+                    <div class="textarea-ai-wrapper">
+                        <textarea id="skillsInput"
+                            oninput="renderSkills()">Project Management, Public Relations, Teamwork, Time Management, Leadership, Effective Communication, Critical Thinking</textarea>
+                        <button type="button" class="btn-ai-action" onclick="generateSkillsAI(this)">✨ AI Generated
+                            Suggested Skills</button>
+                    </div>
+                    <div id="aiSuggestionsWrapper" style="margin-top: 10px; display: none;">
+                        <label
+                            style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Suggested
+                            Skills (Click to add):</label>
+                        <div id="suggestedSkillChips"
+                            style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px;"></div>
+                    </div>
+                </div>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <div id="step6" class="step">
+                <div class="step-header">
+                    <h2>Languages</h2>
+                    <p>Languages spoken and proficiency.</p>
+                </div>
+                <div id="langFormContainer">
+                    <div class="card-box lang-entry">
+                        <button type="button" class="remove-card-btn" onclick="removeCard(this, renderLanguages)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="lang-name-input" placeholder="Language & Proficiency"
+                            value="English (Fluent)">
+                    </div>
+                    <div class="card-box lang-entry">
+                        <button type="button" class="remove-card-btn" onclick="removeCard(this, renderLanguages)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="lang-name-input" placeholder="Language & Proficiency"
+                            value="French (Fluent)">
+                    </div>
+                    <div class="card-box lang-entry">
+                        <button type="button" class="remove-card-btn" onclick="removeCard(this, renderLanguages)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="lang-name-input" placeholder="Language & Proficiency"
+                            value="German (Basics)">
+                    </div>
+                    <div class="card-box lang-entry">
+                        <button type="button" class="remove-card-btn" onclick="removeCard(this, renderLanguages)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="lang-name-input" placeholder="Language & Proficiency"
+                            value="Spanish (Intermediate)">
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addLanguageInput()"><i class="fa-solid fa-plus"></i> Add
+                    Language</button>
+                <div class="step-buttons">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <div id="step7" class="step">
+                <div class="step-header">
+                    <h2>References & Export</h2>
+                    <p>Add reference details and export document.</p>
+                </div>
+
+                <div id="refFormContainer">
+                    <div class="card-box ref-entry">
+                        <button type="button" class="remove-card-btn" onclick="removeCard(this, renderReferences)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="ref-name-input" placeholder="Full Name" value="Estelle Darcy">
+                        <input type="text" class="ref-title-input" placeholder="Title & Company"
+                            value="Wardiere Inc. / CTO" style="margin-top:6px;">
+                        <input type="text" class="ref-phone-input" placeholder="Phone" value="123-456-7890"
+                            style="margin-top:6px;">
+                        <input type="email" class="ref-email-input" placeholder="Email"
+                            value="hello@reallygreatsite.com" style="margin-top:6px;">
+                    </div>
+
+                    <div class="card-box ref-entry">
+                        <button type="button" class="remove-card-btn" onclick="removeCard(this, renderReferences)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="ref-name-input" placeholder="Full Name" value="Harper Richard">
+                        <input type="text" class="ref-title-input" placeholder="Title & Company"
+                            value="Wardiere Inc. / CEO" style="margin-top:6px;">
+                        <input type="text" class="ref-phone-input" placeholder="Phone" value="123-456-7890"
+                            style="margin-top:6px;">
+                        <input type="email" class="ref-email-input" placeholder="Email"
+                            value="hello@reallygreatsite.com" style="margin-top:6px;">
+                    </div>
+                </div>
+
+                <button type="button" class="add-btn" onclick="addReferenceInput()"><i class="fa-solid fa-plus"></i> Add
+                    Reference</button>
+
+                <div class="step-buttons" style="margin-top: 15px;">
+                    <button type="button" class="back-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="next-btn" onclick="downloadPDF()">Download PDF <i
+                            class="fa-solid fa-download"></i></button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="preview-panel">
+
+            <div class="customizer-toolbar no-print">
+                <div class="toolbar-section">
+                    <span class="toolbar-label">Accent Color:</span>
+                    <div class="color-swatches">
+                        <span class="color-swatch active" style="background-color: #183B56;"
+                            onclick="changeTheme('#183B56')"></span>
+                        <span class="color-swatch" style="background-color: #1a365d;"
+                            onclick="changeTheme('#1a365d')"></span>
+                        <span class="color-swatch" style="background-color: #0f5132;"
+                            onclick="changeTheme('#0f5132')"></span>
+                        <span class="color-swatch" style="background-color: #581845;"
+                            onclick="changeTheme('#581845')"></span>
+                        <span class="color-swatch" style="background-color: #2d3748;"
+                            onclick="changeTheme('#2d3748')"></span>
+                    </div>
+                </div>
+                <div class="toolbar-section">
+                    <span class="toolbar-label">Font Style:</span>
+                    <select id="fontSelector" class="toolbar-select">
+                        <option value="Montserrat">Montserrat</option>
+                        <option value="Inter">Inter</option>
+                        <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                        <option value="Outfit">Outfit</option>
+                    </select>
+                </div>
+                <div class="toolbar-section">
+                    <button class="btn-pdf-download" onclick="downloadPDF()">Download PDF <i
+                            class="fa-solid fa-download"></i></button>
+                </div>
+            </div>
+
+            <div class="resume-page" id="resume-pdf-target">
+
+                <div class="resume-sidebar">
+
+                    <div class="photo-wrapper" id="photoWrapper">
+                        <i id="avatarIcon" class="fa-solid fa-user avatar-icon"></i>
+                        <img id="previewPhoto" class="sidebar-photo" src="" alt="Profile Photo">
+                    </div>
+
+                    <div class="sidebar-content">
+
+                        <div class="sidebar-section">
+                            <h3 class="sidebar-title" contenteditable="true">CONTACT</h3>
+                            <div class="contact-item">
+                                <i class="fa-solid fa-phone"></i>
+                                <span id="previewPhone" contenteditable="true">+123-456-7890</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fa-regular fa-envelope"></i>
+                                <span id="previewEmail" contenteditable="true">hello@reallygreatsite.com</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <span id="previewAddress" contenteditable="true">123 Anywhere St., Any City</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fa-solid fa-globe"></i>
+                                <span id="previewWebsite" contenteditable="true">www.reallygreatsite.com</span>
+                            </div>
+                        </div>
+
+                        <div class="sidebar-section">
+                            <h3 class="sidebar-title" contenteditable="true">EDUCATION</h3>
+                            <div id="previewEducation">
+                            </div>
+                        </div>
+
+                        <div class="sidebar-section">
+                            <h3 class="sidebar-title" contenteditable="true">SKILLS</h3>
+                            <ul id="previewSkills" class="sidebar-list">
+                                <li contenteditable="true">Project Management</li>
+                                <li contenteditable="true">Public Relations</li>
+                                <li contenteditable="true">Teamwork</li>
+                                <li contenteditable="true">Time Management</li>
+                                <li contenteditable="true">Leadership</li>
+                                <li contenteditable="true">Effective Communication</li>
+                                <li contenteditable="true">Critical Thinking</li>
+                            </ul>
+                        </div>
+
+                        <div class="sidebar-section">
+                            <h3 class="sidebar-title" contenteditable="true">LANGUAGES</h3>
+                            <div id="previewLanguages">
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="resume-main">
+
+                    <div class="main-header">
+                        <div id="previewName" contenteditable="true">RICHARD <span>SANCHEZ</span></div>
+                        <div id="previewRole" contenteditable="true">MARKETING MANAGER</div>
+                    </div>
+
+                    <h3 class="main-section-title" contenteditable="true">PROFILE</h3>
+                    <p id="previewSummary" class="about-text" contenteditable="true">
+                        Strategic and data-driven Marketing Manager with 6+ years of experience directing multi-channel
+                        campaigns, brand strategy, and high-converting performance marketing efforts. Proven track
+                        record in optimizing ROI and scaling brand engagement across digital ecosystems.
+                    </p>
+
+                    <h3 class="main-section-title" contenteditable="true">WORK EXPERIENCE</h3>
+                    <div class="timeline-container" id="previewExperience">
+                    </div>
+
+                    <h3 class="main-section-title" contenteditable="true">REFERENCE</h3>
+                    <div class="references-grid" id="previewReferences">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // STEPPER CONTROL
+        let currentStep = 1;
+        const totalSteps = 7;
+
+        function updateStepperUI() {
+            for (let i = 1; i <= totalSteps; i++) {
+                const stepEl = document.getElementById(`step${i}`);
+                if (stepEl) stepEl.classList.toggle("active", i === currentStep);
+            }
+            document.querySelectorAll(".step-node").forEach(node => {
+                const stepNum = parseInt(node.getAttribute("data-step"));
+                node.classList.toggle("active", stepNum <= currentStep);
+            });
+            const fill = document.getElementById("stepperProgressFill");
+            if (fill) fill.style.width = `${((currentStep - 1) / (totalSteps - 1)) * 100}%`;
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) { currentStep++; updateStepperUI(); }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) { currentStep--; updateStepperUI(); }
+        }
+
+        // ACCENT COLOR & THEME SWITCHING
+        function changeTheme(color) {
+            document.documentElement.style.setProperty('--sidebar-bg', color);
+            document.documentElement.style.setProperty('--theme-color', color);
+            document.querySelectorAll('.color-swatch').forEach(s => {
+                s.classList.toggle('active', s.getAttribute('onclick').includes(color));
+            });
+        }
+
+        function toggleTheme() {
+            const curTheme = document.documentElement.getAttribute("data-theme") || "light";
+            const nextTheme = curTheme === "light" ? "dark" : "light";
+            document.documentElement.setAttribute("data-theme", nextTheme);
+            document.body.setAttribute("data-theme", nextTheme);
+            localStorage.setItem("theme", nextTheme);
+        }
+
+        // FONT CONTROL
+        document.getElementById("fontSelector").addEventListener("change", function () {
+            document.getElementById("resume-pdf-target").style.fontFamily = `'${this.value}', sans-serif`;
+        });
+
+        // INLINE AI ENHANCE HANDLERS
+        // ==========================================
+        // 1. SUMMARY AI WITH LOADING
+        // ==========================================
+        async function enhanceSummaryAI(btn) {
+            const summaryInput = document.getElementById("summaryInput");
+            if (!summaryInput) return;
+
+            const userVal = summaryInput.value.trim();
+            if (!userVal) {
+                alert("Please enter draft notes or keywords first!");
+                summaryInput.focus();
+                return;
+            }
+
+            const origText = btn ? btn.innerHTML : "";
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+            }
+
+            const host = window.location.hostname || "127.0.0.1";
+            try {
+                const res = await fetch(getResumeApiUrl('generate-summary'), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_input: userVal,
+                        job_title: "Marketing Manager"
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const summaryResult = data.summary || data.text || "";
+                    if (summaryResult) {
+                        summaryInput.value = summaryResult;
+                        summaryInput.dispatchEvent(new Event("input"));
+                    }
+                } else {
+                    const errData = await res.json().catch(() => ({}));
+                    alert(`Error (${res.status}): ${errData.detail || "Failed to generate summary."}`);
+                }
+            } catch (err) {
+                console.error("AI Summary Error:", err);
+                alert("API Connection Failed: API is deployed on Render. Check your internet connection.");
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = origText;
+                }
+            }
+        }
+
+        // ==========================================
+        // 2. EXPERIENCE BULLETS AI WITH LOADING
+        // ==========================================
+        async function enhanceExpAI(btn) {
+            const textarea = btn.parentElement.querySelector("textarea");
+            if (!textarea) return;
+
+            const userVal = textarea.value.trim();
+            const origText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+
+            const host = window.location.hostname || "127.0.0.1";
+            try {
+                const res = await fetch(getResumeApiUrl('generate-section'), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_input: userVal || "Marketing campaign responsibilities",
+                        section_type: "experience_bullets",
+                        job_title: "Marketing Manager"
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const bulletsResult = data.text || data.summary || "";
+                    if (bulletsResult) {
+                        textarea.value = bulletsResult;
+                        textarea.dispatchEvent(new Event("input"));
+                        renderExperiences();
+                    }
+                } else {
+                    const errData = await res.json().catch(() => ({}));
+                    alert(`Error (${res.status}): ${errData.detail || "Failed to generate experience bullets."}`);
+                }
+            } catch (err) {
+                console.error("AI Experience Error:", err);
+                alert("API Connection Failed: API is deployed on Render. Check your internet connection.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origText;
+            }
+        }
+
+        // ==========================================
+        // 3. SKILLS AI WITH LOADING & CHIPS
+        // ==========================================
+        async function generateSkillsAI(btn) {
+            const skillsInput = document.getElementById("skillsInput");
+            const wrap = document.getElementById("aiSuggestionsWrapper");
+            const chipsContainer = document.getElementById("suggestedSkillChips");
+            if (!skillsInput || !wrap || !chipsContainer) return;
+
+            const origText = btn ? btn.innerHTML : "";
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+            }
+
+            const userVal = skillsInput.value.trim();
+            const host = window.location.hostname || "127.0.0.1";
+
+            try {
+                const res = await fetch(getResumeApiUrl('generate-section'), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_input: userVal || "Marketing Manager core skills",
+                        section_type: "skills",
+                        job_title: "Marketing Manager"
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    let rawSkills = data.skills || data.text || "";
+
+                    let skillList = Array.isArray(rawSkills)
+                        ? rawSkills
+                        : rawSkills.split(",").map(s => s.replace(/^[-•*#\d.\s]+/, "").trim()).filter(Boolean);
+
+                    chipsContainer.innerHTML = "";
+                    skillList.forEach(skill => {
+                        const chip = document.createElement("button");
+                        chip.type = "button";
+                        chip.innerText = `+ ${skill}`;
+                        chip.style.cssText = `display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background-color: var(--bg-input, #f3f4f6); color: var(--text-primary, #374151); border: 1px solid var(--border-input, #d1d5db); border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer;`;
+
+                        chip.onclick = () => {
+                            let current = skillsInput.value.trim();
+                            skillsInput.value = current ? `${current}, ${skill}` : skill;
+                            skillsInput.dispatchEvent(new Event("input"));
+                            chip.remove();
+                            if (chipsContainer.children.length === 0) {
+                                wrap.style.display = "none";
+                            }
+                        };
+                        chipsContainer.appendChild(chip);
+                    });
+
+                    wrap.style.display = "block";
+                } else {
+                    const errData = await res.json().catch(() => ({}));
+                    alert(`Error (${res.status}): ${errData.detail || "Failed to generate skills."}`);
+                }
+            } catch (err) {
+                console.error("AI Skills Error:", err);
+                alert("API Connection Failed: API is deployed on Render. Check your internet connection.");
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = origText;
+                }
+            }
+        }
+
+        // DYNAMIC BINDING
+        function bindInput(inputId, previewId, isHTML = false) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+
+            if (input && preview) {
+                input.addEventListener("input", () => {
+                    if (isHTML) {
+                        preview.innerHTML = input.value.replace(/\n/g, "<br>");
+                    } else {
+                        preview.innerText = input.value;
+                    }
+                });
+            }
+        }
+
+        bindInput("nameInput", "previewName", true);
+        bindInput("roleInput", "previewRole");
+        bindInput("phoneInput", "previewPhone");
+        bindInput("emailInput", "previewEmail");
+        bindInput("addressInput", "previewAddress");
+        bindInput("websiteInput", "previewWebsite");
+        bindInput("summaryInput", "previewSummary");
+
+        // Photo Upload Handler (Replaces default avatar icon)
+        const photoInput = document.getElementById("photoInput");
+        if (photoInput) {
+            photoInput.addEventListener("change", function (e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const img = document.getElementById("previewPhoto");
+                    const avatar = document.getElementById("avatarIcon");
+                    img.src = URL.createObjectURL(file);
+                    img.style.display = "block";
+                    if (avatar) avatar.style.display = "none";
+                }
+            });
+        }
+
+        // Skills Handler
+        const skillsInput = document.getElementById("skillsInput");
+        if (skillsInput) {
+            skillsInput.addEventListener("input", function () {
+                const items = this.value.split(",");
+                const list = document.getElementById("previewSkills");
+                list.innerHTML = "";
+                items.forEach(item => {
+                    if (item.trim() !== "") {
+                        const li = document.createElement("li");
+                        li.textContent = item.trim();
+                        li.setAttribute("contenteditable", "true");
+                        list.appendChild(li);
+                    }
+                });
+            });
+        }
+
+        // Dynamic Languages Inputs & Synchronization
+        function addLanguageInput() {
+            const container = document.getElementById("langFormContainer");
+            const div = document.createElement("div");
+            div.className = "card-box lang-entry";
+            div.innerHTML = `
+                <button type="button" class="remove-card-btn" onclick="removeCard(this, renderLanguages)"><i class="fa-solid fa-xmark"></i></button>
+                <input type="text" class="lang-name-input" placeholder="Language & Proficiency">
+            `;
+            container.appendChild(div);
+            bindLangEvents();
+        }
+
+        function bindLangEvents() {
+            document.querySelectorAll(".lang-entry").forEach(entry => {
+                const input = entry.querySelector(".lang-name-input");
+                if (input) {
+                    input.removeEventListener("input", renderLanguages);
+                    input.addEventListener("input", renderLanguages);
+                }
+            });
+            renderLanguages();
+        }
+
+        function renderLanguages() {
+            const container = document.getElementById("previewLanguages");
+            container.innerHTML = "";
+            document.querySelectorAll(".lang-entry").forEach(entry => {
+                const langVal = entry.querySelector(".lang-name-input").value.trim();
+                if (langVal) {
+                    const div = document.createElement("div");
+                    div.className = "lang-item";
+                    div.textContent = langVal;
+                    div.setAttribute("contenteditable", "true");
+
+                    div.addEventListener("input", () => {
+                        entry.querySelector(".lang-name-input").value = div.innerText;
+                    });
+
+                    container.appendChild(div);
+                }
+            });
+        }
+
+        // Dynamic Experience Inputs
+        function addExperienceInput() {
+            const container = document.getElementById("expFormContainer");
+            const div = document.createElement("div");
+            div.className = "card-box exp-entry";
+            div.innerHTML = `
+                <button type="button" class="remove-card-btn" onclick="removeCard(this, renderExperiences)"><i class="fa-solid fa-xmark"></i></button>
+                <input type="text" class="job-role-input" placeholder="Role Title">
+                <input type="text" class="job-sub-input" placeholder="Company / Studio" style="margin-top:6px;">
+                <input type="text" class="job-date-input" placeholder="Dates" style="margin-top:6px;">
+                <div class="textarea-ai-wrapper" style="margin-top:6px;">
+                    <textarea class="job-bullets-input" placeholder="Responsibilities (One per line)"></textarea>
+                    <button type="button" class="btn-ai-action" onclick="enhanceExpAI(this)">✨ AI Suggest Action Bullets</button>
+                </div>
+            `;
+            container.appendChild(div);
+            bindExpEvents();
+        }
+
+        function bindExpEvents() {
+            document.querySelectorAll(".exp-entry").forEach(entry => {
+                entry.querySelectorAll("input, textarea").forEach(input => {
+                    input.removeEventListener("input", renderExperiences);
+                    input.addEventListener("input", renderExperiences);
+                });
+            });
+            renderExperiences();
+        }
+
+        function renderExperiences() {
+            const container = document.getElementById("previewExperience");
+            container.innerHTML = "";
+            document.querySelectorAll(".exp-entry").forEach(entry => {
+                const role = entry.querySelector(".job-role-input").value.trim();
+                const sub = entry.querySelector(".job-sub-input").value.trim();
+                const date = entry.querySelector(".job-date-input").value.trim();
+                const bulletsText = entry.querySelector(".job-bullets-input").value;
+
+                if (role || sub || date) {
+                    const item = document.createElement("div");
+                    item.className = "job-item";
+
+                    let bulletsHtml = "";
+                    if (bulletsText) {
+                        bulletsText.split("\n").forEach(line => {
+                            if (line.trim() !== "") bulletsHtml += `<li contenteditable="true">${line.replace(/^[•\-\*]\s*/, '').trim()}</li>`;
+                        });
+                    }
+
+                    item.innerHTML = `
+                        <div class="job-node"></div>
+                        <div class="job-header">
+                            <div class="job-title-company" contenteditable="true">${sub || 'COMPANY'}</div>
+                            <div class="job-date" contenteditable="true">${date || ''}</div>
+                        </div>
+                        <div class="job-role-sub" contenteditable="true">${role || 'ROLE'}</div>
+                        <ul class="main-bullet-list">${bulletsHtml}</ul>
+                    `;
+                    container.appendChild(item);
+                }
+            });
+        }
+
+        // Dynamic Education Inputs
+        function addEducationInput() {
+            const container = document.getElementById("eduFormContainer");
+            const div = document.createElement("div");
+            div.className = "card-box edu-entry";
+            div.innerHTML = `
+                <button type="button" class="remove-card-btn" onclick="removeCard(this, renderEducation)"><i class="fa-solid fa-xmark"></i></button>
+                <input type="text" class="edu-degree-input" placeholder="Degree Title">
+                <input type="text" class="edu-school-input" placeholder="University/School" style="margin-top:6px;">
+                <input type="text" class="edu-date-input" placeholder="Dates" style="margin-top:6px;">
+            `;
+            container.appendChild(div);
+            bindEduEvents();
+        }
+
+        function bindEduEvents() {
+            document.querySelectorAll(".edu-entry").forEach(entry => {
+                entry.querySelectorAll("input").forEach(input => {
+                    input.removeEventListener("input", renderEducation);
+                    input.addEventListener("input", renderEducation);
+                });
+            });
+            renderEducation();
+        }
+
+        function renderEducation() {
+            const container = document.getElementById("previewEducation");
+            container.innerHTML = "";
+            document.querySelectorAll(".edu-entry").forEach(entry => {
+                const degree = entry.querySelector(".edu-degree-input").value.trim();
+                const school = entry.querySelector(".edu-school-input").value.trim();
+                const date = entry.querySelector(".edu-date-input").value.trim();
+
+                if (degree || school || date) {
+                    const item = document.createElement("div");
+                    item.className = "edu-item";
+                    item.innerHTML = `
+                        <div class="edu-date" contenteditable="true">${date || ''}</div>
+                        <div class="edu-school" contenteditable="true">${school || ''}</div>
+                        <div class="edu-degree" contenteditable="true">• ${degree || ''}</div>
+                    `;
+                    container.appendChild(item);
+                }
+            });
+        }
+
+        // Dynamic Reference Inputs
+        function addReferenceInput() {
+            const container = document.getElementById("refFormContainer");
+            const div = document.createElement("div");
+            div.className = "card-box ref-entry";
+            div.innerHTML = `
+                <button type="button" class="remove-card-btn" onclick="removeCard(this, renderReferences)"><i class="fa-solid fa-xmark"></i></button>
+                <input type="text" class="ref-name-input" placeholder="Full Name">
+                <input type="text" class="ref-title-input" placeholder="Title & Company" style="margin-top:6px;">
+                <input type="text" class="ref-phone-input" placeholder="Phone" style="margin-top:6px;">
+                <input type="email" class="ref-email-input" placeholder="Email" style="margin-top:6px;">
+            `;
+            container.appendChild(div);
+            bindRefEvents();
+        }
+
+        function bindRefEvents() {
+            document.querySelectorAll(".ref-entry").forEach(entry => {
+                entry.querySelectorAll("input").forEach(input => {
+                    input.removeEventListener("input", renderReferences);
+                    input.addEventListener("input", renderReferences);
+                });
+            });
+            renderReferences();
+        }
+
+        function renderReferences() {
+            const container = document.getElementById("previewReferences");
+            container.innerHTML = "";
+            document.querySelectorAll(".ref-entry").forEach(entry => {
+                const name = entry.querySelector(".ref-name-input").value.trim();
+                const title = entry.querySelector(".ref-title-input").value.trim();
+                const phone = entry.querySelector(".ref-phone-input").value.trim();
+                const email = entry.querySelector(".ref-email-input").value.trim();
+
+                if (name || title || phone || email) {
+                    const card = document.createElement("div");
+                    card.className = "ref-card";
+                    card.innerHTML = `
+                        <div class="ref-name" contenteditable="true">${name || ''}</div>
+                        <div class="ref-title" contenteditable="true">${title || ''}</div>
+                        ${phone ? `<div class="ref-detail" contenteditable="true">Phone: ${phone}</div>` : ''}
+                        ${email ? `<div class="ref-detail" contenteditable="true">Email: ${email}</div>` : ''}
+                    `;
+                    container.appendChild(card);
+                }
+            });
+        }
+
+        function removeCard(btn, renderCallback) {
+            btn.parentElement.remove();
+            if (renderCallback) renderCallback();
+        }
+
+        // PDF Generation via Browser Native Print Dialog
+        function downloadPDF() {
+            window.print();
+        }
+
+        // Initialize State
+        bindExpEvents();
+        bindEduEvents();
+        bindRefEvents();
+        bindLangEvents();
+        updateStepperUI();
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fresher Professional Resume Workspace - GPT Hub</title>
+
+    <!-- Theme Initializer -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+        })();
+    </script>
+
+    <!-- Google Fonts Imports -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700;900&family=Montserrat:wght@300;400;500;600;700;800&family=Open+Sans:wght@300;400;600;700;800&family=Poppins:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- html2pdf.js for exporting PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        /* =========================================
+           VARIABLES & SYSTEM THEMING
+           ========================================= */
+        :root {
+            --header-blue: #002060;
+            --header-text: #1a2530;
+            --main-text-color: #2c3e50;
+            --border-grey: #7d9cb9;
+            --bg-body: #eef2f7;
+            --bg-card: #ffffff;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --text-primary: #0f172a;
+            --text-muted: #64748b;
+            --text-input: #0f172a;
+            --bg-input: #ffffff;
+            --border-input: #d1d5db;
+            --theme-color: #002060;
+            --resume-font: 'Inter', sans-serif;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-input: #f8fafc;
+            --bg-input: #1e293b;
+            --border-input: #475569;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+
+        }
+
+        body {
+            background: var(--bg-body);
+            padding: 25px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* TOP NAVBAR */
+        .builder-header {
+            width: 100%;
+            height: 70px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            position: sticky;
+            top: 15px;
+            z-index: 999;
+            margin-bottom: 25px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .logo-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--theme-color);
+        }
+
+        .theme-toggle-btn {
+            background: transparent;
+            border: 1px solid var(--border-input);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* MAIN CONTAINER GRID LAYOUT */
+        .builder-container {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* LEFT PANEL FORM CONSOLE */
+        .form-panel {
+            width: 42%;
+            min-height: 650px;
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 100px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-panel input,
+        .form-panel textarea,
+        .form-panel select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-input);
+            background: var(--bg-input);
+            color: var(--text-input);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        .form-panel textarea {
+            height: 75px;
+            resize: vertical;
+        }
+
+        .form-panel input:focus,
+        .form-panel textarea:focus {
+            border-color: var(--theme-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 32, 96, 0.15);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .input-group label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .step {
+            display: none !important;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .step.active {
+            display: flex !important;
+        }
+
+        .step-header {
+            margin-bottom: 10px;
+        }
+
+        .step-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .step-header p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* STEPPER PROGRESS BAR (7 Steps) */
+        .stepper-progress-container {
+            position: relative;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .stepper-track-bg {
+            position: absolute;
+            top: 13px;
+            left: 12px;
+            right: 12px;
+            height: 3px;
+            background: rgba(0, 0, 0, 0.08);
+            z-index: 1;
+        }
+
+        .stepper-steps-wrapper {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .step-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--border-input);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        .step-node.active .step-circle {
+            border-color: var(--theme-color);
+            background: var(--theme-color);
+            color: #ffffff;
+        }
+
+        /* Dynamic Input Cards */
+        .card-box {
+            border: 1px solid var(--border-input);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: var(--bg-input);
+            position: relative;
+        }
+
+        .remove-card-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #fee2e2;
+            color: #ef4444;
+            border: 1px solid #fca5a5;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            font-size: 9px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+        }
+
+        .add-btn {
+            background: rgba(0, 32, 96, 0.05);
+            color: var(--theme-color);
+            border: 1.5px dashed var(--theme-color);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+        }
+
+        .add-btn:hover {
+            background: var(--theme-color);
+            color: #ffffff;
+            border-style: solid;
+        }
+
+        /* AI BUTTON STYLES */
+        .textarea-ai-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .btn-ai-action {
+            align-self: flex-end;
+            background: rgba(124, 58, 237, 0.1);
+            color: #7c3aed;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-ai-action:hover {
+            background: #7c3aed;
+            color: #fff;
+        }
+
+        .btn-ai-action:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .ai-chip-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+            margin-bottom: 12px;
+        }
+
+        .ai-suggestion-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            background-color: rgba(124, 58, 237, 0.08);
+            color: #7c3aed;
+            border: 1px solid rgba(124, 58, 237, 0.25);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ai-suggestion-chip:hover {
+            background-color: #7c3aed;
+            color: #fff;
+        }
+
+        /* BUTTON CONSOLE */
+        .step-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .next-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: var(--theme-color);
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .next-btn:hover {
+            background: #00153d;
+        }
+
+        .back-btn {
+            padding: 12px 20px;
+            border: 1px solid var(--border-input);
+            border-radius: 8px;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* RIGHT PANEL & CUSTOMIZER TOOLBAR */
+        .preview-panel {
+            width: 58%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .customizer-toolbar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+        }
+
+        .toolbar-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toolbar-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .color-swatches {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .color-swatch {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.2);
+        }
+
+        .color-swatch.active {
+            border-color: var(--text-primary);
+            transform: scale(1.2);
+        }
+
+        .toolbar-select {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-input);
+            font-size: 12px;
+            font-weight: 600;
+            background: var(--bg-input);
+            color: var(--text-input);
+            cursor: pointer;
+        }
+
+        .btn-pdf-download {
+            background: #ef4444;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .btn-pdf-download:hover {
+            background: #dc2626;
+        }
+
+        /* =========================================
+           RESUME CANVAS STYLING
+           ========================================= */
+        .resume-page {
+            width: 794px;
+            min-height: 1123px;
+            background: #ffffff;
+            padding: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            margin: 0 auto;
+            font-family: var(--resume-font);
+            position: relative;
+            color: #222222;
+        }
+
+        /* HEADER SECTION */
+        .resume-header {
+            margin-bottom: 12px;
+        }
+
+        #previewName {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: #000000;
+            line-height: 1.1;
+            outline: none;
+        }
+
+        #previewRole {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--header-blue);
+            margin-top: 3px;
+            margin-bottom: 14px;
+            outline: none;
+        }
+
+        /* CONTACT BAR INLINE */
+        .contact-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            font-size: 12.5px;
+            color: #333;
+            padding-bottom: 8px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .contact-item i {
+            color: var(--header-blue);
+            font-size: 13px;
+        }
+
+        .contact-sep {
+            color: #aaa;
+            font-weight: 300;
+        }
+
+        /* SECTION STYLING */
+        .section-block {
+            margin-top: 12px;
+        }
+
+        .section-title {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: var(--header-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            outline: none;
+        }
+
+        .section-divider {
+            width: 100%;
+            height: 1px;
+            background-color: #333333;
+            margin-bottom: 10px;
+        }
+
+        .section-content {
+            font-size: 12.5px;
+            line-height: 1.45;
+            color: #222222;
+            outline: none;
+        }
+
+        .edu-degree {
+            font-weight: 700;
+            font-size: 13px;
+            color: #000;
+        }
+
+        .edu-inst,
+        .edu-meta {
+            font-size: 12.5px;
+            color: #333;
+            margin-top: 1px;
+        }
+
+        .education-item {
+            margin-bottom: 8px;
+        }
+
+        .project-item {
+            margin-bottom: 8px;
+        }
+
+        .project-title {
+            font-weight: 700;
+            font-size: 13px;
+            color: #000;
+            position: relative;
+            padding-left: 14px;
+        }
+
+        .project-title::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .project-desc {
+            padding-left: 14px;
+            margin-top: 2px;
+            font-size: 12.5px;
+        }
+
+        .bullet-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .bullet-list li {
+            position: relative;
+            padding-left: 14px;
+            margin-bottom: 4px;
+            font-size: 12.5px;
+        }
+
+        .bullet-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #000;
+            font-weight: bold;
+        }
+
+        [contenteditable="true"]:hover {
+            outline: 1px dashed var(--theme-color) !important;
+            background-color: #f7fafc;
+            cursor: text;
+        }
+
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+
+            body {
+                padding: 0;
+                background: #ffffff !important;
+            }
+
+            .builder-header,
+            .form-panel,
+            .customizer-toolbar,
+            .no-print {
+                display: none !important;
+            }
+
+            .builder-container,
+            .preview-panel {
+                display: block !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .resume-page {
+                box-shadow: none !important;
+                width: 210mm !important;
+                min-height: 297mm !important;
+                margin: 0 auto !important;
+            }
+        }
+    </style>
+    <!-- Supabase CDN & Shared Auth/API Modules -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/shared/auth.js"></script>
+    <script src="/shared/api-config.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            if (window.ResumeAuth && typeof window.ResumeAuth.requireAuth === 'function') {
+                window.ResumeAuth.requireAuth("/index.html?showLogin=true").catch(() => {});
+            }
+        });
+    </script>
+</head>
+
+<body>
+
+    <!-- TOP NAVBAR -->
+    <header class="builder-header no-print">
+        <div class="logo">
+            <span class="logo-dot"></span>
+            GPT HUB
+        </div>
+        <div>
+            <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()">☀️ Toggle Theme</button>
+        </div>
+    </header>
+
+    <div class="builder-container">
+
+        <!-- LEFT SIDE FORM PANEL (7 Steps) -->
+        <div class="form-panel no-print">
+
+            <div class="stepper-progress-container">
+                <div class="stepper-track-bg"></div>
+                <div class="stepper-steps-wrapper">
+                    <div class="step-node active" data-step="1">
+                        <div class="step-circle">1</div>
+                    </div>
+                    <div class="step-node" data-step="2">
+                        <div class="step-circle">2</div>
+                    </div>
+                    <div class="step-node" data-step="3">
+                        <div class="step-circle">3</div>
+                    </div>
+                    <div class="step-node" data-step="4">
+                        <div class="step-circle">4</div>
+                    </div>
+                    <div class="step-node" data-step="5">
+                        <div class="step-circle">5</div>
+                    </div>
+                    <div class="step-node" data-step="6">
+                        <div class="step-circle">6</div>
+                    </div>
+                    <div class="step-node" data-step="7">
+                        <div class="step-circle">7</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 1: PERSONAL INFO -->
+            <div id="step1" class="step active">
+                <div class="step-header">
+                    <h2>Personal Information</h2>
+                    <p>Enter contact details and job target.</p>
+                </div>
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="nameInput" placeholder="e.g. Alex Johnson">
+                </div>
+                <div class="input-group">
+                    <label>Title / Role</label>
+                    <input type="text" id="roleInput" placeholder="e.g. Graduate Engineer Trainee">
+                </div>
+                <div class="input-group">
+                    <label>Phone Number</label>
+                    <input type="text" id="phoneInput" placeholder="e.g. +91 9876543210">
+                </div>
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="emailInput" placeholder="e.g. alex@example.com">
+                </div>
+                <div class="input-group">
+                    <label>Location</label>
+                    <input type="text" id="locationInput" value="Mumbai, India">
+                </div>
+                <div class="input-group">
+                    <label>LinkedIn URL</label>
+                    <input type="text" id="linkedinInput" value="linkedin.com/in/rahulsharma">
+                </div>
+                <div class="step-buttons">
+                    <button class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 2: SUMMARY -->
+            <div id="step2" class="step">
+                <div class="step-header">
+                    <h2>Professional Summary</h2>
+                    <p>Brief summary of your background & profile.</p>
+                </div>
+                <div class="textarea-ai-wrapper">
+                    <textarea id="summaryInput">...</textarea>
+                    <button type="button" class="btn-ai-action" onclick="enhanceSummaryAI(this)">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Generate Summary
+                    </button>
+                </div>
+                <div class="step-buttons">
+                    <button class="back-btn" onclick="prevStep()">Back</button>
+                    <button class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 3: EDUCATION -->
+            <div id="step3" class="step">
+                <div class="step-header">
+                    <h2>Education Details</h2>
+                    <p>Add your academic qualifications.</p>
+                </div>
+                <div id="eduFormContainer">
+                    <div class="card-box edu-entry">
+                        <button type="button" class="remove-card-btn" onclick="removeCard(this, renderEducation)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="edu-degree-input" placeholder="Degree Name"
+                            value="Bachelor of Computer Applications (BCA)" style="margin-bottom:6px;">
+                        <input type="text" class="edu-inst-input" placeholder="University / College"
+                            value="University of Mumbai, Mumbai" style="margin-bottom:6px;">
+                        <input type="text" class="edu-meta-input" placeholder="Years & CGPA/Marks"
+                            value="2020 – 2023 | CGPA: 8.2">
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addEducationInput()"><i class="fa-solid fa-plus"></i> Add
+                    Education</button>
+                <div class="step-buttons">
+                    <button class="back-btn" onclick="prevStep()">Back</button>
+                    <button class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 4: SKILLS -->
+            <div id="step4" class="step">
+                <div class="step-header">
+                    <h2>Technical & Soft Skills</h2>
+                    <p>Add your core competencies.</p>
+                </div>
+                <div class="textarea-ai-wrapper">
+                    <label>Skills (Comma Separated)</label>
+                    <textarea id="skillsInput">...</textarea>
+                    <button type="button" class="btn-ai-action" onclick="generateSkillsAI(this)">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ AI Generate Suggested Skills
+                    </button>
+                </div>
+
+                <div id="aiSuggestionsWrapper" style="display: none;">
+                    <label style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Suggested
+                        Skills (Click to add):</label>
+                    <div id="suggestedSkillChips" class="ai-chip-container"></div>
+                </div>
+
+                <div id="aiSuggestionsWrapper" style="display: none;">
+                    <label style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Suggested
+                        Skills (Click to add):</label>
+                    <div id="suggestedSkillChips" class="ai-chip-container"></div>
+                </div>
+
+                <div class="step-buttons">
+                    <button class="back-btn" onclick="prevStep()">Back</button>
+                    <button class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+            <!-- STEP 5: PROJECTS -->
+            <div id="step5" class="step">
+                <div class="step-header">
+                    <h2>Projects</h2>
+                    <p>Highlight your key academic or personal projects.</p>
+                </div>
+                <div id="projectFormContainer">
+                    <div class="card-box project-entry">
+                        <button type="button" class="remove-card-btn" onclick="removeCard(this, renderProjects)"><i
+                                class="fa-solid fa-xmark"></i></button>
+                        <input type="text" class="project-title-input" placeholder="Project Name"
+                            value="Student Management System" style="margin-bottom:6px;">
+                        <textarea class="project-desc-input"
+                            placeholder="Project Description...">Developed a web application using PHP and MySQL to manage student records.</textarea>
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addProjectInput()"><i class="fa-solid fa-plus"></i> Add
+                    Project</button>
+                <div class="step-buttons">
+                    <button class="back-btn" onclick="prevStep()">Back</button>
+                    <button class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 6: CERTIFICATIONS & ACHIEVEMENTS -->
+            <div id="step6" class="step">
+                <div class="step-header">
+                    <h2>Certifications & Achievements</h2>
+                    <p>Add credentials and accomplishments.</p>
+                </div>
+                <div class="input-group">
+                    <label>Certifications (One per line)</label>
+                    <textarea id="certInput">Python for Everybody – Coursera&#10;Web Development – Udemy</textarea>
+                </div>
+                <div class="input-group">
+                    <label>Achievements (One per line)</label>
+                    <textarea id="achieveInput">Secured 1st position in College Coding Competition 2023</textarea>
+                </div>
+                <div class="step-buttons">
+                    <button class="back-btn" onclick="prevStep()">Back</button>
+                    <button class="next-btn" onclick="nextStep()">Continue</button>
+                </div>
+            </div>
+
+            <!-- STEP 7: LANGUAGES & REFERENCES -->
+            <div id="step7" class="step">
+                <div class="step-header">
+                    <h2>Languages & Final Review</h2>
+                    <p>Complete final details and go to print preview.</p>
+                </div>
+                <div class="input-group">
+                    <label>Languages</label>
+                    <input type="text" id="langInput" value="English, Hindi, Marathi">
+                </div>
+                <div class="input-group">
+                    <label>References</label>
+                    <input type="text" id="refInput" value="Available upon request.">
+                </div>
+                <div class="step-buttons">
+                    <button class="back-btn" onclick="prevStep()">Back</button>
+                    <button class="next-btn" onclick="triggerPrintPreview()">Preview & Download <i
+                            class="fa-solid fa-print"></i></button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE PREVIEW PANEL -->
+        <div class="preview-panel">
+
+            <!-- CUSTOMIZER TOOLBAR -->
+            <div class="customizer-toolbar no-print">
+                <div class="toolbar-section">
+                    <span class="toolbar-label">Theme Color:</span>
+                    <div class="color-swatches">
+                        <div class="color-swatch active" style="background-color: #002060;"
+                            onclick="changeHeaderColor('#002060', this)"></div>
+                        <div class="color-swatch" style="background-color: #2563eb;"
+                            onclick="changeHeaderColor('#2563eb', this)"></div>
+                        <div class="color-swatch" style="background-color: #059669;"
+                            onclick="changeHeaderColor('#059669', this)"></div>
+                        <div class="color-swatch" style="background-color: #7c3aed;"
+                            onclick="changeHeaderColor('#7c3aed', this)"></div>
+                        <div class="color-swatch" style="background-color: #dc2626;"
+                            onclick="changeHeaderColor('#dc2626', this)"></div>
+                        <div class="color-swatch" style="background-color: #d97706;"
+                            onclick="changeHeaderColor('#d97706', this)"></div>
+                    </div>
+                </div>
+
+                <div class="toolbar-section">
+                    <span class="toolbar-label">Font Family:</span>
+                    <select class="toolbar-select" onchange="changeResumeFont(this.value)">
+                        <option value="'Segoe UI', Arial, sans-serif">Segoe UI</option>
+                        <option value="'Inter', sans-serif">Inter</option>
+                        <option value="'Montserrat', sans-serif">Montserrat</option>
+                        <option value="'Poppins', sans-serif">Poppins</option>
+                        <option value="'Roboto', sans-serif">Roboto</option>
+                        <option value="'Open Sans', sans-serif">Open Sans</option>
+                    </select>
+                </div>
+
+                <button class="btn-pdf-download" onclick="triggerPrintPreview()">Print / Download <i
+                        class="fa-solid fa-print"></i></button>
+            </div>
+
+            <!-- RESUME PAGE CANVAS -->
+            <div class="resume-page" id="resumeCanvas">
+
+                <!-- HEADER -->
+                <div class="resume-header">
+                    <h1 id="previewName" contenteditable="true">YOUR NAME</h1>
+                    <div id="previewRole" contenteditable="true">Your Role / Title</div>
+
+                    <div class="contact-bar">
+                        <div class="contact-item">
+                            <i class="fa-solid fa-phone"></i>
+                            <span id="previewPhone" contenteditable="true">+91 0000000000</span>
+                        </div>
+                        <span class="contact-sep">|</span>
+                        <div class="contact-item">
+                            <i class="fa-solid fa-envelope"></i>
+                            <span id="previewEmail" contenteditable="true">your.email@example.com</span>
+                        </div>
+                        <span class="contact-sep">|</span>
+                        <div class="contact-item">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <span id="previewLocation" contenteditable="true">Mumbai, India</span>
+                        </div>
+                    </div>
+                    <div class="contact-bar" style="margin-top: 4px;">
+                        <div class="contact-item">
+                            <i class="fa-brands fa-linkedin"></i>
+                            <span id="previewLinkedin" contenteditable="true">linkedin.com/in/rahulsharma</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <!-- PROFESSIONAL SUMMARY -->
+                <div class="section-block">
+                    <h3 class="section-title" contenteditable="true">PROFESSIONAL SUMMARY</h3>
+                    <div class="section-divider"></div>
+                    <p id="previewSummary" class="section-content" contenteditable="true">
+                        Motivated and dedicated fresher seeking an opportunity to work in a challenging environment
+                        where I can utilise my skills and grow professionally while contributing to the success of the
+                        organization.
+                    </p>
+                </div>
+
+                <!-- EDUCATION -->
+                <div class="section-block">
+                    <h3 class="section-title" contenteditable="true">EDUCATION</h3>
+                    <div class="section-divider"></div>
+                    <div id="previewEducation" class="section-content">
+                        <div class="education-item">
+                            <div class="edu-degree" contenteditable="true">Bachelor of Computer Applications (BCA)</div>
+                            <div class="edu-inst" contenteditable="true">University of Mumbai, Mumbai</div>
+                            <div class="edu-meta" contenteditable="true">2020 – 2023 &nbsp;|&nbsp; CGPA: 8.2</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SKILLS -->
+                <div class="section-block">
+                    <h3 class="section-title" contenteditable="true">SKILLS</h3>
+                    <div class="section-divider"></div>
+                    <p id="previewSkills" class="section-content" contenteditable="true">
+                        C, C++, Java, HTML, CSS, JavaScript, MS Office, SQL
+                    </p>
+                </div>
+
+                <!-- PROJECTS -->
+                <div class="section-block">
+                    <h3 class="section-title" contenteditable="true">PROJECTS</h3>
+                    <div class="section-divider"></div>
+                    <div id="previewProjects" class="section-content">
+                        <div class="project-item">
+                            <div class="project-title" contenteditable="true">Student Management System</div>
+                            <div class="project-desc" contenteditable="true">Developed a web application using PHP and
+                                MySQL to manage student records.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CERTIFICATIONS -->
+                <div class="section-block">
+                    <h3 class="section-title" contenteditable="true">CERTIFICATIONS</h3>
+                    <div class="section-divider"></div>
+                    <ul id="previewCerts" class="bullet-list">
+                        <li contenteditable="true">Python for Everybody – Coursera</li>
+                        <li contenteditable="true">Web Development – Udemy</li>
+                    </ul>
+                </div>
+
+                <!-- ACHIEVEMENTS -->
+                <div class="section-block">
+                    <h3 class="section-title" contenteditable="true">ACHIEVEMENTS</h3>
+                    <div class="section-divider"></div>
+                    <ul id="previewAchievements" class="bullet-list">
+                        <li contenteditable="true">Secured 1st position in College Coding Competition 2023</li>
+                    </ul>
+                </div>
+
+                <!-- LANGUAGES -->
+                <div class="section-block">
+                    <h3 class="section-title" contenteditable="true">LANGUAGES</h3>
+                    <div class="section-divider"></div>
+                    <p id="previewLanguages" class="section-content" contenteditable="true">
+                        English, Hindi, Marathi
+                    </p>
+                </div>
+
+                <!-- REFERENCES -->
+                <div class="section-block">
+                    <h3 class="section-title" contenteditable="true">REFERENCES</h3>
+                    <div class="section-divider"></div>
+                    <p id="previewReferences" class="section-content" contenteditable="true">
+                        Available upon request.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SCRIPT LOGIC -->
+    <script>
+        let currentStep = 1;
+        const totalSteps = 7;
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                currentStep++;
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                updateStepper();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                currentStep--;
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                updateStepper();
+            }
+        }
+
+        function updateStepper() {
+            document.querySelectorAll('.step-node').forEach((node, idx) => {
+                if (idx + 1 <= currentStep) {
+                    node.classList.add('active');
+                } else {
+                    node.classList.remove('active');
+                }
+            });
+        }
+
+        /* CUSTOMIZER TOOLBAR LOGIC */
+        function changeHeaderColor(color, swatchElem) {
+            document.documentElement.style.setProperty('--header-blue', color);
+            document.documentElement.style.setProperty('--theme-color', color);
+            document.querySelectorAll('.color-swatch').forEach(swatch => swatch.classList.remove('active'));
+            if (swatchElem) swatchElem.classList.add('active');
+        }
+
+        function changeResumeFont(fontFamily) {
+            document.getElementById('resumeCanvas').style.fontFamily = fontFamily;
+        }
+
+        /* AI BUTTON ENHANCEMENT HANDLERS */
+        // 1. REAL AI SUMMARY GENERATOR WITH LOADING SPINNER
+        // REAL AI SUMMARY GENERATOR WITH LOADING SPINNER
+        async function enhanceSummaryAI(btn) {
+            const summaryInput = document.getElementById("summaryInput");
+            const userVal = summaryInput.value.trim();
+            if (!userVal) {
+                alert("Please enter some keywords or notes into the summary box first!");
+                summaryInput.focus();
+                return;
+            }
+
+            const origText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+
+            const host = window.location.hostname || "127.0.0.1";
+            try {
+                const res = await fetch(getResumeApiUrl('generate-summary'), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_input: userVal,
+                        job_title: (typeof person !== 'undefined' && person.role) ? person.role : "Software Engineer"
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const resultText = data.summary || data.text || "";
+                    if (resultText) {
+                        summaryInput.value = resultText;
+
+                        // Dispatch 'input' event to trigger bindInput and update the preview instantly
+                        summaryInput.dispatchEvent(new Event('input'));
+                    }
+                } else {
+                    alert("Failed to generate summary from backend server.");
+                }
+            } catch (err) {
+                alert("API Connection Error: Ensure FastAPI server is running on ${getResumeApiUrl('')}");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origText;
+            }
+        }
+
+        // REAL AI SKILLS GENERATOR WITH CHIPS CREATION
+        async function generateSkillsAI(btn) {
+            const skillsInput = document.getElementById("skillsInput");
+            const wrap = document.getElementById("aiSuggestionsWrapper");
+            const chipsContainer = document.getElementById("suggestedSkillChips");
+
+            const userVal = skillsInput.value.trim();
+            const origText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating...`;
+
+            const host = window.location.hostname || "127.0.0.1";
+            try {
+                const res = await fetch(getResumeApiUrl('generate-section'), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_input: userVal || "Core technical and professional skills for fresher",
+                        section_type: "skills",
+                        job_title: (typeof person !== 'undefined' && person.role) ? person.role : "Software Engineer"
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    let rawSkills = data.skills || data.text || "";
+                    let skillList = Array.isArray(rawSkills)
+                        ? rawSkills
+                        : rawSkills.split(",").map(s => s.replace(/^[-•*#\d.\s]+/, "").trim()).filter(Boolean);
+
+                    chipsContainer.innerHTML = "";
+                    skillList.forEach(skill => {
+                        const chip = document.createElement("button");
+                        chip.type = "button";
+                        chip.className = "ai-suggestion-chip";
+                        chip.innerHTML = `<i class="fa-solid fa-plus" style="font-size: 9px;"></i> ${skill}`;
+
+                        // Clicking chip automatically appends it into the skills input box
+                        chip.onclick = () => {
+                            let current = skillsInput.value.trim();
+                            skillsInput.value = current ? `${current}, ${skill}` : skill;
+
+                            // Dispatch 'input' event to trigger bindInput and update the preview instantly
+                            skillsInput.dispatchEvent(new Event('input'));
+
+                            chip.remove();
+                            if (chipsContainer.children.length === 0 && wrap) {
+                                wrap.style.display = "none";
+                            }
+                        };
+                        chipsContainer.appendChild(chip);
+                    });
+
+                    if (wrap) wrap.style.display = "block";
+                } else {
+                    alert("Failed to generate skills from backend server.");
+                }
+            } catch (err) {
+                alert("API Connection Error: Ensure FastAPI server is running on ${getResumeApiUrl('')}");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origText;
+            }
+        }
+        /* LIVE BINDING INPUTS */
+        function bindInput(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            if (input && preview) {
+                input.addEventListener("input", () => {
+                    preview.innerText = input.value;
+                });
+            }
+        }
+
+        bindInput("nameInput", "previewName");
+        bindInput("roleInput", "previewRole");
+        bindInput("phoneInput", "previewPhone");
+        bindInput("emailInput", "previewEmail");
+        bindInput("locationInput", "previewLocation");
+        bindInput("linkedinInput", "previewLinkedin");
+        bindInput("summaryInput", "previewSummary");
+        bindInput("skillsInput", "previewSkills");
+        bindInput("langInput", "previewLanguages");
+        bindInput("refInput", "previewReferences");
+
+        // Dynamic Bullet List Generator for Textareas
+        function bindBulletList(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(previewId);
+            if (input && list) {
+                input.addEventListener("input", function () {
+                    const lines = this.value.split("\n");
+                    list.innerHTML = "";
+                    lines.forEach(line => {
+                        if (line.trim() !== "") {
+                            const li = document.createElement("li");
+                            li.textContent = line.replace(/^[•\-\*]\s*/, '').trim();
+                            li.setAttribute("contenteditable", "true");
+                            list.appendChild(li);
+                        }
+                    });
+                });
+            }
+        }
+
+        bindBulletList("certInput", "previewCerts");
+        bindBulletList("achieveInput", "previewAchievements");
+
+        /* DYNAMIC EDUCATION & PROJECTS ENTRIES WITH SYNC */
+        function addEducationInput() {
+            const container = document.getElementById('eduFormContainer');
+            const card = document.createElement('div');
+            card.className = 'card-box edu-entry';
+            card.innerHTML = `
+                <button type="button" class="remove-card-btn" onclick="removeCard(this, renderEducation)"><i class="fa-solid fa-xmark"></i></button>
+                <input type="text" class="edu-degree-input" placeholder="Degree Name" style="margin-bottom:6px;">
+                <input type="text" class="edu-inst-input" placeholder="University / College" style="margin-bottom:6px;">
+                <input type="text" class="edu-meta-input" placeholder="Years & CGPA/Marks">
+            `;
+            container.appendChild(card);
+            bindEduEvents();
+        }
+
+        function bindEduEvents() {
+            document.querySelectorAll(".edu-entry").forEach(entry => {
+                entry.querySelectorAll("input").forEach(input => {
+                    input.removeEventListener("input", renderEducation);
+                    input.addEventListener("input", renderEducation);
+                });
+            });
+            renderEducation();
+        }
+
+        function renderEducation() {
+            const container = document.getElementById("previewEducation");
+            container.innerHTML = "";
+            document.querySelectorAll(".edu-entry").forEach(entry => {
+                const degree = entry.querySelector(".edu-degree-input").value.trim();
+                const inst = entry.querySelector(".edu-inst-input").value.trim();
+                const meta = entry.querySelector(".edu-meta-input").value.trim();
+
+                if (degree || inst || meta) {
+                    const item = document.createElement('div');
+                    item.className = 'education-item';
+                    item.innerHTML = `
+                        <div class="edu-degree" contenteditable="true">${degree || ''}</div>
+                        <div class="edu-inst" contenteditable="true">${inst || ''}</div>
+                        <div class="edu-meta" contenteditable="true">${meta || ''}</div>
+                    `;
+                    container.appendChild(item);
+                }
+            });
+        }
+
+        function addProjectInput() {
+            const container = document.getElementById('projectFormContainer');
+            const card = document.createElement('div');
+            card.className = 'card-box project-entry';
+            card.innerHTML = `
+                <button type="button" class="remove-card-btn" onclick="removeCard(this, renderProjects)"><i class="fa-solid fa-xmark"></i></button>
+                <input type="text" class="project-title-input" placeholder="Project Name" style="margin-bottom:6px;">
+                <textarea class="project-desc-input" placeholder="Project Description..."></textarea>
+            `;
+            container.appendChild(card);
+            bindProjectEvents();
+        }
+
+        function bindProjectEvents() {
+            document.querySelectorAll(".project-entry").forEach(entry => {
+                entry.querySelectorAll("input, textarea").forEach(input => {
+                    input.removeEventListener("input", renderProjects);
+                    input.addEventListener("input", renderProjects);
+                });
+            });
+            renderProjects();
+        }
+
+        function renderProjects() {
+            const container = document.getElementById("previewProjects");
+            container.innerHTML = "";
+            document.querySelectorAll(".project-entry").forEach(entry => {
+                const title = entry.querySelector(".project-title-input").value.trim();
+                const desc = entry.querySelector(".project-desc-input").value.trim();
+
+                if (title || desc) {
+                    const item = document.createElement('div');
+                    item.className = 'project-item';
+                    item.innerHTML = `
+                        <div class="project-title" contenteditable="true">${title || 'Project Name'}</div>
+                        <div class="project-desc" contenteditable="true">${desc || 'Project Description...'}</div>
+                    `;
+                    container.appendChild(item);
+                }
+            });
+        }
+
+        function removeCard(btn, renderCallback) {
+            btn.closest('.card-box').remove();
+            if (renderCallback) renderCallback();
+        }
+
+        /* THEME TOGGLE */
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute("data-theme");
+            const newTheme = currentTheme === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+        }
+
+        /* PRINT PREVIEW / DOWNLOAD FUNCTION */
+        function triggerPrintPreview() {
+            window.print();
+        }
+
+        // Initialize dynamic field bindings on load
+        bindEduEvents();
+        bindProjectEvents();
+    </script>
+</body>
+
+</html>

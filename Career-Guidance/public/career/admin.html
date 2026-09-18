@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerCompass AI — Admin Management</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .admin-table th, .admin-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .admin-table th {
+            background: var(--bg-subtle);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo"><i class="fas fa-compass"></i></div>
+                <div class="sidebar-title">CareerCompass</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="profile.html" class="nav-item">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="results.html" class="nav-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Career Analysis</span>
+                </a>
+                <a href="roadmap.html" class="nav-item">
+                    <i class="fas fa-map"></i>
+                    <span>My Roadmap</span>
+                </a>
+                <a href="explorer.html" class="nav-item">
+                    <i class="fas fa-search"></i>
+                    <span>Career Explorer</span>
+                </a>
+                <a href="chat.html" class="nav-item">
+                    <i class="fas fa-comments"></i>
+                    <span>AI Counselor</span>
+                </a>
+                <a href="resume.html" class="nav-item">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Resume Review</span>
+                </a>
+                <a href="admin.html" class="nav-item active">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Admin Panel</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header style="margin-bottom: 2rem;">
+                <div class="badge badge-primary" style="margin-bottom: 0.5rem;">
+                    <i class="fas fa-shield-alt"></i> Administration
+                </div>
+                <h1>System Administration</h1>
+                <p style="color: var(--text-secondary);">Manage reference careers, skills, projects, and curriculum benchmarks.</p>
+            </header>
+
+            <div id="admin-error"></div>
+            <div id="admin-success"></div>
+
+            <div id="access-denied" class="card" style="display: none; text-align: center; padding: 4rem 2rem;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger); margin-bottom: 1rem;"></i>
+                <h2>403 — Forbidden</h2>
+                <p style="color: var(--text-secondary); max-width: 500px; margin: 0.5rem auto 1.5rem;">
+                    Your account does not have administrator privileges. Only system administrators can access this console.
+                </p>
+                <button class="btn btn-primary" onclick="window.location.href='dashboard.html'">Return to Dashboard</button>
+            </div>
+
+            <div id="admin-content" style="display: none;">
+                <!-- Tabs -->
+                <div style="display: flex; border-bottom: 1px solid var(--border); margin-bottom: 2rem;">
+                    <button class="tab-btn active" id="tab-careers" onclick="switchTab('careers')">Careers Catalog</button>
+                    <button class="tab-btn" id="tab-skills" onclick="switchTab('skills')">Skills Directory</button>
+                </div>
+
+                <!-- Careers Section -->
+                <div id="careers-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2>All Careers</h2>
+                        <button class="btn btn-primary" onclick="openCreateCareerModal()">
+                            <i class="fas fa-plus"></i> Add New Career
+                        </button>
+                    </div>
+                    <div class="card" style="overflow-x: auto;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Industry</th>
+                                    <th>Branches</th>
+                                    <th>Avg Salary</th>
+                                    <th>Min CGPA</th>
+                                </tr>
+                            </thead>
+                            <tbody id="careers-table-body">
+                                <tr><td colspan="5" style="text-align: center;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Skills Section -->
+                <div id="skills-section" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2>All Skills</h2>
+                        <button class="btn btn-primary" onclick="openCreateSkillModal()">
+                            <i class="fas fa-plus"></i> Add New Skill
+                        </button>
+                    </div>
+                    <div class="card" style="overflow-x: auto;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Skill Name</th>
+                                    <th>Category</th>
+                                </tr>
+                            </thead>
+                            <tbody id="skills-table-body">
+                                <tr><td colspan="2" style="text-align: center;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Career Modal -->
+    <div id="create-career-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 550px;">
+            <button class="close-modal-btn" onclick="closeModal('create-career-modal')"><i class="fas fa-times"></i></button>
+            <h2 style="margin-bottom: 1.5rem;">Create New Career</h2>
+            <form onsubmit="handleCreateCareer(event)">
+                <div class="form-group">
+                    <label class="form-label">Career Title</label>
+                    <input type="text" id="new-career-title" class="form-control" required placeholder="e.g. Cloud Security Specialist">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Industry</label>
+                    <input type="text" id="new-career-industry" class="form-control" required placeholder="e.g. IT, Manufacturing, Automotive">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Eligible Branches (comma-separated)</label>
+                    <input type="text" id="new-career-branches" class="form-control" required placeholder="e.g. CSE, IT, ECE">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Avg Salary LPA</label>
+                        <input type="number" id="new-career-salary" class="form-control" step="0.1" required placeholder="4.5">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Min CGPA</label>
+                        <input type="number" id="new-career-cgpa" class="form-control" step="0.1" required placeholder="6.5">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea id="new-career-desc" class="form-control" rows="3" required placeholder="Key responsibilities and industry scope..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Career</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Skill Modal -->
+    <div id="create-skill-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 450px;">
+            <button class="close-modal-btn" onclick="closeModal('create-skill-modal')"><i class="fas fa-times"></i></button>
+            <h2 style="margin-bottom: 1.5rem;">Create New Skill</h2>
+            <form onsubmit="handleCreateSkill(event)">
+                <div class="form-group">
+                    <label class="form-label">Skill Name</label>
+                    <input type="text" id="new-skill-name" class="form-control" required placeholder="e.g. Kubernetes">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <input type="text" id="new-skill-category" class="form-control" required placeholder="e.g. DevOps, Core, Web, Tools">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Skill</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/api.js"></script>
+    <script>
+        async function initAdmin() {
+            try {
+                const user = await requireAuth();
+                if (!user) return;
+
+                // Verify admin status from profile
+                const profRes = await api.getProfile();
+                if (!profRes || !profRes.data || !profRes.data.is_admin) {
+                    document.getElementById('admin-content').style.display = 'none';
+                    showError('admin-error', 'Access Denied (403): Administrator privileges required to view this console.');
+                    return;
+                }
+
+                document.getElementById('admin-content').style.display = 'block';
+                loadCareers();
+                loadSkills();
+            } catch (err) {
+                showError('admin-error', err.message);
+            }
+        }
+
+        async function loadCareers() {
+            try {
+                const res = await api.getCareers();
+                const careers = res.data || [];
+                const tbody = document.getElementById('careers-table-body');
+                tbody.innerHTML = careers.map(c => `
+                    <tr>
+                        <td><strong>${escapeHtml(c.title)}</strong></td>
+                        <td><span class="badge badge-primary">${escapeHtml(c.industry || '-')}</span></td>
+                        <td>${escapeHtml((c.branches || []).join(', ') || '-')}</td>
+                        <td>₹ ${escapeHtml(c.avg_salary_lpa || '-')} LPA</td>
+                        <td>${escapeHtml(c.min_cgpa || '-')}</td>
+                    </tr>
+                `).join('') || '<tr><td colspan="5">No careers found.</td></tr>';
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function loadSkills() {
+            try {
+                const res = await api.getSkillsList();
+                const skills = res.data || [];
+                const tbody = document.getElementById('skills-table-body');
+                tbody.innerHTML = skills.map(s => `
+                    <tr>
+                        <td><strong>${escapeHtml(s.name)}</strong></td>
+                        <td><span class="badge badge-primary">${escapeHtml(s.category)}</span></td>
+                    </tr>
+                `).join('') || '<tr><td colspan="2">No skills found.</td></tr>';
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function switchTab(tab) {
+            document.getElementById('tab-careers').classList.toggle('active', tab === 'careers');
+            document.getElementById('tab-skills').classList.toggle('active', tab === 'skills');
+            document.getElementById('careers-section').style.display = tab === 'careers' ? 'block' : 'none';
+            document.getElementById('skills-section').style.display = tab === 'skills' ? 'block' : 'none';
+        }
+
+        function openCreateCareerModal() {
+            document.getElementById('create-career-modal').style.display = 'flex';
+        }
+
+        function openCreateSkillModal() {
+            document.getElementById('create-skill-modal').style.display = 'flex';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        async function handleCreateCareer(e) {
+            e.preventDefault();
+            const branches = document.getElementById('new-career-branches').value.split(',').map(b => b.trim()).filter(Boolean);
+            const payload = {
+                title: document.getElementById('new-career-title').value.trim(),
+                industry: document.getElementById('new-career-industry').value.trim(),
+                branches: branches,
+                avg_salary_lpa: parseFloat(document.getElementById('new-career-salary').value),
+                min_cgpa: parseFloat(document.getElementById('new-career-cgpa').value),
+                description: document.getElementById('new-career-desc').value.trim()
+            };
+
+            try {
+                await api.adminCreateCareer(payload);
+                closeModal('create-career-modal');
+                loadCareers();
+                alert('Career created successfully!');
+            } catch (err) {
+                alert('Error creating career: ' + err.message);
+            }
+        }
+
+        async function handleCreateSkill(e) {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById('new-skill-name').value.trim(),
+                category: document.getElementById('new-skill-category').value.trim()
+            };
+
+            try {
+                await api.adminCreateSkill(payload);
+                closeModal('create-skill-modal');
+                loadSkills();
+                alert('Skill created successfully!');
+            } catch (err) {
+                alert('Error creating skill: ' + err.message);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initAdmin);
+    </script>
+</body>
+</html>

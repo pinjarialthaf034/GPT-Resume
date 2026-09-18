@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerCompass AI — Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="fas fa-compass"></i>
+                </div>
+                <div class="sidebar-title">CareerCompass</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item active">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="profile.html" class="nav-item">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="results.html" class="nav-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Career Analysis</span>
+                </a>
+                <a href="roadmap.html" class="nav-item">
+                    <i class="fas fa-map"></i>
+                    <span>My Roadmap</span>
+                </a>
+                <a href="explorer.html" class="nav-item">
+                    <i class="fas fa-search"></i>
+                    <span>Career Explorer</span>
+                </a>
+                <a href="chat.html" class="nav-item">
+                    <i class="fas fa-comments"></i>
+                    <span>AI Counselor</span>
+                </a>
+                <a href="resume.html" class="nav-item">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Resume Review</span>
+                </a>
+                <a href="admin.html" class="nav-item" id="admin-nav-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Admin Console</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <div>
+                    <h1 id="welcome-message">Welcome to CareerCompass</h1>
+                    <p style="color: var(--text-secondary);">Here's your career progress overview.</p>
+                </div>
+                <div style="display: flex; gap: 0.75rem; align-items: center;">
+                    <button class="btn btn-secondary" onclick="api.signOut()">
+                        <i class="fas fa-sign-out-alt"></i> Sign Out
+                    </button>
+                    <button class="btn btn-primary" onclick="window.location.href='profile.html'">
+                        <i class="fas fa-edit"></i> Update Profile
+                    </button>
+                </div>
+            </header>
+
+            <div id="dashboard-error"></div>
+            <div id="dashboard-content" style="display: none;">
+                
+                <!-- Quick Stats -->
+                <div class="dashboard-grid" style="margin-bottom: 2rem;">
+                    <div class="card stat-card">
+                        <div class="stat-icon primary">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="stat-branch">-</h3>
+                            <p>Your Branch</p>
+                        </div>
+                    </div>
+                    <div class="card stat-card" style="cursor: pointer;" onclick="window.location.href='roadmap.html'">
+                        <div class="stat-icon success">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="stat-progress">0%</h3>
+                            <p>Roadmap Progress</p>
+                        </div>
+                    </div>
+                    <div class="card stat-card" style="cursor: pointer;" onclick="window.location.href='results.html'">
+                        <div class="stat-icon warning">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="stat-match">-</h3>
+                            <p>Top Career Match</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- AI Status Card -->
+                    <div class="card ai-container">
+                        <h2 style="margin-bottom: 1rem;"><i class="fas fa-brain" style="color: var(--primary);"></i> AI Analysis Status</h2>
+                        <div id="ai-status-content">
+                            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                                Generating an AI career analysis will provide you with a personalized roadmap, skill gap analysis, and tailored career recommendations based on your profile.
+                            </p>
+                            <button class="btn btn-accent" onclick="window.location.href='results.html'">
+                                <i class="fas fa-magic"></i> View AI Analysis
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Next Steps Card -->
+                    <div class="card">
+                        <h2 style="margin-bottom: 1rem;"><i class="fas fa-forward" style="color: var(--secondary);"></i> Recommended Next Steps</h2>
+                        <ul id="next-steps-list" style="list-style: none; padding: 0;">
+                            <!-- Populated by JS -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="loading" style="text-align: center; padding: 3rem;">
+                <span class="loader"></span>
+                <p style="margin-top: 1rem; color: var(--text-secondary);">Loading your dashboard...</p>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/api.js"></script>
+    <script>
+        async function initDashboard() {
+            try {
+                const user = await requireAuth();
+                if (!user) return;
+
+                // 1. Get Profile
+                let profileRes = null;
+                try {
+                    profileRes = await api.getProfile();
+                } catch (e) {
+                    if (e.status === 404) {
+                        window.location.href = 'profile.html';
+                        return;
+                    }
+                    throw e;
+                }
+                if (!profileRes.data) {
+                    // No profile created yet
+                    window.location.href = 'profile.html';
+                    return;
+                }
+                const profile = profileRes.data;
+                
+                const firstName = (profile.full_name || 'Student').split(' ')[0];
+                document.getElementById('welcome-message').innerText = `Welcome back, ${firstName}`;
+                document.getElementById('stat-branch').innerText = profile.branch || '-';
+
+                if (profile.is_admin) {
+                    const adminNav = document.getElementById('admin-nav-item');
+                    if (adminNav) adminNav.style.display = 'flex';
+                }
+
+                // 2. Get Roadmap Progress
+                const roadmapRes = await api.getRoadmapProgress();
+                if (roadmapRes.success && roadmapRes.data) {
+                    document.getElementById('stat-progress').innerText = `${roadmapRes.data.percent_complete}%`;
+                }
+
+                // 3. Get Latest AI Analysis (No new generation!)
+                const analysisRes = await api.getLatestAnalysis();
+                
+                const stepsList = document.getElementById('next-steps-list');
+                
+                if (analysisRes.success && analysisRes.data) {
+                    const analysis = analysisRes.data;
+                    
+                    // Top Match
+                    if (analysis.recommended_careers && analysis.recommended_careers.length > 0) {
+                        document.getElementById('stat-match').innerText = analysis.recommended_careers[0].title;
+                    }
+
+                    // Next Steps
+                    if (analysis.next_steps && analysis.next_steps.length > 0) {
+                        stepsList.innerHTML = analysis.next_steps.slice(0, 3).map((step, idx) => `
+                            <li style="padding: 0.75rem 0; border-bottom: ${idx !== 2 ? '1px solid var(--border)' : 'none'}; display: flex; gap: 0.75rem;">
+                                <i class="fas fa-check-circle" style="color: var(--success); margin-top: 3px;"></i>
+                                <span>${escapeHtml(step)}</span>
+                            </li>
+                        `).join('');
+                    } else {
+                        stepsList.innerHTML = '<li style="color: var(--text-tertiary);">No next steps available.</li>';
+                    }
+                    
+                    // AI Status update
+                    document.getElementById('ai-status-content').innerHTML = `
+                        <div class="alert alert-success" style="padding: 0.75rem; margin-bottom: 1rem;">
+                            <i class="fas fa-check"></i> Analysis is up to date
+                        </div>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                            Last updated: ${new Date(analysis.generated_at).toLocaleDateString()}
+                        </p>
+                        <button class="btn btn-accent" onclick="window.location.href='results.html'">
+                            <i class="fas fa-chart-pie"></i> View Results
+                        </button>
+                    `;
+                } else {
+                    // No analysis yet
+                    stepsList.innerHTML = `
+                        <li style="padding: 0.75rem 0; display: flex; gap: 0.75rem;">
+                            <i class="fas fa-exclamation-circle" style="color: var(--warning); margin-top: 3px;"></i>
+                            <span>Complete your profile and run the AI Career Analysis to get personalized next steps.</span>
+                        </li>
+                    `;
+                }
+
+                // Show content
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboard-content').style.display = 'block';
+
+            } catch (err) {
+                document.getElementById('loading').style.display = 'none';
+                showError('dashboard-error', err.message);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>
