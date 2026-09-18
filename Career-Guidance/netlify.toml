@@ -1,5 +1,5 @@
 [build]
-  publish = "public"
+  publish = "Career-Guidance/public"
 
 # Route /api/resume-builder/* to GPT-Resume Render Backend
 # Must be defined BEFORE generic /api/* to avoid being swallowed
@@ -17,14 +17,3 @@
   status = 200
   force = true
   headers = {X-From = "Netlify"}
-
-# Static SPA / subpath rewrites
-[[redirects]]
-  from = "/career/*"
-  to = "/career/:splat"
-  status = 200
-
-[[redirects]]
-  from = "/resume/*"
-  to = "/resume/:splat"
-  status = 200
