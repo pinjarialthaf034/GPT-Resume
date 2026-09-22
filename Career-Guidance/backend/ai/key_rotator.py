@@ -45,6 +45,11 @@ def is_quota_or_rate_limit(exc: Exception) -> bool:
     return classify_gemini_error(exc) == "quota_rate_limit"
 
 
+def is_overloaded_or_unavailable(exc: Exception) -> bool:
+    """Checks if failure was specifically server overload, 503 unavailable, or transient server error."""
+    return classify_gemini_error(exc) == "transient_server"
+
+
 class KeySlot:
     """Represents a configured API key slot."""
     def __init__(self, slot_number: int, key: str):

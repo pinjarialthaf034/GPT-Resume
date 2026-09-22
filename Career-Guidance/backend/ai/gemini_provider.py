@@ -28,6 +28,7 @@ from backend.ai.errors import (
 from backend.ai.key_rotator import (
     DEFAULT_COOLDOWN_SECONDS,
     KeyRotationManager,
+    is_overloaded_or_unavailable,
     is_quota_or_rate_limit,
     is_rotatable_error,
 )
@@ -56,6 +57,8 @@ T = TypeVar("T", bound=BaseModel)
 MAX_RETRIES = 3
 BASE_BACKOFF_SECONDS = 2.0
 REQUEST_TIMEOUT_SECONDS = 60
+CAREER_ANALYSIS_TOTAL_BUDGET_SECONDS = 21.0
+CAREER_ANALYSIS_PER_ATTEMPT_TIMEOUT_SECONDS = 12.0
 CHAT_TOTAL_BUDGET_SECONDS = 21.0
 CHAT_PER_ATTEMPT_TIMEOUT_SECONDS = 12.0
 MIN_MEANINGFUL_ATTEMPT_SECONDS = 5.0
@@ -154,9 +157,12 @@ class GeminiProvider:
         prompt: str,
         system_instruction: str,
         json_mode: bool = True,
+        total_budget_seconds: Optional[float] = None,
+        per_attempt_timeout_seconds: Optional[float] = None,
     ) -> str:
         """
         Calls Gemini with automatic API key rotation across configured keys.
+        Supports optional monotonic request deadline and dynamic per-attempt timeouts.
         On transient failures (quota, rate-limit, 503, timeout), immediately tries next key.
         Distinguishes configuration errors (invalid model, invalid key) from transient outages.
         """
@@ -173,27 +179,54 @@ class GeminiProvider:
         except RuntimeError:
             loop = asyncio.get_event_loop()
 
+        deadline = loop.time() + total_budget_seconds if total_budget_seconds else None
+
         for slot in candidate_slots:
+            if deadline is not None:
+                remaining = deadline - loop.time()
+                if remaining <= 0 or remaining < MIN_MEANINGFUL_ATTEMPT_SECONDS:
+                    logger.warning(
+                        f"Remaining budget ({remaining:.1f}s) below minimum meaningful attempt ({MIN_MEANINGFUL_ATTEMPT_SECONDS}s); stopping key rotation."
+                    )
+                    break
+
             # Slot 1 uses self._client directly to preserve mock patches in tests
             client = self._client if slot.slot_number == 1 else self._key_manager.get_client(slot)
 
             for attempt in range(1, MAX_RETRIES + 1):
+                if deadline is not None:
+                    remaining = deadline - loop.time()
+                    if remaining <= 0 or remaining < MIN_MEANINGFUL_ATTEMPT_SECONDS:
+                        logger.warning(
+                            f"Remaining budget ({remaining:.1f}s) on slot {slot.slot_number}, attempt {attempt} "
+                            f"below minimum meaningful attempt ({MIN_MEANINGFUL_ATTEMPT_SECONDS}s); stopping attempts."
+                        )
+                        break
+                    base_timeout = per_attempt_timeout_seconds or REQUEST_TIMEOUT_SECONDS
+                    attempt_timeout = min(base_timeout, max(1.0, remaining - 0.5))
+                else:
+                    attempt_timeout = per_attempt_timeout_seconds or REQUEST_TIMEOUT_SECONDS
+
                 try:
                     logger.info(
                         f"Gemini call attempt using provider key slot {slot.slot_number}/{self._key_manager.total_keys} "
-                        f"(attempt {attempt}/{MAX_RETRIES}, model {self._model_name})"
+                        f"(attempt {attempt}/{MAX_RETRIES}, model {self._model_name}, timeout={attempt_timeout:.1f}s)"
                     )
+
+                    def _generate_call(c, model, p, cfg, timeout_sec):
+                        cfg.http_options = types.HttpOptions(timeout=int(timeout_sec * 1000))
+                        return c.models.generate_content(
+                            model=model,
+                            contents=p,
+                            config=cfg,
+                        )
 
                     response = await asyncio.wait_for(
                         loop.run_in_executor(
                             None,
-                            lambda: client.models.generate_content(
-                                model=self._model_name,
-                                contents=prompt,
-                                config=config,
-                            )
+                            lambda: _generate_call(client, self._model_name, prompt, config, attempt_timeout),
                         ),
-                        timeout=REQUEST_TIMEOUT_SECONDS,
+                        timeout=attempt_timeout,
                     )
 
                     if not response or not response.text:
@@ -237,14 +270,40 @@ class GeminiProvider:
                         self._key_manager.mark_failure(slot, e)
                         break  # Immediately rotate to next key without wasting retries
 
+                    # HTTP 503 / high-demand / temporary overload:
+                    # Immediately rotate to next key slot if another candidate slot is available
+                    if is_overloaded_or_unavailable(e) and len(candidate_slots) > 1:
+                        logger.warning(
+                            f"Gemini request failed: high-demand/503 on key slot {slot.slot_number}; "
+                            "rotating immediately to next configured key."
+                        )
+                        self._key_manager.mark_failure(slot, e)
+                        break
+
                     logger.warning(f"Gemini error on key slot {slot.slot_number} attempt {attempt}: {e}")
                     if attempt < MAX_RETRIES:
                         wait = BASE_BACKOFF_SECONDS * (2 ** (attempt - 1))
-                        await asyncio.sleep(wait)
+                        if deadline is not None:
+                            remaining_after_err = deadline - loop.time()
+                            if remaining_after_err > wait + MIN_MEANINGFUL_ATTEMPT_SECONDS:
+                                await asyncio.sleep(wait)
+                            else:
+                                logger.warning(
+                                    f"Skipping backoff sleep ({wait:.1f}s) as remaining budget ({remaining_after_err:.1f}s) "
+                                    f"leaves less than {MIN_MEANINGFUL_ATTEMPT_SECONDS}s."
+                                )
+                                if remaining_after_err < MIN_MEANINGFUL_ATTEMPT_SECONDS:
+                                    break
+                        else:
+                            await asyncio.sleep(wait)
                     else:
                         self._key_manager.mark_failure(slot, e)
 
-        # All candidate slots failed
+            if deadline is not None and deadline - loop.time() < MIN_MEANINGFUL_ATTEMPT_SECONDS:
+                logger.warning("Remaining budget below threshold after slot attempts; stopping key rotation.")
+                break
+
+        # All candidate slots failed or budget expired
         last_category = classify_gemini_error(last_error) if last_error else "unknown"
         if last_category == "authentication_error":
             raise GeminiConfigError(
@@ -257,7 +316,7 @@ class GeminiProvider:
 
         raise GeminiTransientError(
             f"All configured Gemini API keys ({self._key_manager.total_keys}) exhausted or unavailable: "
-            f"{get_safe_error_summary(last_error) if last_error else 'service unavailable'}"
+            f"{get_safe_error_summary(last_error) if last_error else 'service unavailable or deadline exceeded'}"
         )
 
     # -----------------------------------------------------------------------
@@ -270,11 +329,17 @@ class GeminiProvider:
         career_matches: list,
     ) -> CareerAnalysisAIResponse:
         """
-        Calls Gemini ONCE for the complete career analysis.
+        Calls Gemini ONCE for the complete career analysis within strict budget.
         Returns validated CareerAnalysisAIResponse.
         """
         prompt = build_career_analysis_prompt(profile, career_matches)
-        raw = await self._call_with_retry(prompt, CAREER_ANALYSIS_SYSTEM)
+        raw = await self._call_with_retry(
+            prompt,
+            CAREER_ANALYSIS_SYSTEM,
+            json_mode=True,
+            total_budget_seconds=CAREER_ANALYSIS_TOTAL_BUDGET_SECONDS,
+            per_attempt_timeout_seconds=CAREER_ANALYSIS_PER_ATTEMPT_TIMEOUT_SECONDS,
+        )
         try:
             return _validate_response(raw, CareerAnalysisAIResponse)
         except Exception as e:

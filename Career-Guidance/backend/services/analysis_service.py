@@ -118,6 +118,25 @@ class AnalysisService:
                 f"Gemini career analysis unavailable across configured keys for profile {profile_id}: {e}. "
                 "Engaging transparent rule-based fallback."
             )
+
+            # Preserve existing valid AI analysis if one already exists in DB
+            prev_is_valid_ai = bool(
+                prev_analysis
+                and prev_analysis.get("id")
+                and not prev_analysis.get("is_fallback")
+                and "rule" not in str(prev_analysis.get("model_name", "")).lower()
+            )
+            if prev_is_valid_ai:
+                logger.info(
+                    f"Preserving existing valid AI analysis ({prev_analysis.get('id')}) for profile {profile_id}; "
+                    "not overwriting with fallback in DB."
+                )
+                prev_analysis["is_cached"] = True
+                prev_analysis["is_fallback"] = False
+                prev_analysis["has_selected_career"] = bool(prev_analysis.get("selected_career"))
+                prev_analysis["career_target"] = prev_analysis.get("selected_career")
+                return prev_analysis
+
             fallback_data = self._build_transparent_fallback(
                 profile_id, student_context, careers_with_skills, cache_prompt_version, str(e), prev_selected=prev_selected
             )

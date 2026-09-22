@@ -122,7 +122,7 @@ def build_career_analysis_prompt(student_context: dict, career_catalog: list = N
         )
 
     schema = """{
-  "summary": "string (120-220 words synthesizing this specific student's profile, assessment signals, and top career pathways)",
+  "summary": "string (concise 60-90 words synthesizing this specific student's profile, assessment signals, and top career pathways)",
   "recommended_careers": [
     {
       "career_id": "string (unique hyphenated slug, e.g. 'software-engineer')",
@@ -133,14 +133,14 @@ def build_career_analysis_prompt(student_context: dict, career_catalog: list = N
       "interest_alignment": number (0-100),
       "goal_alignment": number (0-100),
       "academic_compatibility": number (0-100),
-      "reason": "string (2-3 sentences citing specific student skills, assessment answers, and interests)",
-      "matched_skills": ["list of skills student already possesses"],
-      "missing_skills": ["list of concrete skills student must learn"],
-      "career_outlook": "string (high growth / stable / specialized in Indian tech/manufacturing industry)",
-      "next_steps": ["2-3 immediate actionable learning targets"]
+      "reason": "string (1-2 crisp sentences citing specific student skills, assessment answers, and interests)",
+      "matched_skills": ["3-5 skills student already possesses"],
+      "missing_skills": ["3-5 concrete skills student must learn"],
+      "career_outlook": "string (concise outlook in Indian industry)",
+      "next_steps": ["2 immediate actionable learning targets"]
     }
   ],
-  "strengths": ["list of 3-5 verified student strengths derived from their skills, assessment, and resume"],
+  "strengths": ["list of 3-4 verified student strengths derived from their skills, assessment, and resume"],
   "skill_gaps": [
     {
       "skill_name": "string",
@@ -150,27 +150,27 @@ def build_career_analysis_prompt(student_context: dict, career_catalog: list = N
       "learning_resource": "string (specific platform or high quality course)"
     }
   ],
-  "priority_skills": ["ordered list of 4-6 skills the student should learn first"],
+  "priority_skills": ["ordered list of 3-4 skills the student should learn first"],
   "roadmap_steps": [
     {
       "step_number": number,
       "title": "string",
-      "description": "string",
+      "description": "string (crisp 1-2 sentence focus)",
       "duration_weeks": number,
-      "skills_gained": ["skill names"],
-      "resources": ["specific resource names or platforms"]
+      "skills_gained": ["2-3 skill names"],
+      "resources": ["1-2 specific resource names or platforms"]
     }
   ],
   "project_recommendations": [
     {
       "title": "string",
-      "description": "string",
+      "description": "string (crisp 1-2 sentence description)",
       "skills_practiced": ["skill names"],
       "difficulty": "beginner|intermediate|advanced",
       "estimated_hours": number
     }
   ],
-  "next_steps": ["ordered list of 3-5 actionable steps for the upcoming weeks"]
+  "next_steps": ["ordered list of 3 actionable steps for the upcoming weeks"]
 }"""
 
     return f"""Perform an in-depth AI Career Intelligence Analysis for this polytechnic diploma student.
@@ -197,11 +197,12 @@ RESUME INTELLIGENCE:
 
 INSTRUCTIONS:
 1. Synthesize all evidence across branch, skills, interests, assessment choices, and resume.
-2. Recommend 3 to 5 top career paths that best fit this specific student.
-3. Base your reasoning on real evidence from their profile and assessment. Do not provide generic reasons.
+2. Recommend exactly 3 top career paths that best fit this specific student.
+3. Base your reasoning on real evidence from their profile and assessment. Be concise and specific without repetitive filler.
 4. Calculate authentic 5-dimension scores for each career.
-5. Create a personalized learning roadmap with milestones tailored to bridge their actual missing skills.
-6. Return ONLY valid JSON conforming to the schema below.
+5. Create a personalized learning roadmap with 3-4 focused milestones tailored to bridge their actual missing skills.
+6. Provide 2 practical projects and 3-4 prioritized skill gaps.
+7. Return ONLY valid JSON conforming to the schema below.
 
 JSON SCHEMA:
 {schema}"""
