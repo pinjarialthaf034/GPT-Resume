@@ -3,6 +3,7 @@ CareerCompass AI — Career Analysis Service
 Orchestrates: career matching → cache check → Gemini (if needed) → save → return.
 ONE Gemini call per analysis. Caches results by profile_version + prompt_version.
 """
+import asyncio
 import logging
 from typing import Any, Dict, List, Optional
 
@@ -61,8 +62,8 @@ class AnalysisService:
           7. If Gemini fails after all keys rotate, provide real deterministic fallback and persist it
         """
         # Step 1: Assemble full multi-signal student context
-        student_context = build_student_ai_context(
-            self._profile_repo, self._analysis_repo, profile_id
+        student_context = await asyncio.to_thread(
+            build_student_ai_context, self._profile_repo, self._analysis_repo, profile_id
         )
         profile_version = student_context.get("profile_version", 1)
 
@@ -72,8 +73,11 @@ class AnalysisService:
 
         # Step 3: Check cache
         if not force_regenerate:
-            cached = self._analysis_repo.get_valid_cached_analysis(
-                profile_id, profile_version, cache_prompt_version
+            cached = await asyncio.to_thread(
+                self._analysis_repo.get_valid_cached_analysis,
+                profile_id,
+                profile_version,
+                cache_prompt_version,
             )
             if cached:
                 logger.info(f"Returning fingerprint-cached analysis for profile {profile_id}")
@@ -84,10 +88,10 @@ class AnalysisService:
                 return cached
 
         # Step 4: Fetch reference career catalog (for domain guidance, not restriction)
-        careers_with_skills = self._career_repo.get_careers_with_skills() or []
+        careers_with_skills = await asyncio.to_thread(self._career_repo.get_careers_with_skills) or []
 
         # Check previous analysis to preserve valid selected career or clear stale selection
-        prev_analysis = self._analysis_repo.get_latest_analysis(profile_id)
+        prev_analysis = await asyncio.to_thread(self._analysis_repo.get_latest_analysis, profile_id)
         prev_selected = prev_analysis.get("selected_career") if prev_analysis else None
 
         # Step 5: Call Gemini for genuine AI career intelligence with backend key rotation
@@ -120,7 +124,9 @@ class AnalysisService:
 
             # Persist fallback analysis to DB so roadmap.html and roadmap_progress work identically
             try:
-                saved = self._analysis_repo.save_analysis(profile_id, profile_version, fallback_data)
+                saved = await asyncio.to_thread(
+                    self._analysis_repo.save_analysis, profile_id, profile_version, fallback_data
+                )
                 if isinstance(saved, dict) and saved.get("id"):
                     fallback_data["id"] = saved["id"]
                 elif not fallback_data.get("id"):
@@ -153,7 +159,9 @@ class AnalysisService:
             "selected_career": selected_career,
         }
         
-        saved = self._analysis_repo.save_analysis(profile_id, profile_version, save_data)
+        saved = await asyncio.to_thread(
+            self._analysis_repo.save_analysis, profile_id, profile_version, save_data
+        )
         saved["is_cached"] = False
         saved["is_fallback"] = False
         saved["selected_career"] = selected_career
@@ -297,7 +305,7 @@ class AnalysisService:
         clean_title = career_title.strip()
 
         # Step 1: Retrieve latest analysis for this profile
-        analysis = self._analysis_repo.get_latest_analysis(profile_id)
+        analysis = await asyncio.to_thread(self._analysis_repo.get_latest_analysis, profile_id)
         if not analysis:
             raise ValueError("No existing career analysis found. Please generate a career analysis first.")
 
@@ -327,11 +335,11 @@ class AnalysisService:
         career_changed = bool(previous_selected and previous_selected.strip().lower() != canonical_title.lower())
 
         # Step 3: Build complete student context
-        student_context = build_student_ai_context(
-            self._profile_repo, self._analysis_repo, profile_id
+        student_context = await asyncio.to_thread(
+            build_student_ai_context, self._profile_repo, self._analysis_repo, profile_id
         )
 
-        careers_catalog = self._career_repo.get_careers_with_skills() or []
+        careers_catalog = await asyncio.to_thread(self._career_repo.get_careers_with_skills) or []
 
         # Step 4: Generate role-specific roadmap (Gemini if available, fallback otherwise)
         roadmap_bundle = None
@@ -367,7 +375,7 @@ class AnalysisService:
             career_id = selected_career_obj.get("career_id") or selected_career_obj.get("id")
             if career_id:
                 try:
-                    career_details = self._career_repo.get_career_by_id(career_id)
+                    career_details = await asyncio.to_thread(self._career_repo.get_career_by_id, career_id)
                     if career_details and career_details.get("career_projects"):
                         career_projects = [
                             cp["projects"] for cp in career_details["career_projects"] if cp.get("projects")
@@ -383,7 +391,8 @@ class AnalysisService:
             )
 
         # Step 5: Persist the selected career and role-specific roadmap to DB
-        updated = self._analysis_repo.update_analysis_selected_career(
+        updated = await asyncio.to_thread(
+            self._analysis_repo.update_analysis_selected_career,
             analysis_id=analysis_id,
             profile_id=profile_id,
             selected_career=canonical_title,
@@ -397,7 +406,7 @@ class AnalysisService:
                 f"Career target changed from '{previous_selected}' to '{canonical_title}' for profile {profile_id}. "
                 "Resetting roadmap progress."
             )
-            self._analysis_repo.clear_roadmap_progress(analysis_id, profile_id)
+            await asyncio.to_thread(self._analysis_repo.clear_roadmap_progress, analysis_id, profile_id)
 
         updated["is_fallback"] = is_fallback
         updated["selected_career"] = canonical_title

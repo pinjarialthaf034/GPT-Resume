@@ -3,8 +3,10 @@ CareerCompass AI — Chat Service
 Manages chat sessions, persists messages, builds intent-routed context for Gemini,
 and provides robust, deterministic fallbacks tailored to the exact user intent.
 """
+import asyncio
 import logging
 import re
+import time
 from typing import Any, Dict, List, Optional
 
 from backend.ai.gemini_provider import GeminiProvider
@@ -123,52 +125,94 @@ class ChatService:
         """
         Processes a chat message with intent routing:
         1. Classify intent into relevant category
-        2. Get/create session
-        3. Load only relevant student context
+        2. Get/create session (non-blocking)
+        3. Load relevant student context concurrently via asyncio.gather
         4. Call Gemini with intent-routed prompt
-        5. Save user & assistant messages
+        5. Save user & assistant messages (non-blocking)
         6. Return response
         """
+        t_start = time.perf_counter()
+
         # Intent classification
         intent = classify_intent(message)
         logger.info(f"Classified chat intent as '{intent}' for profile {profile_id}")
 
-        # Get or create chat session
-        session = self._chat_repo.get_or_create_session(profile_id, session_id)
+        # Get or create chat session (offloaded to thread)
+        session = await asyncio.to_thread(self._chat_repo.get_or_create_session, profile_id, session_id)
         session_id = session["id"]
 
-        # Load student profile
-        profile = self._profile_repo.get_by_id(profile_id)
+        # Build parallel read tasks based on intent
+        # Baseline profile, skills, interests, and history are fetched concurrently
+        tasks = {
+            "profile": asyncio.to_thread(self._profile_repo.get_by_id, profile_id),
+            "skills": asyncio.to_thread(self._profile_repo.get_skills, profile_id),
+            "interests": asyncio.to_thread(self._profile_repo.get_interests, profile_id),
+            "history": asyncio.to_thread(self._chat_repo.get_messages, session_id, profile_id, 20),
+        }
+
+        # Intent-based auxiliary context loading
+        needs_analysis = intent in (
+            "roadmap", "analysis", "other", "certifications",
+            "interview_prep", "btech_vs_job", "capstone_ideas", "personal_profile"
+        )
+        needs_assessment = intent in (
+            "assessment", "analysis", "other", "certifications",
+            "interview_prep", "btech_vs_job", "capstone_ideas"
+        )
+        needs_resume = intent in ("resume", "other", "interview_prep")
+
+        # For pure general knowledge or current affairs, auxiliary DB queries are completely skipped
+        if intent in ("general_knowledge", "current_affairs"):
+            needs_analysis = False
+            needs_assessment = False
+            needs_resume = False
+
+        if needs_analysis:
+            tasks["latest_analysis"] = asyncio.to_thread(self._analysis_repo.get_latest_analysis, profile_id)
+        if needs_assessment:
+            tasks["assessment_signals"] = asyncio.to_thread(self._profile_repo.get_assessment_answers, profile_id)
+        if needs_resume:
+            tasks["resume_analysis"] = asyncio.to_thread(self._analysis_repo.get_latest_resume_analysis, profile_id)
+
+        # Execute all independent database reads in parallel
+        task_keys = list(tasks.keys())
+        results = await asyncio.gather(*[tasks[k] for k in task_keys])
+        data_map = dict(zip(task_keys, results))
+
+        profile = data_map.get("profile")
         if not profile:
             raise ValueError("Profile not found")
 
-        skills = self._profile_repo.get_skills(profile_id)
+        skills = data_map.get("skills") or []
         profile["skills"] = skills
-        interests = self._profile_repo.get_interests(profile_id)
+        interests = data_map.get("interests") or []
         profile["interests"] = interests
 
-        # Load auxiliary context based on intent
-        latest_analysis = self._analysis_repo.get_latest_analysis(profile_id)
-        assessment_signals = self._profile_repo.get_assessment_answers(profile_id)
-        resume_analysis = self._analysis_repo.get_latest_resume_analysis(profile_id)
+        latest_analysis = data_map.get("latest_analysis")
+        assessment_signals = data_map.get("assessment_signals")
+        resume_analysis = data_map.get("resume_analysis")
 
         skill_gaps = []
         career_goal = profile.get("career_goal", "")
         if latest_analysis:
             skill_gaps = latest_analysis.get("skill_gaps") or []
 
-        # Load conversation history (truncated)
-        history = self._chat_repo.get_messages(session_id, profile_id, limit=20)
+        # Load conversation history
+        history = data_map.get("history") or []
         conversation_history = [
             {"role": msg["role"], "content": msg["content"]}
             for msg in history
         ]
 
-        # Save user message first
-        self._chat_repo.save_message(session_id, "user", message)
+        t_context = time.perf_counter()
+
+        # Save user message first (offloaded to thread)
+        await asyncio.to_thread(self._chat_repo.save_message, session_id, "user", message)
+        t_user_save = time.perf_counter()
 
         # Call Gemini with intent-routed context
         is_fallback = False
+        t_gemini_start = time.perf_counter()
         try:
             response_text = await self._ai.chat(
                 message=message,
@@ -197,9 +241,22 @@ class ChatService:
                 assessment_signals=assessment_signals,
                 intent=intent,
             )
+        t_gemini_end = time.perf_counter()
 
-        # Save assistant response
-        saved_msg = self._chat_repo.save_message(session_id, "assistant", response_text)
+        # Save assistant response (offloaded to thread)
+        saved_msg = await asyncio.to_thread(self._chat_repo.save_message, session_id, "assistant", response_text)
+        t_end = time.perf_counter()
+
+        context_ms = (t_context - t_start) * 1000.0
+        gemini_ms = (t_gemini_end - t_gemini_start) * 1000.0
+        save_ms = ((t_user_save - t_context) + (t_end - t_gemini_end)) * 1000.0
+        total_ms = (t_end - t_start) * 1000.0
+
+        logger.info(
+            f"chat_performance: session_id={session_id} intent={intent} "
+            f"context_ms={context_ms:.1f} gemini_ms={gemini_ms:.1f} "
+            f"save_ms={save_ms:.1f} total_ms={total_ms:.1f} fallback={is_fallback}"
+        )
 
         return {
             "session_id": session_id,

@@ -143,10 +143,32 @@
                 const user = await requireAuth();
                 if (!user) return;
 
-                // 1. Get Profile
+                // Concurrently fetch profile, roadmap progress, and latest analysis
                 let profileRes = null;
+                let roadmapRes = null;
+                let analysisRes = null;
+
                 try {
-                    profileRes = await api.getProfile();
+                    const [pRes, rRes, aRes] = await Promise.all([
+                        api.getProfile().catch(e => {
+                            if (e.status === 404) {
+                                window.location.href = 'profile.html';
+                                return null;
+                            }
+                            throw e;
+                        }),
+                        api.getRoadmapProgress().catch(e => {
+                            console.warn('Roadmap progress fetch error:', e);
+                            return { success: false, data: null };
+                        }),
+                        api.getLatestAnalysis().catch(e => {
+                            console.warn('Latest analysis fetch error:', e);
+                            return { success: false, data: null };
+                        }),
+                    ]);
+                    profileRes = pRes;
+                    roadmapRes = rRes;
+                    analysisRes = aRes;
                 } catch (e) {
                     if (e.status === 404) {
                         window.location.href = 'profile.html';
@@ -154,7 +176,8 @@
                     }
                     throw e;
                 }
-                if (!profileRes.data) {
+
+                if (!profileRes || !profileRes.data) {
                     // No profile created yet
                     window.location.href = 'profile.html';
                     return;
@@ -170,15 +193,12 @@
                     if (adminNav) adminNav.style.display = 'flex';
                 }
 
-                // 2. Get Roadmap Progress
-                const roadmapRes = await api.getRoadmapProgress();
-                if (roadmapRes.success && roadmapRes.data) {
+                // Populate Roadmap Progress
+                if (roadmapRes && roadmapRes.success && roadmapRes.data) {
                     document.getElementById('stat-progress').innerText = `${roadmapRes.data.percent_complete}%`;
                 }
 
-                // 3. Get Latest AI Analysis (No new generation!)
-                const analysisRes = await api.getLatestAnalysis();
-                
+                // Populate Latest AI Analysis (No new generation!)
                 const stepsList = document.getElementById('next-steps-list');
                 
                 if (analysisRes.success && analysisRes.data) {

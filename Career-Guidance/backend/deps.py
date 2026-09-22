@@ -4,8 +4,10 @@ Provides Supabase client and verified Supabase Auth JWT identity resolution.
 Strictly isolates student data by canonical auth.users.id.
 Zero default/demo profile fallback.
 """
+import asyncio
 import logging
 from functools import lru_cache
+from threading import Lock
 from typing import Any, Dict, Optional
 
 from fastapi import Depends, HTTPException, status
@@ -13,6 +15,8 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
 from supabase import Client, create_client
 
+from backend.ai.gemini_provider import GeminiProvider
+from backend.ai.key_rotator import KeyRotationManager
 from backend.config import Settings, get_settings
 
 logger = logging.getLogger(__name__)
@@ -65,6 +69,39 @@ def get_service_supabase(settings: Settings = Depends(get_settings)) -> Client:
 
 
 # ---------------------------------------------------------------------------
+# Shared AI / Key Rotation Dependencies
+# ---------------------------------------------------------------------------
+
+_shared_key_manager: Optional[KeyRotationManager] = None
+_key_manager_lock = Lock()
+
+
+def get_shared_key_rotation_manager(settings: Settings = Depends(get_settings)) -> KeyRotationManager:
+    """
+    Returns the persistent application-level KeyRotationManager instance.
+    Thread-safe and preserves cooldowns/key states across HTTP requests.
+    Automatically refreshes if configured keys change.
+    """
+    global _shared_key_manager
+    keys = tuple(settings.gemini_api_keys)
+    if _shared_key_manager is None or getattr(_shared_key_manager, "_config_keys", None) != keys:
+        with _key_manager_lock:
+            if _shared_key_manager is None or getattr(_shared_key_manager, "_config_keys", None) != keys:
+                mgr = KeyRotationManager(settings.gemini_api_keys)
+                mgr._config_keys = keys
+                _shared_key_manager = mgr
+    return _shared_key_manager
+
+
+def get_gemini_provider(
+    settings: Settings = Depends(get_settings),
+    key_manager: KeyRotationManager = Depends(get_shared_key_rotation_manager),
+) -> GeminiProvider:
+    """Returns GeminiProvider wired to the persistent KeyRotationManager."""
+    return GeminiProvider(settings, key_manager=key_manager)
+
+
+# ---------------------------------------------------------------------------
 # Canonical Authentication & Authorization Dependencies
 # ---------------------------------------------------------------------------
 
@@ -97,7 +134,7 @@ async def get_current_user(
         )
 
     try:
-        auth_response = anon_client.auth.get_user(token)
+        auth_response = await asyncio.to_thread(anon_client.auth.get_user, token)
         if not auth_response or not auth_response.user or not auth_response.user.id:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -129,13 +166,10 @@ async def get_current_user(
 
     if not is_admin:
         try:
-            profile_res = (
-                service_client.table("profiles")
-                .select("is_admin")
-                .eq("id", user_id)
-                .maybe_single()
-                .execute()
-            )
+            def _fetch_admin_flag(client: Client, uid: str):
+                return client.table("profiles").select("is_admin").eq("id", uid).maybe_single().execute()
+
+            profile_res = await asyncio.to_thread(_fetch_admin_flag, service_client, user_id)
             if profile_res and profile_res.data:
                 is_admin = bool(profile_res.data.get("is_admin", False))
         except Exception:

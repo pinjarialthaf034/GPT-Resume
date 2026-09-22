@@ -3,13 +3,14 @@ CareerCompass AI — Analysis API
 Career analysis, roadmap, and progress tracking protected by Supabase Auth JWT.
 Strict user isolation — only authenticated user's data is accessed or generated.
 """
+import asyncio
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from supabase import Client
 
 from backend.ai.errors import GeminiConfigError
 from backend.ai.gemini_provider import GeminiProvider
 from backend.config import get_settings, Settings
-from backend.deps import AuthenticatedUser, get_current_user, get_service_supabase
+from backend.deps import AuthenticatedUser, get_current_user, get_gemini_provider, get_service_supabase
 from backend.limiter import limiter
 from backend.models.career import AnalysisTrigger, CareerSelectionRequest, RoadmapProgressUpdate
 from backend.models.common import APIResponse
@@ -24,8 +25,8 @@ router = APIRouter(prefix="/analysis", tags=["Analysis"])
 def _get_service(
     db: Client = Depends(get_service_supabase),
     settings: Settings = Depends(get_settings),
+    ai: GeminiProvider = Depends(get_gemini_provider),
 ) -> AnalysisService:
-    ai = GeminiProvider(settings)
     return AnalysisService(
         profile_repo=ProfileRepository(db),
         career_repo=CareerRepository(db),
@@ -95,7 +96,7 @@ async def get_latest_analysis(
     service: AnalysisService = Depends(_get_service),
 ):
     """Returns the most recent analysis for the authenticated user without triggering a new one."""
-    result = service.get_latest_analysis(current_user.id)
+    result = await asyncio.to_thread(service.get_latest_analysis, current_user.id)
     if not result:
         return APIResponse(
             success=True,
@@ -111,7 +112,7 @@ async def get_roadmap_progress(
     service: AnalysisService = Depends(_get_service),
 ):
     """Returns roadmap with progress for the authenticated user — persisted, not regenerated."""
-    result = service.get_roadmap_progress(current_user.id)
+    result = await asyncio.to_thread(service.get_roadmap_progress, current_user.id)
     return APIResponse(success=True, data=result)
 
 
@@ -123,14 +124,15 @@ async def update_roadmap_progress(
 ):
     """Marks a roadmap step as complete or incomplete for the authenticated user."""
     try:
-        latest = service.get_latest_analysis(current_user.id)
+        latest = await asyncio.to_thread(service.get_latest_analysis, current_user.id)
         if not latest:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="No analysis found. Run career analysis first.",
             )
         
-        result = service.update_roadmap_progress(
+        result = await asyncio.to_thread(
+            service.update_roadmap_progress,
             latest["id"],
             current_user.id,
             body.step_number,

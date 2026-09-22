@@ -66,11 +66,13 @@ class ChatRepository:
             self._db.table("chat_messages")
             .select("id, role, content, created_at")
             .eq("session_id", session_id)
-            .order("created_at", desc=False)
+            .order("created_at", desc=True)
             .limit(limit)
             .execute()
         )
-        return result.data or []
+        messages = result.data or []
+        messages.reverse()
+        return messages
 
     def save_message(self, session_id: str, role: str, content: str) -> Dict:
         payload = {

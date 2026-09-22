@@ -158,3 +158,16 @@ class KeyRotationManager:
             )
 
         return True
+
+    def get_health_status(self) -> List[Dict[str, Any]]:
+        """Returns safe diagnostic information about slots without exposing keys."""
+        now = time.time()
+        return [
+            {
+                "slot_number": s.slot_number,
+                "is_cooling_down": s.is_cooling_down,
+                "cooldown_remaining_seconds": max(0.0, round(s.cooldown_until - now, 1)),
+                "failure_count": s.failure_count,
+            }
+            for s in self._slots
+        ]

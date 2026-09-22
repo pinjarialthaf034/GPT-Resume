@@ -33,10 +33,17 @@
 
         if (window.supabase && typeof window.supabase.createClient === "function") {
             window._supabaseInstance = window.supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_ANON_KEY);
+            window.supabase = window._supabaseInstance;
             return window._supabaseInstance;
         }
 
         return null;
+    }
+
+    const eagerClient = getSupabaseClient();
+    if (eagerClient) {
+        window.supabase = eagerClient;
+        window._supabaseInstance = eagerClient;
     }
 
     /**

@@ -3,6 +3,7 @@ CareerCompass AI — Chat API
 Real Gemini-powered career chatbot with session persistence protected by Supabase Auth JWT.
 User identity derived exclusively from auth.users.id.
 """
+import asyncio
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -10,7 +11,7 @@ from supabase import Client
 
 from backend.ai.gemini_provider import GeminiProvider
 from backend.config import get_settings, Settings
-from backend.deps import AuthenticatedUser, get_current_user, get_service_supabase
+from backend.deps import AuthenticatedUser, get_current_user, get_gemini_provider, get_service_supabase
 from backend.limiter import limiter
 from backend.models.career import ChatMessageCreate
 from backend.models.common import APIResponse
@@ -25,8 +26,8 @@ router = APIRouter(prefix="/chat", tags=["Chat"])
 def _get_service(
     db: Client = Depends(get_service_supabase),
     settings: Settings = Depends(get_settings),
+    ai: GeminiProvider = Depends(get_gemini_provider),
 ) -> ChatService:
-    ai = GeminiProvider(settings)
     return ChatService(
         profile_repo=ProfileRepository(db),
         analysis_repo=AnalysisRepository(db),
@@ -63,7 +64,7 @@ async def get_history(
     service: ChatService = Depends(_get_service),
 ):
     """Returns conversation history for a session belonging to the authenticated user."""
-    messages = service.get_history(current_user.id, session_id)
+    messages = await asyncio.to_thread(service.get_history, current_user.id, session_id)
     return APIResponse(success=True, data={"session_id": session_id, "messages": messages})
 
 
@@ -73,5 +74,5 @@ async def list_sessions(
     service: ChatService = Depends(_get_service),
 ):
     """Lists all chat sessions belonging to the authenticated user."""
-    sessions = service.list_sessions(current_user.id)
+    sessions = await asyncio.to_thread(service.list_sessions, current_user.id)
     return APIResponse(success=True, data=sessions)

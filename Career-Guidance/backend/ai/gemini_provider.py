@@ -56,6 +56,9 @@ T = TypeVar("T", bound=BaseModel)
 MAX_RETRIES = 3
 BASE_BACKOFF_SECONDS = 2.0
 REQUEST_TIMEOUT_SECONDS = 60
+CHAT_TOTAL_BUDGET_SECONDS = 21.0
+CHAT_PER_ATTEMPT_TIMEOUT_SECONDS = 12.0
+MIN_MEANINGFUL_ATTEMPT_SECONDS = 5.0
 DEFAULT_TEMPERATURE = 0.4
 DEFAULT_TOP_P = 0.95
 DEFAULT_MAX_OUTPUT_TOKENS = 8192
@@ -375,29 +378,61 @@ class GeminiProvider:
         except RuntimeError:
             loop = asyncio.get_event_loop()
 
+        deadline = loop.time() + CHAT_TOTAL_BUDGET_SECONDS
         candidate_slots = self._key_manager.get_candidate_slots()
         last_error: Optional[Exception] = None
 
         for slot in candidate_slots:
+            remaining = deadline - loop.time()
+            if remaining < MIN_MEANINGFUL_ATTEMPT_SECONDS:
+                logger.warning(
+                    f"Chat remaining budget ({remaining:.1f}s) is below minimum meaningful attempt ({MIN_MEANINGFUL_ATTEMPT_SECONDS}s); stopping rotation."
+                )
+                break
+
             client = self._client if slot.slot_number == 1 else self._key_manager.get_client(slot)
 
             for attempt in range(1, MAX_RETRIES + 1):
+                remaining = deadline - loop.time()
+                if remaining < MIN_MEANINGFUL_ATTEMPT_SECONDS:
+                    logger.warning(
+                        f"Chat remaining budget ({remaining:.1f}s) on slot {slot.slot_number}, attempt {attempt} "
+                        f"is below minimum meaningful attempt ({MIN_MEANINGFUL_ATTEMPT_SECONDS}s); triggering fallback."
+                    )
+                    break
+
+                per_attempt_timeout = min(
+                    CHAT_PER_ATTEMPT_TIMEOUT_SECONDS,
+                    max(1.0, remaining - 0.5),
+                )
+
                 try:
                     logger.info(
                         f"Gemini chat attempt using provider key slot {slot.slot_number}/{self._key_manager.total_keys} "
-                        f"(attempt {attempt}/{MAX_RETRIES})"
+                        f"(attempt {attempt}/{MAX_RETRIES}, timeout={per_attempt_timeout:.1f}s, remaining={remaining:.1f}s)"
                     )
-                    chat_session = client.chats.create(
-                        model=self._model_name,
-                        config=config,
-                        history=history_contents,
-                    )
+                    def _send_chat_call(c, model, cfg, hist, msg, timeout_sec):
+                        cfg.http_options = types.HttpOptions(timeout=int(timeout_sec * 1000))
+                        session = c.chats.create(
+                            model=model,
+                            config=cfg,
+                            history=hist,
+                        )
+                        return session.send_message(msg)
+
                     response = await asyncio.wait_for(
                         loop.run_in_executor(
                             None,
-                            lambda: chat_session.send_message(message)
+                            lambda: _send_chat_call(
+                                client,
+                                self._model_name,
+                                config,
+                                history_contents,
+                                message,
+                                per_attempt_timeout,
+                            )
                         ),
-                        timeout=REQUEST_TIMEOUT_SECONDS,
+                        timeout=per_attempt_timeout,
                     )
                     if not response or not response.text:
                         raise ValueError("Gemini returned empty response")
@@ -419,11 +454,28 @@ class GeminiProvider:
                     if is_quota_or_rate_limit(e):
                         logger.warning(f"Slot {slot.slot_number} hit quota/rate-limit in chat; rotating to next slot.")
                         break
-                    if attempt < MAX_RETRIES:
-                        await asyncio.sleep(await asyncio.sleep(BASE_BACKOFF_SECONDS * (2 ** (attempt - 1))) )
-            self._key_manager.mark_failure(slot, last_error)
 
-        logger.error(f"Chat error across all configured keys: {last_error}")
+                    # Check remaining time before backoff sleep
+                    remaining_after_err = deadline - loop.time()
+                    if attempt < MAX_RETRIES:
+                        wait = BASE_BACKOFF_SECONDS * (2 ** (attempt - 1))
+                        # Only sleep if remaining budget leaves enough time for another meaningful attempt
+                        if remaining_after_err > wait + MIN_MEANINGFUL_ATTEMPT_SECONDS:
+                            await asyncio.sleep(wait)
+                        else:
+                            logger.warning(
+                                f"Skipping backoff sleep ({wait:.1f}s) as remaining budget ({remaining_after_err:.1f}s) "
+                                f"leaves less than {MIN_MEANINGFUL_ATTEMPT_SECONDS}s for a retry."
+                            )
+                            if remaining_after_err < MIN_MEANINGFUL_ATTEMPT_SECONDS:
+                                break
+
+            self._key_manager.mark_failure(slot, last_error)
+            if deadline - loop.time() < MIN_MEANINGFUL_ATTEMPT_SECONDS:
+                logger.warning("Chat remaining budget below threshold after slot failure; stopping key rotation.")
+                break
+
+        logger.error(f"Chat error across all configured keys or deadline expired: {last_error}")
         raise RuntimeError(f"AI chat temporarily unavailable across keys: {last_error}")
 
     @property

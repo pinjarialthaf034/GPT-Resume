@@ -9,7 +9,7 @@ from supabase import Client
 
 from backend.ai.gemini_provider import GeminiProvider
 from backend.config import get_settings, Settings
-from backend.deps import AuthenticatedUser, get_current_user, get_service_supabase
+from backend.deps import AuthenticatedUser, get_current_user, get_gemini_provider, get_service_supabase
 from backend.limiter import limiter
 from backend.models.common import APIResponse
 from backend.repositories.analysis_repo import AnalysisRepository
@@ -24,8 +24,8 @@ router = APIRouter(prefix="/resume", tags=["Resume"])
 def _get_service(
     db: Client = Depends(get_service_supabase),
     settings: Settings = Depends(get_settings),
+    ai: GeminiProvider = Depends(get_gemini_provider),
 ) -> ResumeService:
-    ai = GeminiProvider(settings)
     return ResumeService(
         profile_repo=ProfileRepository(db),
         analysis_repo=AnalysisRepository(db),
