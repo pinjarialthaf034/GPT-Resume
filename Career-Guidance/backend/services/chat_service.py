@@ -9,6 +9,7 @@ import re
 import time
 from typing import Any, Dict, List, Optional
 
+from backend.ai.errors import classify_gemini_error, get_safe_error_summary
 from backend.ai.gemini_provider import GeminiProvider
 from backend.repositories.analysis_repo import AnalysisRepository
 from backend.repositories.chat_repo import ChatRepository
@@ -226,8 +227,11 @@ class ChatService:
                 intent=intent,
             )
         except Exception as e:
+            category = classify_gemini_error(e)
+            safe_summary = get_safe_error_summary(e)
             logger.warning(
-                f"Chat AI service unavailable for session {session_id} ({e}). "
+                f"Chat AI service unavailable for session {session_id} "
+                f"(category={category}, exception={type(e).__name__}, error={safe_summary}). "
                 f"Engaging deterministic counselor fallback for intent '{intent}'."
             )
             is_fallback = True

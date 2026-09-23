@@ -59,9 +59,10 @@ BASE_BACKOFF_SECONDS = 2.0
 REQUEST_TIMEOUT_SECONDS = 60
 CAREER_ANALYSIS_TOTAL_BUDGET_SECONDS = 21.0
 CAREER_ANALYSIS_PER_ATTEMPT_TIMEOUT_SECONDS = 12.0
-CHAT_TOTAL_BUDGET_SECONDS = 21.0
-CHAT_PER_ATTEMPT_TIMEOUT_SECONDS = 12.0
-MIN_MEANINGFUL_ATTEMPT_SECONDS = 5.0
+CHAT_TOTAL_BUDGET_SECONDS = 24.0
+CHAT_PER_ATTEMPT_TIMEOUT_SECONDS = 14.0
+MIN_ALLOWED_DEADLINE_SECONDS = 10.0
+MIN_MEANINGFUL_ATTEMPT_SECONDS = 10.0
 DEFAULT_TEMPERATURE = 0.4
 DEFAULT_TOP_P = 0.95
 DEFAULT_MAX_OUTPUT_TOKENS = 8192
@@ -203,9 +204,15 @@ class GeminiProvider:
                         )
                         break
                     base_timeout = per_attempt_timeout_seconds or REQUEST_TIMEOUT_SECONDS
-                    attempt_timeout = min(base_timeout, max(1.0, remaining - 0.5))
+                    attempt_timeout = max(
+                        MIN_ALLOWED_DEADLINE_SECONDS,
+                        min(base_timeout, max(1.0, remaining - 0.5)),
+                    )
                 else:
-                    attempt_timeout = per_attempt_timeout_seconds or REQUEST_TIMEOUT_SECONDS
+                    attempt_timeout = max(
+                        MIN_ALLOWED_DEADLINE_SECONDS,
+                        per_attempt_timeout_seconds or REQUEST_TIMEOUT_SECONDS,
+                    )
 
                 try:
                     logger.info(
@@ -214,7 +221,8 @@ class GeminiProvider:
                     )
 
                     def _generate_call(c, model, p, cfg, timeout_sec):
-                        cfg.http_options = types.HttpOptions(timeout=int(timeout_sec * 1000))
+                        safe_timeout_sec = max(MIN_ALLOWED_DEADLINE_SECONDS, float(timeout_sec))
+                        cfg.http_options = types.HttpOptions(timeout=int(safe_timeout_sec * 1000))
                         return c.models.generate_content(
                             model=model,
                             contents=p,
@@ -449,9 +457,10 @@ class GeminiProvider:
 
         for slot in candidate_slots:
             remaining = deadline - loop.time()
-            if remaining < MIN_MEANINGFUL_ATTEMPT_SECONDS:
+            if remaining < MIN_ALLOWED_DEADLINE_SECONDS:
                 logger.warning(
-                    f"Chat remaining budget ({remaining:.1f}s) is below minimum meaningful attempt ({MIN_MEANINGFUL_ATTEMPT_SECONDS}s); stopping rotation."
+                    f"Chat remaining budget ({remaining:.1f}s) is below minimum allowed deadline "
+                    f"({MIN_ALLOWED_DEADLINE_SECONDS}s); stopping rotation."
                 )
                 break
 
@@ -459,25 +468,27 @@ class GeminiProvider:
 
             for attempt in range(1, MAX_RETRIES + 1):
                 remaining = deadline - loop.time()
-                if remaining < MIN_MEANINGFUL_ATTEMPT_SECONDS:
+                if remaining < MIN_ALLOWED_DEADLINE_SECONDS:
                     logger.warning(
                         f"Chat remaining budget ({remaining:.1f}s) on slot {slot.slot_number}, attempt {attempt} "
-                        f"is below minimum meaningful attempt ({MIN_MEANINGFUL_ATTEMPT_SECONDS}s); triggering fallback."
+                        f"is below minimum allowed deadline ({MIN_ALLOWED_DEADLINE_SECONDS}s); stopping attempts."
                     )
                     break
 
-                per_attempt_timeout = min(
-                    CHAT_PER_ATTEMPT_TIMEOUT_SECONDS,
-                    max(1.0, remaining - 0.5),
+                per_attempt_timeout = max(
+                    MIN_ALLOWED_DEADLINE_SECONDS,
+                    min(CHAT_PER_ATTEMPT_TIMEOUT_SECONDS, max(1.0, remaining - 0.5)),
                 )
 
                 try:
                     logger.info(
                         f"Gemini chat attempt using provider key slot {slot.slot_number}/{self._key_manager.total_keys} "
-                        f"(attempt {attempt}/{MAX_RETRIES}, timeout={per_attempt_timeout:.1f}s, remaining={remaining:.1f}s)"
+                        f"(attempt {attempt}/{MAX_RETRIES}, model={self._model_name}, timeout={per_attempt_timeout:.1f}s, remaining={remaining:.1f}s)"
                     )
+
                     def _send_chat_call(c, model, cfg, hist, msg, timeout_sec):
-                        cfg.http_options = types.HttpOptions(timeout=int(timeout_sec * 1000))
+                        safe_timeout_sec = max(MIN_ALLOWED_DEADLINE_SECONDS, float(timeout_sec))
+                        cfg.http_options = types.HttpOptions(timeout=int(safe_timeout_sec * 1000))
                         session = c.chats.create(
                             model=model,
                             config=cfg,
@@ -502,46 +513,69 @@ class GeminiProvider:
                     if not response or not response.text:
                         raise ValueError("Gemini returned empty response")
                     self._key_manager.mark_success(slot)
+                    logger.info(
+                        f"Gemini chat call succeeded on slot {slot.slot_number} (model={self._model_name})"
+                    )
                     return _clean_chat_response(response.text)
                 except Exception as e:
                     last_error = e
                     category = classify_gemini_error(e)
+                    error_summary = get_safe_error_summary(e)
                     logger.warning(
                         f"Gemini chat failed on slot {slot.slot_number}, attempt {attempt}/{MAX_RETRIES}: "
-                        f"{category} ({e})"
+                        f"category={category}, exception={type(e).__name__}, error={error_summary}"
                     )
                     if category == "model_unavailable":
                         raise GeminiConfigError(
                             f"Configured Gemini model '{self._model_name}' is not found or unsupported."
                         )
                     if not is_rotatable_error(e):
+                        logger.error(
+                            f"Non-rotatable error encountered during Gemini chat on slot {slot.slot_number}: "
+                            f"{error_summary}"
+                        )
                         raise
+
                     if is_quota_or_rate_limit(e):
-                        logger.warning(f"Slot {slot.slot_number} hit quota/rate-limit in chat; rotating to next slot.")
+                        logger.warning(
+                            f"Slot {slot.slot_number} hit quota/rate-limit in chat; "
+                            "marking slot failure and rotating immediately to next key slot."
+                        )
+                        self._key_manager.mark_failure(slot, e)
                         break
 
                     # Check remaining time before backoff sleep
                     remaining_after_err = deadline - loop.time()
                     if attempt < MAX_RETRIES:
                         wait = BASE_BACKOFF_SECONDS * (2 ** (attempt - 1))
-                        # Only sleep if remaining budget leaves enough time for another meaningful attempt
-                        if remaining_after_err > wait + MIN_MEANINGFUL_ATTEMPT_SECONDS:
+                        # Only sleep if remaining budget leaves enough time for another valid attempt (>= 10.0s)
+                        if remaining_after_err > wait + MIN_ALLOWED_DEADLINE_SECONDS:
                             await asyncio.sleep(wait)
                         else:
                             logger.warning(
                                 f"Skipping backoff sleep ({wait:.1f}s) as remaining budget ({remaining_after_err:.1f}s) "
-                                f"leaves less than {MIN_MEANINGFUL_ATTEMPT_SECONDS}s for a retry."
+                                f"leaves less than {MIN_ALLOWED_DEADLINE_SECONDS}s for another attempt on slot {slot.slot_number}."
                             )
-                            if remaining_after_err < MIN_MEANINGFUL_ATTEMPT_SECONDS:
+                            # If budget is tight on 503, rotate to next candidate slot if available
+                            if len(candidate_slots) > 1 and is_overloaded_or_unavailable(e):
+                                logger.warning(
+                                    f"Slot {slot.slot_number} 503 retry budget tight; rotating to next candidate key."
+                                )
+                                self._key_manager.mark_failure(slot, e)
                                 break
+                            if remaining_after_err < MIN_ALLOWED_DEADLINE_SECONDS:
+                                break
+                    else:
+                        self._key_manager.mark_failure(slot, e)
 
             self._key_manager.mark_failure(slot, last_error)
-            if deadline - loop.time() < MIN_MEANINGFUL_ATTEMPT_SECONDS:
+            if deadline - loop.time() < MIN_ALLOWED_DEADLINE_SECONDS:
                 logger.warning("Chat remaining budget below threshold after slot failure; stopping key rotation.")
                 break
 
-        logger.error(f"Chat error across all configured keys or deadline expired: {last_error}")
-        raise RuntimeError(f"AI chat temporarily unavailable across keys: {last_error}")
+        safe_last_err = get_safe_error_summary(last_error) if last_error else "service unavailable or deadline exceeded"
+        logger.error(f"Chat error across all configured keys or deadline expired: {safe_last_err}")
+        raise RuntimeError(f"AI chat temporarily unavailable across keys: {safe_last_err}")
 
     @property
     def career_analysis_prompt_version(self) -> str:

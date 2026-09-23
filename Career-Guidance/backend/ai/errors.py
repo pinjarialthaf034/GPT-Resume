@@ -82,6 +82,8 @@ def classify_gemini_error(exc: Exception) -> str:
 
     # Check status codes if present on exception object
     status_code = getattr(exc, "status_code", None) or getattr(exc, "code", None)
+    if status_code == 400:
+        return "programming_error"
     if status_code == 404:
         return "model_unavailable"
     if status_code in (401, 403):
@@ -90,6 +92,10 @@ def classify_gemini_error(exc: Exception) -> str:
         return "quota_rate_limit"
     if status_code in (500, 502, 503, 504):
         return "transient_server"
+
+    # Check string patterns for HTTP 400 / invalid arguments (client/request configuration errors)
+    if any(p in err_str for p in ("invalid_argument", "invalid argument", "bad request", "bad_request")):
+        return "programming_error"
 
     # Check string patterns for model not found / deprecated
     if "not found" in err_str or "not_found" in err_str or "404" in err_str:
@@ -140,11 +146,14 @@ def classify_gemini_error(exc: Exception) -> str:
     if any(p in err_str for p in server_patterns):
         return "transient_server"
 
-    # Check string patterns for network / timeout
+    # Check string patterns for network / timeout (specific to actual timeouts, not deadline configuration errors)
     timeout_patterns = (
         "timed out",
         "timeout",
-        "deadline",
+        "deadline exceeded",
+        "deadline_exceeded",
+        "deadline expired",
+        "context deadline exceeded",
         "connection error",
         "connection reset",
         "remote end closed",
